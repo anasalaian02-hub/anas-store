@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الإدارة السحابية | متجر أنس</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #0b0f19;
+      --card-bg: #151d30;
+      --border: #243049;
+      --text: #f8fafc;
+    }
+    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem; }
+    .container { max-width: 1050px; margin: 0 auto; }
+    h1 { color: #38bdf8; font-size: 1.8rem; margin-bottom: 1.5rem; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #e2e8f0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width: 650px) { .grid-2 { grid-template-columns: 1fr; } }
+    
+    label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; }
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0b0f19;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: white;
+      margin-bottom: 12px;
+    }
+    input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+    
+    .btn { padding: 9px 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-edit { background: #f59e0b; color: #000; }
+    .btn-toggle { background: #334155; color: #cbd5e1; }
+    
+    .pkg-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .pkg-row input { margin-bottom: 0; }
+    .btn-del-row { background: #ef4444; color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+    .btn-add-pkg { background: #10b981; color: white; margin-bottom: 15px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: right; padding: 12px; border-bottom: 1px solid var(--border); }
+    th { color: #94a3b8; }
+    .pkg-tag { background: #1e293b; color: #38bdf8; padding: 2px 8px; border-radius: 4px; display: inline-block; margin: 2px; font-size: 0.8rem; }
+    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 5px; }
+    .status-dot.green { background: #10b981; }
+    .status-dot.red { background: #ef4444; }
+  </style>
+</head>
+<body>
+
+  <!-- شاشة الدخول -->
+  <div id="login-box" style="max-width: 400px; margin: 5rem auto; text-align: center;" class="card">
+    <h2>🔒 تسجيل الدخول للإدارة</h2>
+    <input type="password" id="admin-pass" placeholder="أدخل كلمة المرور (الافتراضية: 1234)">
+    <button class="btn btn-primary" onclick="checkAuth()" style="width: 100%;">دخول</button>
+  </div>
+
+  <div class="container" id="admin-panel" style="display: none;">
+    <h1>⚙️ لوحة الإدارة السحابية | Anas Store</h1>
+
+    <!-- 1. إعدادات الهوية والتواصل وأسعار الصرف وشريط التنبيهات -->
+    <div class="card">
+      <h2>💵 هوية المتجر، أسعار الصرف، والتنبيهات</h2>
+      
+      <div class="grid-2">
+        <div>
+          <label>رابط اللوقو (Logo URL):</label>
+          <input type="text" id="setting-logo" placeholder="https://example.com/logo.png">
+        </div>
+        <div>
+          <label>نص شريط التنبيهات العلوي (اتركه فارغاً للإخفاء):</label>
+          <input type="text" id="setting-notice" placeholder="مثال: خصم 10% اليوم على شدات ببجي!">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>رقم الواتساب (بالمفتاح الدولي بدون +):</label>
+          <input type="text" id="setting-phone" placeholder="مثال: 218912345678">
+        </div>
+        <div>
+          <label>معرف التلغرام (Username بدون @):</label>
+          <input type="text" id="setting-telegram" placeholder="مثال: AnasStore">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>سعر 1$ مقابل كروت الرصيد (ليبيانا/مدار):</label>
+          <input type="number" step="0.1" id="setting-rate-card" placeholder="8.5">
+        </div>
+        <div>
+          <label>سعر 1$ مقابل التحويل المصرفي (دينار ليبي):</label>
+          <input type="number" step="0.1" id="setting-rate-bank" placeholder="7.2">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>رقم شحن رصيد ليبيانا (يظهر للزبون):</label>
+          <input type="text" id="setting-libyana" placeholder="091XXXXXXX">
+        </div>
+        <div>
+          <label>رقم شحن رصيد مدار (يظهر للزبون):</label>
+          <input type="text" id="setting-madar" placeholder="092XXXXXXX">
+        </div>
+      </div>
+
+      <div>
+        <label>بيانات الحساب المصرفي (سداد / تداول / كاش / IBAN):</label>
+        <textarea id="setting-bank" rows="2" placeholder="مصرف الجمهورية، رقم الحساب: 123456..."></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>رابط صفحة الفيسبوك (اختياري):</label>
+          <input type="text" id="setting-fb" placeholder="https://facebook.com/yourpage">
+        </div>
+        <div>
+          <label>رابط حساب الانستغرام (اختياري):</label>
+          <input type="text" id="setting-ig" placeholder="https://instagram.com/yourprofile">
+        </div>
+      </div>
+
+      <div class="grid-2" style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 8px;">
+        <div>
+          <label>تغيير رمز الدخول للإدارة (Password):</label>
+          <input type="text" id="setting-new-pass" placeholder="اتركه كما هو إن لم ترغب في التغيير">
+        </div>
+        <div style="display: flex; align-items: flex-end; margin-bottom: 12px;">
+          <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%;">💾 حفظ كل الإعدادات أونلاين</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. إضافة وتعديل خدمة -->
+    <div class="card" id="form-card">
+      <h2 id="form-title">➕ إضافة خدمة مع باقات الأسعار</h2>
+      <input type="hidden" id="edit-service-id">
+
+      <div class="grid-2">
+        <div>
+          <label>عنوان الخدمة (مثال: إعلانات ممولة، تيك توك):</label>
+          <input type="text" id="new-title" placeholder="اكتب اسم الخدمة">
+        </div>
+        <div>
+          <label>التصنيف (للفلترة السريعة):</label>
+          <input type="text" id="new-category" placeholder="إعلانات / شحن ألعاب / اشتراكات / عملات">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>رابط صورة الخدمة (URL):</label>
+          <input type="text" id="new-img" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div>
+          <label>مدة التسليم المتوقعة (مثال: 5 - 15 دقيقة):</label>
+          <input type="text" id="new-delivery" placeholder="مثال: فوري / 10 دقائق">
+        </div>
+      </div>
+
+      <label style="font-weight: bold; color: #38bdf8; margin-top: 10px;">📋 قائمة الباقات والأسعار التابعة للخدمة:</label>
+      <div id="packages-container"></div>
+      <button type="button" class="btn btn-add-pkg" onclick="addPackageRow()">+ إضافة باقة/سعر آخر</button>
+
+      <div>
+        <label>طريقة الشحن والملاحظات (تظهر للزبون بوضوح):</label>
+        <textarea id="new-notes" rows="2" placeholder="اكتب الشروط: المطلوب المعرف فقط، التسليم فوري..."></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-primary" id="save-btn" onclick="saveService()" style="flex-grow: 1;">نشر الخدمة أونلاين ✨</button>
+        <button class="btn btn-toggle" id="cancel-edit-btn" onclick="cancelEdit()" style="display: none;">إلغاء التعديل</button>
+      </div>
+    </div>
+
+    <!-- 3. جدول الخدمات الحالي -->
+    <div class="card">
+      <h2>📋 الخدمات المسجلة ومتابعة حالتها</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>الخدمة والتصنيف</th>
+            <th>الحالة</th>
+            <th>قائمة الباقات</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="services-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmj5tLDjfZg6s1dN3TsSgxHT9gOnM0HrY",
+      authDomain: "anas-store-c4fbb.firebaseapp.com",
+      projectId: "anas-store-c4fbb",
+      storageBucket: "anas-store-c4fbb.firebasestorage.app",
+      messagingSenderId: "759635975781",
+      appId: "1:759635975781:web:d8faa9c84d3ca9d0bd708c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentPass = "1234";
+    let services = [];
+    let settings = {};
+
+    function checkAuth() {
+      db.collection("settings").doc("main").get().then(doc => {
+        if (doc.exists && doc.data().adminPass) {
+          currentPass = doc.data().adminPass;
+        }
+        const pass = document.getElementById('admin-pass').value;
+        if (pass === currentPass) {
+          document.getElementById('login-box').style.display = 'none';
+          document.getElementById('admin-panel').style.display = 'block';
+          initAdmin();
+        } else {
+          alert('كلمة المرور غير صحيحة!');
+        }
+      });
+    }
+
+    function initAdmin() {
+      db.collection("settings").doc("main").onSnapshot(doc => {
+        if (doc.exists) {
+          settings = doc.data();
+          document.getElementById('setting-logo').value = settings.logoUrl || '';
+          document.getElementById('setting-notice').value = settings.noticeText || '';
+          document.getElementById('setting-phone').value = settings.waPhone || '';
+          document.getElementById('setting-telegram').value = settings.tgUser || '';
+          document.getElementById('setting-rate-card').value = settings.rateCard || 8.5;
+          document.getElementById('setting-rate-bank').value = settings.rateBank || 7.2;
+          document.getElementById('setting-libyana').value = settings.phoneLibyana || '';
+          document.getElementById('setting-madar').value = settings.phoneMadar || '';
+          document.getElementById('setting-bank').value = settings.bankDetails || '';
+          document.getElementById('setting-fb').value = settings.fbLink || '';
+          document.getElementById('setting-ig').value = settings.igLink || '';
+          document.getElementById('setting-new-pass').value = settings.adminPass || '1234';
+        }
+      });
+
+      db.collection("services").onSnapshot(snapshot => {
+        services = [];
+        snapshot.forEach(doc => {
+          services.push({ id: doc.id, ...doc.data() });
+        });
+        renderTable();
+      });
+
+      resetForm();
+    }
+
+    function saveSettings() {
+      const newSettings = {
+        logoUrl: document.getElementById('setting-logo').value.trim(),
+        noticeText: document.getElementById('setting-notice').value.trim(),
+        waPhone: document.getElementById('setting-phone').value.trim(),
+        tgUser: document.getElementById('setting-telegram').value.trim(),
+        rateCard: parseFloat(document.getElementById('setting-rate-card').value) || 8.5,
+        rateBank: parseFloat(document.getElementById('setting-rate-bank').value) || 7.2,
+        phoneLibyana: document.getElementById('setting-libyana').value.trim(),
+        phoneMadar: document.getElementById('setting-madar').value.trim(),
+        bankDetails: document.getElementById('setting-bank').value.trim(),
+        fbLink: document.getElementById('setting-fb').value.trim(),
+        igLink: document.getElementById('setting-ig').value.trim(),
+        adminPass: document.getElementById('setting-new-pass').value.trim() || '1234'
+      };
+
+      db.collection("settings").doc("main").set(newSettings, { merge: true }).then(() => {
+        alert('✅ تم حفظ جميع الإعدادات أونلاين بنجاح!');
+      });
+    }
+
+    function addPackageRow(name = '', price = '') {
+      const container = document.getElementById('packages-container');
+      const div = document.createElement('div');
+      div.className = 'pkg-row';
+      div.innerHTML = `
+        <input type="text" placeholder="اسم الباقة (مثال: 100 عملة)" class="pkg-name" value="${name}">
+        <input type="number" step="0.1" placeholder="السعر بالدولار ($)" class="pkg-price" value="${price}" style="max-width: 140px;">
+        <button type="button" class="btn-del-row" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function saveService() {
+      const editId = document.getElementById('edit-service-id').value;
+      const title = document.getElementById('new-title').value.trim();
+      const category = document.getElementById('new-category').value.trim() || 'عام';
+      const img = document.getElementById('new-img').value.trim() || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500';
+      const deliveryTime = document.getElementById('new-delivery').value.trim();
+      const notes = document.getElementById('new-notes').value.trim();
+
+      const pkgNames = document.querySelectorAll('.pkg-name');
+      const pkgPrices = document.querySelectorAll('.pkg-price');
+      let packages = [];
+
+      for (let i = 0; i < pkgNames.length; i++) {
+        const pName = pkgNames[i].value.trim();
+        const pPrice = parseFloat(pkgPrices[i].value);
+        if (pName && !isNaN(pPrice)) {
+          packages.push({ name: pName, priceUsd: pPrice });
+        }
+      }
+
+      if (!title || packages.length === 0) {
+        alert('يرجى كتابة عنوان الخدمة وإضافة باقة وسعر واحد على الأقل!');
+        return;
+      }
+
+      const serviceData = {
+        title,
+        category,
+        img,
+        deliveryTime,
+        notes,
+        packages,
+        status: editId ? (services.find(s => s.id === editId)?.status || 'available') : 'available',
+        updatedAt: Date.now()
+      };
+
+      if (editId) {
+        db.collection("services").doc(editId).update(serviceData).then(() => {
+          alert('✏️ تم تعديل وتحديث الخدمة بنجاح!');
+          resetForm();
+        });
+      } else {
+        serviceData.createdAt = Date.now();
+        db.collection("services").add(serviceData).then(() => {
+          alert('✨ تم نشر الخدمة أونلاين بنجاح!');
+          resetForm();
+        });
+      }
+    }
+
+    function editService(id) {
+      const s = services.find(item => item.id === id);
+      if (!s) return;
+
+      document.getElementById('edit-service-id').value = s.id;
+      document.getElementById('new-title').value = s.title;
+      document.getElementById('new-category').value = s.category || '';
+      document.getElementById('new-img').value = s.img || '';
+      document.getElementById('new-delivery').value = s.deliveryTime || '';
+      document.getElementById('new-notes').value = s.notes || '';
+
+      const pkgContainer = document.getElementById('packages-container');
+      pkgContainer.innerHTML = '';
+      (s.packages || []).forEach(p => {
+        addPackageRow(p.name, p.priceUsd);
+      });
+
+      document.getElementById('form-title').innerText = `✏️ تعديل الخدمة: ${s.title}`;
+      document.getElementById('save-btn').innerText = 'حفظ التعديلات أونلاين 💾';
+      document.getElementById('cancel-edit-btn').style.display = 'block';
+
+      document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      resetForm();
+    }
+
+    function resetForm() {
+      document.getElementById('edit-service-id').value = '';
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-category').value = '';
+      document.getElementById('new-img').value = '';
+      document.getElementById('new-delivery').value = '';
+      document.getElementById('new-notes').value = '';
+      document.getElementById('form-title').innerText = '➕ إضافة خدمة مع باقات الأسعار';
+      document.getElementById('save-btn').innerText = 'نشر الخدمة أونلاين ✨';
+      document.getElementById('cancel-edit-btn').style.display = 'none';
+
+      const pkgContainer = document.getElementById('packages-container');
+      pkgContainer.innerHTML = '';
+      addPackageRow();
+    }
+
+    function toggleServiceStatus(id, currentStatus) {
+      const newStatus = currentStatus === 'available' ? 'unavailable' : 'available';
+      db.collection("services").doc(id).update({ status: newStatus });
+    }
+
+    function deleteService(id) {
+      if (confirm('هل أنت متأكد من حذف هذه الخدمة نهائياً؟')) {
+        db.collection("services").doc(id).delete();
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('services-table-body');
+      tbody.innerHTML = '';
+
+      if (services.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">لا توجد خدمات مضافة بالسيرفر حالياً.</td></tr>';
+        return;
+      }
+
+      services.forEach(s => {
+        const isAvail = s.status !== 'unavailable';
+        let pkgBadges = (s.packages || []).map(p => `<span class="pkg-tag">${p.name}: $${p.priceUsd}</span>`).join(' ');
+        tbody.innerHTML += `
+          <tr>
+            <td>
+              <strong>${s.title}</strong><br>
+              <small style="color:#94a3b8;">${s.category}</small>
+            </td>
+            <td>
+              <span class="status-dot ${isAvail ? 'green' : 'red'}"></span>
+              ${isAvail ? 'متوفرة' : 'متوقفة'}
+            </td>
+            <td>${pkgBadges}</td>
+            <td style="white-space: nowrap;">
+              <button class="btn btn-edit" onclick="editService('${s.id}')">تعديل</button>
+              <button class="btn btn-toggle" onclick="toggleServiceStatus('${s.id}', '${s.status || 'available'}')">
+                ${isAvail ? 'إيقاف' : 'تفعيل'}
+              </button>
+              <button class="btn btn-danger" onclick="deleteService('${s.id}')">حذف</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
