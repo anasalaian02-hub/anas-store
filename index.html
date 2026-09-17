@@ -44,8 +44,6 @@
       align-items: center;
     }
     .brand { display: flex; align-items: center; gap: 14px; }
-    
-    /* تكبير لوقو المتجر ليصبح واضحاً وبارزاً */
     .brand-logo { 
       width: 65px; 
       height: 65px; 
@@ -163,7 +161,6 @@
     
     .service-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
 
-    /* خانة وزر فتح قائمة الأسعار */
     .toggle-prices-btn {
       width: 100%;
       background: #0f172a;
@@ -180,12 +177,8 @@
       margin-bottom: 10px;
       transition: all 0.2s ease;
     }
-    .toggle-prices-btn:hover {
-      background: #1e293b;
-      border-color: #38bdf8;
-    }
+    .toggle-prices-btn:hover { background: #1e293b; border-color: #38bdf8; }
 
-    /* قائمة الأسعار مخفية افتراضياً لمنع الفوضى */
     .packages-collapsible {
       display: none;
       flex-direction: column;
@@ -196,9 +189,7 @@
       border-radius: 10px;
       border: 1px solid var(--border);
     }
-    .packages-collapsible.show {
-      display: flex;
-    }
+    .packages-collapsible.show { display: flex; }
 
     .pkg-chip {
       background: #0b0f19;
@@ -253,7 +244,6 @@
       font-weight: 700;
       font-size: 0.95rem;
       cursor: pointer;
-      transition: opacity 0.2s;
     }
     .order-btn:disabled { background: #475569; cursor: not-allowed; }
 
@@ -266,7 +256,6 @@
       font-size: 0.85rem;
     }
 
-    /* نافذة المودال */
     .modal {
       display: none;
       position: fixed;
@@ -352,7 +341,8 @@
       <h3>اختر طريقة الدفع لعرض الأسعار بها مباشرة:</h3>
       <div class="currency-options">
         <button class="curr-btn active" onclick="setCurrency('usd', this)">💵 بالدولار ($)</button>
-        <button class="curr-btn" onclick="setCurrency('card', this)">📱 رصيد ليبيانا / مدار</button>
+        <button class="curr-btn" onclick="setCurrency('libyana', this)">📶 رصيد ليبيانا</button>
+        <button class="curr-btn" onclick="setCurrency('madar', this)">📡 رصيد مدار</button>
         <button class="curr-btn" onclick="setCurrency('bank', this)">🏦 تحويل مصرفي</button>
       </div>
       <div class="exchange-badge" id="rate-badge">سعر العرض: بالدولار ($)</div>
@@ -374,14 +364,12 @@
     </footer>
   </div>
 
-  <!-- مودال إتمام الطلب -->
   <div class="modal" id="order-modal">
     <div class="modal-content">
       <h3 style="color: #38bdf8; margin-bottom: 10px;">إتمام الطلب 🛍️</h3>
       
       <div id="modal-summary" style="background:#0b0f19; padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.6; border:1px solid var(--border);"></div>
 
-      <!-- خانة الكوبون -->
       <div style="display:flex; gap:6px; margin: 10px 0;">
         <input type="text" id="coupon-input" placeholder="هل لديك كوبون تخفيض؟" style="text-transform:uppercase; flex-grow:1; background:#0b0f19; border:1px solid var(--border); border-radius:8px; padding:8px; color:#fff;">
         <button type="button" onclick="applyCoupon()" style="background:#ec4899; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">تطبيق</button>
@@ -432,8 +420,9 @@
     let settings = {
       waPhone: "218910000000",
       tgUser: "AnasStore",
-      rateCard: 8.5,
       rateBank: 7.2,
+      rateLibyana: 8.5,
+      rateMadar: 8.7,
       bankDetails: "",
       phoneLibyana: "",
       phoneMadar: "",
@@ -451,6 +440,9 @@
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
           settings = doc.data();
+          if (!settings.rateLibyana) settings.rateLibyana = settings.rateCard || 8.5;
+          if (!settings.rateMadar) settings.rateMadar = settings.rateCard || 8.7;
+          
           updateRateBadge();
 
           if (settings.logoUrl) {
@@ -495,7 +487,8 @@
     function updateRateBadge() {
       const badge = document.getElementById('rate-badge');
       if (currentCurrency === 'usd') badge.innerText = `سعر العرض: بالدولار ($)`;
-      else if (currentCurrency === 'card') badge.innerText = `سعر الصرف لرصيد الكروت: 1$ = ${settings.rateCard} د.ل`;
+      else if (currentCurrency === 'libyana') badge.innerText = `سعر الصرف لرصيد ليبيانا: 1$ = ${settings.rateLibyana} د.ل`;
+      else if (currentCurrency === 'madar') badge.innerText = `سعر الصرف لرصيد مدار: 1$ = ${settings.rateMadar} د.ل`;
       else if (currentCurrency === 'bank') badge.innerText = `سعر الصرف للتحويل المصرفي: 1$ = ${settings.rateBank} د.ل`;
     }
 
@@ -506,7 +499,8 @@
       }
 
       if (currentCurrency === 'usd') return { val: finalUsd.toFixed(2), symbol: '$ دولار' };
-      if (currentCurrency === 'card') return { val: (finalUsd * settings.rateCard).toFixed(1), symbol: 'د.ل (رصيد)' };
+      if (currentCurrency === 'libyana') return { val: (finalUsd * settings.rateLibyana).toFixed(1), symbol: 'د.ل (ليبيانا)' };
+      if (currentCurrency === 'madar') return { val: (finalUsd * settings.rateMadar).toFixed(1), symbol: 'د.ل (مدار)' };
       return { val: (finalUsd * settings.rateBank).toFixed(1), symbol: 'د.ل (مصرفي)' };
     }
 
@@ -532,7 +526,6 @@
       renderServices();
     }
 
-    // دالة الفتح والإغلاق لقائمة الأسعار
     function togglePricingMenu(serviceId) {
       const box = document.getElementById(`pkg-box-${serviceId}`);
       const arrow = document.getElementById(`arrow-${serviceId}`);
@@ -589,7 +582,7 @@
             const p = formatPrice(pkg.priceUsd);
             const isSel = idx === currentPkgIndex ? 'selected' : '';
             packagesHtml += `
-              <div class="pkg-chip ${isSel}" onclick="${isAvailable ? `selectPkg('${item.id}', ${idx})` : ''}">
+              <div class="pkg-chip ${isSel}" onclick="${isAvailable ? `selectPkg('${item.id}',${idx})` : ''}">
                 <span class="pkg-chip-name">${pkg.name}</span>
                 <span class="pkg-chip-price">${p.val} <small style="font-size:0.75rem;">${p.symbol}</small></span>
               </div>
@@ -614,13 +607,11 @@
               </div>
               <h2 class="service-title">${item.title}</h2>
 
-              <!-- خانة اختيار الباقات عند الضغط فقط -->
               <button type="button" class="toggle-prices-btn" onclick="togglePricingMenu('${item.id}')">
                 <span>📋 اضغط لاختيار المدة أو الباقة (${packagesCount})</span>
                 <span id="arrow-${item.id}">🔻</span>
               </button>
 
-              <!-- حاوية الباقات المطوية -->
               ${packagesHtml}
 
               <div class="price-display-box">
@@ -666,12 +657,17 @@
       let payName = "بالدولار ($)";
       let payBoxContent = "";
 
-      if (currentCurrency === 'card') {
-        payName = "رصيد ليبيانا / مدار";
+      if (currentCurrency === 'libyana') {
+        payName = "رصيد ليبيانا";
         payBoxContent = `
-          <strong>📱 بيانات تحويل الرصيد:</strong><br>
-          ليبيانا: <span class="copy-chip" onclick="copyText('${settings.phoneLibyana}')">${settings.phoneLibyana || 'لم يحدد'}</span><br>
-          مدار: <span class="copy-chip" onclick="copyText('${settings.phoneMadar}')">${settings.phoneMadar || 'لم يحدد'}</span>
+          <strong>📶 بيانات تحويل رصيد ليبيانا:</strong><br>
+          الرقم: <span class="copy-chip" onclick="copyText('${settings.phoneLibyana}')">${settings.phoneLibyana || 'لم يحدد'} (اضغط للنسخ)</span>
+        `;
+      } else if (currentCurrency === 'madar') {
+        payName = "رصيد مدار";
+        payBoxContent = `
+          <strong>📡 بيانات تحويل رصيد مدار:</strong><br>
+          الرقم: <span class="copy-chip" onclick="copyText('${settings.phoneMadar}')">${settings.phoneMadar || 'لم يحدد'} (اضغط للنسخ)</span>
         `;
       } else if (currentCurrency === 'bank') {
         payName = "تحويل مصرفي";
@@ -697,7 +693,7 @@
         <strong>الباقة:</strong> ${selectedPkg.name}<br>
         <strong>طريقة الدفع:</strong> ${payName}<br>
         <strong>القيمة الإجمالية:</strong> <span style="color:#38bdf8; font-weight:bold;">${p.val} ${p.symbol}</span>
-        ${appliedDiscount > 0 ? `<div style="color:#10b981; font-weight:bold;">🎉 تم تطبيق خصم ${appliedDiscount}% (${appliedCouponCode})</div>` : ''}
+        ${appliedDiscount > 0 ? `<div style="color:#10b981; font-weight:bold;">🎉 تم تطبيق خصم ${appliedDiscount}\% (${appliedCouponCode})</div>` : ''}
       `;
       document.getElementById('payment-details-box').innerHTML = payBoxContent;
     }

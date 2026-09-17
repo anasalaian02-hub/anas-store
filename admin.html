@@ -34,7 +34,6 @@
     .header h1 { font-size: 1.25rem; color: #38bdf8; font-weight: 800; }
     .status-badge { background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
 
-    /* تبويبات الهاتف السريعة */
     .tabs {
       display: flex;
       gap: 8px;
@@ -69,7 +68,8 @@
     .card h2 { font-size: 1.1rem; margin-bottom: 14px; color: #e2e8f0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
     
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media(max-width: 650px) { .grid-2 { grid-template-columns: 1fr; } }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    @media(max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
     .form-group { margin-bottom: 12px; }
     label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 5px; }
@@ -85,7 +85,6 @@
     }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 
-    /* رفع الصورة المباشر */
     .file-btn {
       position: relative;
       background: #1e293b;
@@ -113,7 +112,6 @@
       margin-top: 6px;
     }
 
-    /* صفوف الباقات والأسعار */
     .pkg-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
     .btn-del-row { background: var(--danger); color: white; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: bold; }
     .btn-add-pkg { background: #10b981; color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
@@ -133,7 +131,6 @@
     .btn-edit { background: #f59e0b; color: #000; }
     .btn-toggle { background: #334155; color: #cbd5e1; }
 
-    /* كروت الخدمات */
     .service-item {
       background: #0b1120;
       border: 1px solid var(--border);
@@ -152,7 +149,6 @@
 </head>
 <body>
 
-  <!-- تسجيل الدخول -->
   <div id="login-box" style="max-width: 400px; margin: 5rem auto; text-align: center;" class="card">
     <h2 style="border:none;">🔒 تسجيل دخول الإدارة</h2>
     <input type="password" id="admin-pass" placeholder="أدخل كلمة المرور (1234)">
@@ -165,14 +161,13 @@
       <span class="status-badge">مربوط بالسيرفر</span>
     </div>
 
-    <!-- التبويبات -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('services-tab', this)">📦 الخدمات والباقات</button>
       <button class="tab-btn" onclick="switchTab('rates-tab', this)">💵 أسعار الصرف والدفع</button>
       <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات والتخفيضات</button>
     </div>
 
-    <!-- 1. تبويب الخدمات والباقات -->
+    <!-- 1. الخدمات -->
     <div id="services-tab" class="tab-content active">
       <div class="card" id="form-card">
         <h2 id="form-title">➕ إضافة خدمة مع باقات الأسعار</h2>
@@ -204,7 +199,6 @@
           <input type="text" id="new-delivery" placeholder="مثال: فوري / 5 - 15 دقيقة">
         </div>
 
-        <!-- الباقات والأسعار بالدولار -->
         <label style="font-weight: bold; color: #38bdf8; margin-top: 6px;">📋 باقات الخدمة وأسعارها بالدولار ($):</label>
         <div id="packages-container"></div>
         <button type="button" class="btn-add-pkg" onclick="addPackageRow()">+ إضافة باقة/مدة أخرى</button>
@@ -220,26 +214,29 @@
         </div>
       </div>
 
-      <!-- قائمة الخدمات المسجلة في السيرفر -->
       <div class="card">
         <h2>📋 الخدمات الحالية بالمتجر</h2>
         <div id="services-list-container"></div>
       </div>
     </div>
 
-    <!-- 2. تبويب أسعار الصرف وطرق الدفع -->
+    <!-- 2. أسعار الصرف المنفصلة والدفع -->
     <div id="rates-tab" class="tab-content">
       <div class="card">
-        <h2>💵 أسعار الصرف الرسمية (تتحدث فوراً في المتجر)</h2>
+        <h2>💵 أسعار الصرف الرسمية (كل طريقة بسعر منفصل)</h2>
         
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="form-group">
-            <label>سعر 1$ بالتحويل المصرفي (دينار ليبي):</label>
+            <label>سعر 1$ بالتحويل المصرفي (د.ل):</label>
             <input type="number" step="0.1" id="setting-rate-bank" placeholder="7.2">
           </div>
           <div class="form-group">
-            <label>سعر 1$ برصيد ليبيانا / مدار (دينار ليبي):</label>
-            <input type="number" step="0.1" id="setting-rate-card" placeholder="8.5">
+            <label>سعر 1$ برصيد ليبيانا (د.ل):</label>
+            <input type="number" step="0.1" id="setting-rate-libyana" placeholder="8.5">
+          </div>
+          <div class="form-group">
+            <label>سعر 1$ برصيد مدار (د.ل):</label>
+            <input type="number" step="0.1" id="setting-rate-madar" placeholder="8.7">
           </div>
         </div>
 
@@ -247,11 +244,11 @@
 
         <div class="grid-2">
           <div class="form-group">
-            <label>رقم شحن رصيد ليبيانا (يظهر للزبون للتحويل):</label>
+            <label>رقم شحن رصيد ليبيانا (لتحويل الزبون):</label>
             <input type="text" id="setting-libyana" placeholder="091XXXXXXX">
           </div>
           <div class="form-group">
-            <label>رقم شحن رصيد مدار (يظهر للزبون للتحويل):</label>
+            <label>رقم شحن رصيد مدار (لتحويل الزبون):</label>
             <input type="text" id="setting-madar" placeholder="092XXXXXXX">
           </div>
         </div>
@@ -294,7 +291,7 @@
       </div>
     </div>
 
-    <!-- 3. تبويب كوبونات التخفيض -->
+    <!-- 3. الكوبونات -->
     <div id="coupons-tab" class="tab-content">
       <div class="card">
         <h2>🎟️ إضافة كوبون تخفيض</h2>
@@ -360,7 +357,6 @@
     }
 
     function initAdmin() {
-      // إعدادات المتجر
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
           settings = doc.data();
@@ -368,8 +364,9 @@
           document.getElementById('setting-notice').value = settings.noticeText || '';
           document.getElementById('setting-phone').value = settings.waPhone || '';
           document.getElementById('setting-telegram').value = settings.tgUser || '';
-          document.getElementById('setting-rate-card').value = settings.rateCard || 8.5;
           document.getElementById('setting-rate-bank').value = settings.rateBank || 7.2;
+          document.getElementById('setting-rate-libyana').value = settings.rateLibyana || settings.rateCard || 8.5;
+          document.getElementById('setting-rate-madar').value = settings.rateMadar || settings.rateCard || 8.7;
           document.getElementById('setting-libyana').value = settings.phoneLibyana || '';
           document.getElementById('setting-madar').value = settings.phoneMadar || '';
           document.getElementById('setting-bank').value = settings.bankDetails || '';
@@ -377,14 +374,12 @@
         }
       });
 
-      // قائمة الخدمات
       db.collection("services").onSnapshot(snapshot => {
         services = [];
         snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
         renderServicesList();
       });
 
-      // قائمة الكوبونات
       db.collection("coupons").onSnapshot(snapshot => {
         coupons = [];
         snapshot.forEach(doc => coupons.push({ id: doc.id, ...doc.data() }));
@@ -394,7 +389,6 @@
       resetForm();
     }
 
-    // رفع وتصغير الصورة من الهاتف مباشرة لعدم ثقل السيرفر
     function handleImageUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -582,7 +576,8 @@
     function saveSettings() {
       const data = {
         rateBank: parseFloat(document.getElementById('setting-rate-bank').value) || 7.2,
-        rateCard: parseFloat(document.getElementById('setting-rate-card').value) || 8.5,
+        rateLibyana: parseFloat(document.getElementById('setting-rate-libyana').value) || 8.5,
+        rateMadar: parseFloat(document.getElementById('setting-rate-madar').value) || 8.7,
         phoneLibyana: document.getElementById('setting-libyana').value.trim(),
         phoneMadar: document.getElementById('setting-madar').value.trim(),
         bankDetails: document.getElementById('setting-bank').value.trim(),
@@ -594,7 +589,7 @@
       };
 
       db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        alert('✅ تم حفظ جميع الإعدادات وأسعار الصرف في المتجر أونلاين!');
+        alert('✅ تم حفظ جميع أسعار الصرف المنفصلة بنجاح!');
       });
     }
 
@@ -646,3 +641,4 @@
   </script>
 </body>
 </html>
+ 
