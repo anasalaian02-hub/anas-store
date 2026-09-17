@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الإدارة السحابية | متجر أنس</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --accent: #ec4899;
+      --bg: #090d16;
+      --card-bg: #131b2e;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 60px; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header h1 { font-size: 1.25rem; color: #38bdf8; font-weight: 800; }
+    .status-badge { background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+
+    /* تبويبات الهاتف السريعة */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 18px; }
+    .card h2 { font-size: 1.1rem; margin-bottom: 14px; color: #e2e8f0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media(max-width: 650px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 5px; }
+    input, select, textarea {
+      width: 100%;
+      background: #0b1120;
+      border: 1px solid var(--border);
+      padding: 11px 13px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+
+    /* رفع الصورة المباشر */
+    .file-btn {
+      position: relative;
+      background: #1e293b;
+      border: 1px dashed var(--muted);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .file-btn input[type="file"] {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+    .preview-box {
+      width: 100%;
+      height: 140px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: none;
+      object-fit: cover;
+      margin-top: 6px;
+    }
+
+    /* صفوف الباقات والأسعار */
+    .pkg-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .btn-del-row { background: var(--danger); color: white; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: bold; }
+    .btn-add-pkg { background: #10b981; color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
+
+    .btn {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn-danger { background: var(--danger); }
+    .btn-edit { background: #f59e0b; color: #000; }
+    .btn-toggle { background: #334155; color: #cbd5e1; }
+
+    /* كروت الخدمات */
+    .service-item {
+      background: #0b1120;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .service-item-header { display: flex; justify-content: space-between; align-items: center; }
+    .pkg-tag { background: #1e293b; color: #38bdf8; padding: 3px 8px; border-radius: 6px; display: inline-block; margin: 3px 2px; font-size: 0.8rem; font-weight: bold; }
+    .actions-bar { display: flex; gap: 6px; margin-top: 6px; }
+    .actions-bar button { flex: 1; padding: 7px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- تسجيل الدخول -->
+  <div id="login-box" style="max-width: 400px; margin: 5rem auto; text-align: center;" class="card">
+    <h2 style="border:none;">🔒 تسجيل دخول الإدارة</h2>
+    <input type="password" id="admin-pass" placeholder="أدخل كلمة المرور (1234)">
+    <button class="btn" onclick="checkAuth()">تسجيل الدخول</button>
+  </div>
+
+  <div id="admin-panel" style="display: none;">
+    <div class="header">
+      <h1>⚙️ لوحة إدارة متجر أنس السحابية</h1>
+      <span class="status-badge">مربوط بالسيرفر</span>
+    </div>
+
+    <!-- التبويبات -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('services-tab', this)">📦 الخدمات والباقات</button>
+      <button class="tab-btn" onclick="switchTab('rates-tab', this)">💵 أسعار الصرف والدفع</button>
+      <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات والتخفيضات</button>
+    </div>
+
+    <!-- 1. تبويب الخدمات والباقات -->
+    <div id="services-tab" class="tab-content active">
+      <div class="card" id="form-card">
+        <h2 id="form-title">➕ إضافة خدمة مع باقات الأسعار</h2>
+        <input type="hidden" id="edit-service-id">
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>عنوان الخدمة (مثال: تلجرام مميز Telegram Premium)</label>
+            <input type="text" id="new-title" placeholder="اكتب اسم الخدمة">
+          </div>
+          <div class="form-group">
+            <label>التصنيف:</label>
+            <input type="text" id="new-category" placeholder="اشتراكات / تيك توك / ألعاب">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>صورة الخدمة (اختيار مباشر من الجهاز أو رابط):</label>
+          <div class="file-btn">
+            📁 اضغط لاختيار صورة من الاستوديو مباشرة
+            <input type="file" id="img-file" accept="image/*" onchange="handleImageUpload(event)">
+          </div>
+          <input type="text" id="new-img" placeholder="أو الصق رابط صورة جاهز هنا...">
+          <img id="img-preview" class="preview-box" alt="معاينة الصورة">
+        </div>
+
+        <div class="form-group">
+          <label>مدة التسليم المتوقعة:</label>
+          <input type="text" id="new-delivery" placeholder="مثال: فوري / 5 - 15 دقيقة">
+        </div>
+
+        <!-- الباقات والأسعار بالدولار -->
+        <label style="font-weight: bold; color: #38bdf8; margin-top: 6px;">📋 باقات الخدمة وأسعارها بالدولار ($):</label>
+        <div id="packages-container"></div>
+        <button type="button" class="btn-add-pkg" onclick="addPackageRow()">+ إضافة باقة/مدة أخرى</button>
+
+        <div class="form-group">
+          <label>الملاحظات والشروط التي تظهر للزبون:</label>
+          <textarea id="new-notes" rows="2" placeholder="مثال: الشحن عبر المعرف، لا نحتاج لكلمة المرور"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" id="save-btn" onclick="saveService()">نشر الخدمة في المتجر أونلاين 🚀</button>
+          <button class="btn btn-toggle" id="cancel-edit-btn" onclick="cancelEdit()" style="display: none;">إلغاء التعديل</button>
+        </div>
+      </div>
+
+      <!-- قائمة الخدمات المسجلة في السيرفر -->
+      <div class="card">
+        <h2>📋 الخدمات الحالية بالمتجر</h2>
+        <div id="services-list-container"></div>
+      </div>
+    </div>
+
+    <!-- 2. تبويب أسعار الصرف وطرق الدفع -->
+    <div id="rates-tab" class="tab-content">
+      <div class="card">
+        <h2>💵 أسعار الصرف الرسمية (تتحدث فوراً في المتجر)</h2>
+        
+        <div class="grid-2">
+          <div class="form-group">
+            <label>سعر 1$ بالتحويل المصرفي (دينار ليبي):</label>
+            <input type="number" step="0.1" id="setting-rate-bank" placeholder="7.2">
+          </div>
+          <div class="form-group">
+            <label>سعر 1$ برصيد ليبيانا / مدار (دينار ليبي):</label>
+            <input type="number" step="0.1" id="setting-rate-card" placeholder="8.5">
+          </div>
+        </div>
+
+        <h2>📱 أرقام وحسابات استقبال الدفع</h2>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>رقم شحن رصيد ليبيانا (يظهر للزبون للتحويل):</label>
+            <input type="text" id="setting-libyana" placeholder="091XXXXXXX">
+          </div>
+          <div class="form-group">
+            <label>رقم شحن رصيد مدار (يظهر للزبون للتحويل):</label>
+            <input type="text" id="setting-madar" placeholder="092XXXXXXX">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>بيانات الحساب المصرفي (سداد / لي باي / تداول / IBAN):</label>
+          <textarea id="setting-bank" rows="2" placeholder="اكتب رقم الحساب المصرفي والتفاصيل هنا..."></textarea>
+        </div>
+
+        <h2>✈️ قنوات تلقي الطلبات</h2>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>رقم الواتساب (بالمفتاح الدولي بدون +):</label>
+            <input type="text" id="setting-phone" placeholder="2189XXXXXXXX">
+          </div>
+          <div class="form-group">
+            <label>معرف التلغرام (بدون @):</label>
+            <input type="text" id="setting-telegram" placeholder="AnasStore">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>رابط لوقو المتجر:</label>
+            <input type="text" id="setting-logo" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>شريط التنبيهات العلوي بالمتجر:</label>
+            <input type="text" id="setting-notice" placeholder="اتركه فارغاً للإخفاء">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>كلمة مرور لوحة الإدارة:</label>
+          <input type="text" id="setting-new-pass" placeholder="1234">
+        </div>
+
+        <button class="btn" onclick="saveSettings()">💾 حفظ كل الإعدادات في السيرفر</button>
+      </div>
+    </div>
+
+    <!-- 3. تبويب كوبونات التخفيض -->
+    <div id="coupons-tab" class="tab-content">
+      <div class="card">
+        <h2>🎟️ إضافة كوبون تخفيض</h2>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>رمز الكوبون (Coupon Code):</label>
+            <input type="text" id="cpn-code" placeholder="مثال: ANAS20" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم (%):</label>
+            <input type="number" id="cpn-discount" placeholder="مثال: 20">
+          </div>
+        </div>
+        <button class="btn" onclick="saveCoupon()">تفعيل ونشر الكوبون أونلاين</button>
+      </div>
+
+      <div class="card">
+        <h2>🏷️ الكوبونات الفعالة حالياً</h2>
+        <div id="coupons-list-container"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmj5tLDjfZg6s1dN3TsSgxHT9gOnM0HrY",
+      authDomain: "anas-store-c4fbb.firebaseapp.com",
+      projectId: "anas-store-c4fbb",
+      storageBucket: "anas-store-c4fbb.firebasestorage.app",
+      messagingSenderId: "759635975781",
+      appId: "1:759635975781:web:d8faa9c84d3ca9d0bd708c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentPass = "1234";
+    let services = [];
+    let coupons = [];
+    let settings = {};
+    let localImageBase64 = "";
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function checkAuth() {
+      db.collection("settings").doc("main").get().then(doc => {
+        if (doc.exists && doc.data().adminPass) currentPass = doc.data().adminPass;
+        const pass = document.getElementById('admin-pass').value.trim();
+        if (pass === currentPass) {
+          document.getElementById('login-box').style.display = 'none';
+          document.getElementById('admin-panel').style.display = 'block';
+          initAdmin();
+        } else {
+          alert('كلمة المرور غير صحيحة!');
+        }
+      });
+    }
+
+    function initAdmin() {
+      // إعدادات المتجر
+      db.collection("settings").doc("main").onSnapshot(doc => {
+        if (doc.exists) {
+          settings = doc.data();
+          document.getElementById('setting-logo').value = settings.logoUrl || '';
+          document.getElementById('setting-notice').value = settings.noticeText || '';
+          document.getElementById('setting-phone').value = settings.waPhone || '';
+          document.getElementById('setting-telegram').value = settings.tgUser || '';
+          document.getElementById('setting-rate-card').value = settings.rateCard || 8.5;
+          document.getElementById('setting-rate-bank').value = settings.rateBank || 7.2;
+          document.getElementById('setting-libyana').value = settings.phoneLibyana || '';
+          document.getElementById('setting-madar').value = settings.phoneMadar || '';
+          document.getElementById('setting-bank').value = settings.bankDetails || '';
+          document.getElementById('setting-new-pass').value = settings.adminPass || '1234';
+        }
+      });
+
+      // قائمة الخدمات
+      db.collection("services").onSnapshot(snapshot => {
+        services = [];
+        snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+        renderServicesList();
+      });
+
+      // قائمة الكوبونات
+      db.collection("coupons").onSnapshot(snapshot => {
+        coupons = [];
+        snapshot.forEach(doc => coupons.push({ id: doc.id, ...doc.data() }));
+        renderCouponsList();
+      });
+
+      resetForm();
+    }
+
+    // رفع وتصغير الصورة من الهاتف مباشرة لعدم ثقل السيرفر
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxW = 500;
+          const scale = maxW / img.width;
+          canvas.width = (img.width > maxW) ? maxW : img.width;
+          canvas.height = (img.width > maxW) ? (img.height * scale) : img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          localImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          
+          const preview = document.getElementById('img-preview');
+          preview.src = localImageBase64;
+          preview.style.display = 'block';
+          document.getElementById('new-img').value = '';
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addPackageRow(name = '', price = '') {
+      const container = document.getElementById('packages-container');
+      const div = document.createElement('div');
+      div.className = 'pkg-row';
+      div.innerHTML = `
+        <input type="text" placeholder="اسم الباقة (مثال: شهري / 100 عملة)" class="pkg-name" value="${name}">
+        <input type="number" step="0.1" placeholder="السعر ($)" class="pkg-price" value="${price}" style="max-width: 120px;">
+        <button type="button" class="btn-del-row" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function saveService() {
+      const editId = document.getElementById('edit-service-id').value;
+      const title = document.getElementById('new-title').value.trim();
+      const category = document.getElementById('new-category').value.trim() || 'عام';
+      const img = localImageBase64 || document.getElementById('new-img').value.trim() || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500';
+      const deliveryTime = document.getElementById('new-delivery').value.trim();
+      const notes = document.getElementById('new-notes').value.trim();
+
+      const pkgNames = document.querySelectorAll('.pkg-name');
+      const pkgPrices = document.querySelectorAll('.pkg-price');
+      let packages = [];
+
+      for (let i = 0; i < pkgNames.length; i++) {
+        const pName = pkgNames[i].value.trim();
+        const pPrice = parseFloat(pkgPrices[i].value);
+        if (pName && !isNaN(pPrice)) {
+          packages.push({ name: pName, priceUsd: pPrice });
+        }
+      }
+
+      if (!title || packages.length === 0) {
+        alert('يرجى كتابة عنوان الخدمة وإضافة باقة وسعر بالدولار ($) على الأقل!');
+        return;
+      }
+
+      const serviceData = {
+        title,
+        category,
+        img,
+        deliveryTime,
+        notes,
+        packages,
+        status: editId ? (services.find(s => s.id === editId)?.status || 'available') : 'available',
+        updatedAt: Date.now()
+      };
+
+      if (editId) {
+        db.collection("services").doc(editId).update(serviceData).then(() => {
+          alert('✅ تم تحديث الخدمة في المتجر بنجاح!');
+          resetForm();
+        });
+      } else {
+        serviceData.createdAt = Date.now();
+        db.collection("services").add(serviceData).then(() => {
+          alert('🚀 تم نشر الخدمة في المتجر بنجاح!');
+          resetForm();
+        });
+      }
+    }
+
+    function editService(id) {
+      const s = services.find(item => item.id === id);
+      if (!s) return;
+
+      document.getElementById('edit-service-id').value = s.id;
+      document.getElementById('new-title').value = s.title;
+      document.getElementById('new-category').value = s.category || '';
+      document.getElementById('new-img').value = s.img || '';
+      document.getElementById('new-delivery').value = s.deliveryTime || '';
+      document.getElementById('new-notes').value = s.notes || '';
+
+      const preview = document.getElementById('img-preview');
+      if (s.img) {
+        preview.src = s.img;
+        preview.style.display = 'block';
+      }
+
+      const pkgContainer = document.getElementById('packages-container');
+      pkgContainer.innerHTML = '';
+      (s.packages || []).forEach(p => addPackageRow(p.name, p.priceUsd));
+
+      document.getElementById('form-title').innerText = `✏️ تعديل: ${s.title}`;
+      document.getElementById('save-btn').innerText = 'حفظ التعديلات أونلاين 💾';
+      document.getElementById('cancel-edit-btn').style.display = 'block';
+
+      document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEdit() { resetForm(); }
+
+    function resetForm() {
+      document.getElementById('edit-service-id').value = '';
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-category').value = '';
+      document.getElementById('new-img').value = '';
+      document.getElementById('new-delivery').value = '';
+      document.getElementById('new-notes').value = '';
+      document.getElementById('img-preview').style.display = 'none';
+      localImageBase64 = "";
+
+      document.getElementById('form-title').innerText = '➕ إضافة خدمة مع باقات الأسعار';
+      document.getElementById('save-btn').innerText = 'نشر الخدمة في المتجر أونلاين 🚀';
+      document.getElementById('cancel-edit-btn').style.display = 'none';
+
+      const pkgContainer = document.getElementById('packages-container');
+      pkgContainer.innerHTML = '';
+      addPackageRow('شهري', '3');
+      addPackageRow('3 شهور', '20');
+    }
+
+    function toggleServiceStatus(id, currentStatus) {
+      const newStatus = currentStatus === 'available' ? 'unavailable' : 'available';
+      db.collection("services").doc(id).update({ status: newStatus });
+    }
+
+    function deleteService(id) {
+      if (confirm('هل أنت متأكد من حذف هذه الخدمة بالكامل من المتجر؟')) {
+        db.collection("services").doc(id).delete();
+      }
+    }
+
+    function renderServicesList() {
+      const container = document.getElementById('services-list-container');
+      container.innerHTML = '';
+
+      if (services.length === 0) {
+        container.innerHTML = '<p style="color:var(--muted); text-align:center; padding:15px;">لا توجد خدمات مضافة حتى الآن.</p>';
+        return;
+      }
+
+      services.forEach(s => {
+        const isAvail = s.status !== 'unavailable';
+        const pkgs = (s.packages || []).map(p => `<span class="pkg-tag">${p.name}: $${p.priceUsd}</span>`).join(' ');
+        container.innerHTML += `
+          <div class="service-item">
+            <div class="service-item-header">
+              <strong>${s.title}</strong>
+              <span style="font-size:0.75rem; color:${isAvail ? 'var(--success)' : 'var(--danger)'}; font-weight:bold;">
+                ${isAvail ? '● متوفرة' : '○ متوقفة'}
+              </span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--muted);">القسم: ${s.category}</div>
+            <div>${pkgs}</div>
+            <div class="actions-bar">
+              <button class="btn-edit" onclick="editService('${s.id}')">تعديل</button>
+              <button class="btn-toggle" onclick="toggleServiceStatus('${s.id}', '${s.status || 'available'}')">
+                ${isAvail ? 'إيقاف' : 'تفعيل'}
+              </button>
+              <button class="btn-danger" onclick="deleteService('${s.id}')">حذف</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function saveSettings() {
+      const data = {
+        rateBank: parseFloat(document.getElementById('setting-rate-bank').value) || 7.2,
+        rateCard: parseFloat(document.getElementById('setting-rate-card').value) || 8.5,
+        phoneLibyana: document.getElementById('setting-libyana').value.trim(),
+        phoneMadar: document.getElementById('setting-madar').value.trim(),
+        bankDetails: document.getElementById('setting-bank').value.trim(),
+        waPhone: document.getElementById('setting-phone').value.trim(),
+        tgUser: document.getElementById('setting-telegram').value.trim(),
+        logoUrl: document.getElementById('setting-logo').value.trim(),
+        noticeText: document.getElementById('setting-notice').value.trim(),
+        adminPass: document.getElementById('setting-new-pass').value.trim() || '1234'
+      };
+
+      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
+        alert('✅ تم حفظ جميع الإعدادات وأسعار الصرف في المتجر أونلاين!');
+      });
+    }
+
+    function saveCoupon() {
+      const code = document.getElementById('cpn-code').value.trim().toUpperCase();
+      const discount = parseFloat(document.getElementById('cpn-discount').value);
+
+      if (!code || isNaN(discount)) {
+        alert('يرجى إدخال كود الكوبون ونسبة الخصم');
+        return;
+      }
+
+      db.collection("coupons").doc(code).set({
+        code,
+        discount,
+        createdAt: Date.now()
+      }).then(() => {
+        alert('🎟️ تم تفعيل ونشر الكوبون أونلاين!');
+        document.getElementById('cpn-code').value = '';
+        document.getElementById('cpn-discount').value = '';
+      });
+    }
+
+    function deleteCoupon(code) {
+      if (confirm(`حذف الكوبون ${code}؟`)) {
+        db.collection("coupons").doc(code).delete();
+      }
+    }
+
+    function renderCouponsList() {
+      const container = document.getElementById('coupons-list-container');
+      container.innerHTML = '';
+      if (coupons.length === 0) {
+        container.innerHTML = '<p style="color:var(--muted); text-align:center; padding:15px;">لا توجد كوبونات مفعلة حالياً.</p>';
+        return;
+      }
+      coupons.forEach(c => {
+        container.innerHTML += `
+          <div class="service-item" style="flex-direction:row; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="color:var(--accent);">🎟️ ${c.code}</strong>
+              <div style="font-size:0.8rem; color:var(--muted);">خصم ${c.discount}% على كل الخدمات</div>
+            </div>
+            <button class="btn-del-row" onclick="deleteCoupon('${c.code}')">حذف</button>
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>

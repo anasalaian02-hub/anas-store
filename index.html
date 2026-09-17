@@ -21,7 +21,6 @@
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-    /* شريط التنبيهات العلوي */
     #announcement-bar {
       background: linear-gradient(90deg, #1e3a8a, #0284c7);
       color: #fff;
@@ -44,14 +43,23 @@
       justify-content: space-between;
       align-items: center;
     }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-logo { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); display: none; }
-    .brand h1 { font-size: 1.3rem; font-weight: 800; color: #38bdf8; }
-    .brand span { font-size: 0.8rem; color: var(--text-muted); }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    
+    /* تكبير لوقو المتجر ليصبح واضحاً وبارزاً */
+    .brand-logo { 
+      width: 65px; 
+      height: 65px; 
+      border-radius: 14px; 
+      object-fit: cover; 
+      border: 2px solid #38bdf8; 
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+      display: none; 
+    }
+    .brand h1 { font-size: 1.35rem; font-weight: 800; color: #38bdf8; }
+    .brand span { font-size: 0.82rem; color: var(--text-muted); }
 
     .container { max-width: 1200px; margin: 1.2rem auto; padding: 0 1rem; }
 
-    /* شريط تحويل العملات */
     .currency-bar {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -89,7 +97,6 @@
       border-radius: 20px;
     }
 
-    /* شريط الفلترة والبحث */
     .filters-bar {
       display: flex;
       justify-content: space-between;
@@ -120,7 +127,6 @@
       min-width: 200px;
     }
 
-    /* شبكة الخدمات */
     .services-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -157,33 +163,42 @@
     
     .service-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
 
-    /* زر عرض الأسعار القابل للطي */
+    /* خانة وزر فتح قائمة الأسعار */
     .toggle-prices-btn {
       width: 100%;
-      background: #1e293b;
+      background: #0f172a;
       color: #38bdf8;
       border: 1px dashed #334155;
-      padding: 10px;
+      padding: 10px 14px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
-    .toggle-prices-btn:hover { background: #243049; border-color: #38bdf8; }
+    .toggle-prices-btn:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
 
-    /* الحاوية القابلة للفتح والإغلاق */
+    /* قائمة الأسعار مخفية افتراضياً لمنع الفوضى */
     .packages-collapsible {
       display: none;
       flex-direction: column;
       gap: 6px;
       margin-bottom: 12px;
+      padding: 8px;
+      background: rgba(11, 15, 25, 0.6);
+      border-radius: 10px;
+      border: 1px solid var(--border);
     }
-    .packages-collapsible.show { display: flex; }
+    .packages-collapsible.show {
+      display: flex;
+    }
 
     .pkg-chip {
       background: #0b0f19;
@@ -194,12 +209,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.2s ease;
       color: #cbd5e1;
+      transition: all 0.2s ease;
     }
-    .pkg-chip:hover { border-color: #3b82f6; }
     .pkg-chip.selected {
-      background: rgba(37, 99, 235, 0.12);
+      background: rgba(37, 99, 235, 0.15);
       border-color: #38bdf8;
       color: #fff;
     }
@@ -239,14 +253,10 @@
       font-weight: 700;
       font-size: 0.95rem;
       cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
+      transition: opacity 0.2s;
     }
     .order-btn:disabled { background: #475569; cursor: not-allowed; }
 
-    /* الفوتر وروابط التواصل */
     footer {
       text-align: center;
       margin-top: 3rem;
@@ -255,19 +265,8 @@
       color: var(--text-muted);
       font-size: 0.85rem;
     }
-    .social-links { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
-    .social-btn {
-      background: #151d30;
-      color: #38bdf8;
-      text-decoration: none;
-      padding: 6px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-weight: bold;
-      font-size: 0.85rem;
-    }
 
-    /* المودال */
+    /* نافذة المودال */
     .modal {
       display: none;
       position: fixed;
@@ -336,7 +335,6 @@
 </head>
 <body>
 
-  <!-- شريط التنبيهات العلوي -->
   <div id="announcement-bar"></div>
 
   <header>
@@ -350,7 +348,6 @@
   </header>
 
   <div class="container">
-    <!-- تحويل العملات -->
     <div class="currency-bar">
       <h3>اختر طريقة الدفع لعرض الأسعار بها مباشرة:</h3>
       <div class="currency-options">
@@ -361,7 +358,6 @@
       <div class="exchange-badge" id="rate-badge">سعر العرض: بالدولار ($)</div>
     </div>
 
-    <!-- فلتر الأقسام والبحث -->
     <div class="filters-bar">
       <div class="categories-list" id="category-filters">
         <button class="cat-btn active" onclick="filterCategory('الكل', this)">الكل</button>
@@ -369,26 +365,29 @@
       <input type="text" class="search-input" id="search-box" placeholder="🔍 ابحث عن خدمة..." oninput="handleSearch()">
     </div>
 
-    <!-- شبكة الخدمات -->
     <div class="services-grid" id="services-container">
       <div style="text-align: center; grid-column: 1/-1; padding: 40px; color: #94a3b8;">جاري تحميل الخدمات...</div>
     </div>
 
-    <!-- الفوتر -->
     <footer>
       <p>© متجر أنس - Anas Store. جميع الحقوق محفوظة.</p>
-      <div class="social-links" id="social-container"></div>
     </footer>
   </div>
 
-  <!-- مودال الطلب -->
+  <!-- مودال إتمام الطلب -->
   <div class="modal" id="order-modal">
     <div class="modal-content">
       <h3 style="color: #38bdf8; margin-bottom: 10px;">إتمام الطلب 🛍️</h3>
       
       <div id="modal-summary" style="background:#0b0f19; padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.6; border:1px solid var(--border);"></div>
 
-      <!-- صندوق بيانات الدفع -->
+      <!-- خانة الكوبون -->
+      <div style="display:flex; gap:6px; margin: 10px 0;">
+        <input type="text" id="coupon-input" placeholder="هل لديك كوبون تخفيض؟" style="text-transform:uppercase; flex-grow:1; background:#0b0f19; border:1px solid var(--border); border-radius:8px; padding:8px; color:#fff;">
+        <button type="button" onclick="applyCoupon()" style="background:#ec4899; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">تطبيق</button>
+      </div>
+      <div id="coupon-msg" style="font-size:0.8rem; margin-bottom:8px;"></div>
+
       <div class="payment-info-box" id="payment-details-box"></div>
 
       <div class="form-group">
@@ -397,13 +396,13 @@
       </div>
 
       <div class="form-group">
-        <label>بيانات الحساب / المعرف (ID أو الرابط المطلوب شحنه):</label>
-        <input type="text" id="cust-target" placeholder="مثال: الآيدي، يوزر التيك توك، رابط المنشور">
+        <label>بيانات الحساب / المعرف (ID أو اليوزر المطلوب شحنه):</label>
+        <input type="text" id="cust-target" placeholder="مثال: يوزر التلجرام أو الآيدي">
       </div>
 
       <div class="form-group">
         <label>ملاحظة إضافية (اختياري):</label>
-        <textarea id="cust-notes" rows="2" placeholder="أي تفاصيل أخرى توضحها لنا"></textarea>
+        <textarea id="cust-notes" rows="2" placeholder="أي تفاصيل أخرى"></textarea>
       </div>
 
       <button class="send-btn wa-btn" onclick="submitOrder('whatsapp')">📲 إرسال الطلب عبر الواتساب</button>
@@ -426,6 +425,10 @@
     const db = firebase.firestore();
 
     let services = [];
+    let coupons = [];
+    let appliedDiscount = 0;
+    let appliedCouponCode = "";
+
     let settings = {
       waPhone: "218910000000",
       tgUser: "AnasStore",
@@ -435,9 +438,7 @@
       phoneLibyana: "",
       phoneMadar: "",
       logoUrl: "",
-      noticeText: "",
-      fbLink: "",
-      igLink: ""
+      noticeText: ""
     };
 
     let selectedPackages = {};
@@ -447,20 +448,17 @@
     let currentOrder = null;
 
     function initData() {
-      // تحميل الإعدادات
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
           settings = doc.data();
           updateRateBadge();
 
-          // اللوقو
           if (settings.logoUrl) {
             const logoEl = document.getElementById('store-logo');
             logoEl.src = settings.logoUrl;
             logoEl.style.display = 'block';
           }
 
-          // شريط التنبيهات
           const noticeEl = document.getElementById('announcement-bar');
           if (settings.noticeText) {
             noticeEl.innerText = settings.noticeText;
@@ -469,24 +467,20 @@
             noticeEl.style.display = 'none';
           }
 
-          // السوشيال ميديا
-          const socialEl = document.getElementById('social-container');
-          socialEl.innerHTML = '';
-          if (settings.fbLink) socialEl.innerHTML += `<a href="${settings.fbLink}" target="_blank" class="social-btn">فيسبوك Facebook</a>`;
-          if (settings.igLink) socialEl.innerHTML += `<a href="${settings.igLink}" target="_blank" class="social-btn">انستغرام Instagram</a>`;
-
           renderServices();
         }
       });
 
-      // تحميل الخدمات
       db.collection("services").onSnapshot(snapshot => {
         services = [];
-        snapshot.forEach(doc => {
-          services.push({ id: doc.id, ...doc.data() });
-        });
+        snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
         buildCategories();
         renderServices();
+      });
+
+      db.collection("coupons").onSnapshot(snapshot => {
+        coupons = [];
+        snapshot.forEach(doc => coupons.push({ id: doc.id, ...doc.data() }));
       });
     }
 
@@ -500,15 +494,20 @@
 
     function updateRateBadge() {
       const badge = document.getElementById('rate-badge');
-      if (currentCurrency === 'usd') badge.innerText = `سعر العرض: بالدولار المباشر ($)`;
+      if (currentCurrency === 'usd') badge.innerText = `سعر العرض: بالدولار ($)`;
       else if (currentCurrency === 'card') badge.innerText = `سعر الصرف لرصيد الكروت: 1$ = ${settings.rateCard} د.ل`;
       else if (currentCurrency === 'bank') badge.innerText = `سعر الصرف للتحويل المصرفي: 1$ = ${settings.rateBank} د.ل`;
     }
 
     function formatPrice(usd) {
-      if (currentCurrency === 'usd') return { val: usd.toFixed(2), symbol: '$ دولار' };
-      if (currentCurrency === 'card') return { val: (usd * settings.rateCard).toFixed(1), symbol: 'د.ل (رصيد)' };
-      return { val: (usd * settings.rateBank).toFixed(1), symbol: 'د.ل (مصرفي)' };
+      let finalUsd = usd;
+      if (appliedDiscount > 0) {
+        finalUsd = usd - (usd * (appliedDiscount / 100));
+      }
+
+      if (currentCurrency === 'usd') return { val: finalUsd.toFixed(2), symbol: '$ دولار' };
+      if (currentCurrency === 'card') return { val: (finalUsd * settings.rateCard).toFixed(1), symbol: 'د.ل (رصيد)' };
+      return { val: (finalUsd * settings.rateBank).toFixed(1), symbol: 'د.ل (مصرفي)' };
     }
 
     function buildCategories() {
@@ -533,15 +532,16 @@
       renderServices();
     }
 
+    // دالة الفتح والإغلاق لقائمة الأسعار
     function togglePricingMenu(serviceId) {
       const box = document.getElementById(`pkg-box-${serviceId}`);
-      const btn = document.getElementById(`toggle-btn-${serviceId}`);
+      const arrow = document.getElementById(`arrow-${serviceId}`);
       if (box.classList.contains('show')) {
         box.classList.remove('show');
-        btn.querySelector('.arrow').innerText = '🔻';
+        if (arrow) arrow.innerText = '🔻';
       } else {
         box.classList.add('show');
-        btn.querySelector('.arrow').innerText = '🔺';
+        if (arrow) arrow.innerText = '🔺';
       }
     }
 
@@ -608,21 +608,19 @@
             </div>
             <img src="${item.img || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500'}" class="service-img" alt="${item.title}">
             <div class="service-body">
-              
               <div class="service-header">
                 <span class="service-category">${item.category || 'خدمة رقمية'}</span>
                 ${item.deliveryTime ? `<span class="delivery-time-badge">⚡ ${item.deliveryTime}</span>` : ''}
               </div>
-
               <h2 class="service-title">${item.title}</h2>
 
-              <!-- زر عرض وإخفاء قائمة الأسعار -->
-              <button class="toggle-prices-btn" id="toggle-btn-${item.id}" onclick="togglePricingMenu('${item.id}')">
-                <span>📋 عرض قائمة الأسعار (${packagesCount} باقات)</span>
-                <span class="arrow">🔻</span>
+              <!-- خانة اختيار الباقات عند الضغط فقط -->
+              <button type="button" class="toggle-prices-btn" onclick="togglePricingMenu('${item.id}')">
+                <span>📋 اضغط لاختيار المدة أو الباقة (${packagesCount})</span>
+                <span id="arrow-${item.id}">🔻</span>
               </button>
 
-              <!-- باقات الأسعار المخفية -->
+              <!-- حاوية الباقات المطوية -->
               ${packagesHtml}
 
               <div class="price-display-box">
@@ -650,6 +648,16 @@
     }
 
     function openOrderModal(serviceId) {
+      appliedDiscount = 0;
+      appliedCouponCode = "";
+      document.getElementById('coupon-input').value = '';
+      document.getElementById('coupon-msg').innerText = '';
+
+      updateModalView(serviceId);
+      document.getElementById('order-modal').style.display = 'flex';
+    }
+
+    function updateModalView(serviceId) {
       const service = services.find(s => s.id == serviceId);
       const pkgIndex = selectedPackages[serviceId] || 0;
       const selectedPkg = service.packages[pkgIndex];
@@ -662,8 +670,8 @@
         payName = "رصيد ليبيانا / مدار";
         payBoxContent = `
           <strong>📱 بيانات تحويل الرصيد:</strong><br>
-          ليبيانا: <span class="copy-chip" onclick="copyText('${settings.phoneLibyana}')">${settings.phoneLibyana || 'لم يحدد'} (نسخ)</span><br>
-          مدار: <span class="copy-chip" onclick="copyText('${settings.phoneMadar}')">${settings.phoneMadar || 'لم يحدد'} (نسخ)</span>
+          ليبيانا: <span class="copy-chip" onclick="copyText('${settings.phoneLibyana}')">${settings.phoneLibyana || 'لم يحدد'}</span><br>
+          مدار: <span class="copy-chip" onclick="copyText('${settings.phoneMadar}')">${settings.phoneMadar || 'لم يحدد'}</span>
         `;
       } else if (currentCurrency === 'bank') {
         payName = "تحويل مصرفي";
@@ -673,13 +681,13 @@
           <span class="copy-chip" onclick="copyText('${settings.bankDetails}')">📋 نسخ بيانات الحساب</span>
         `;
       } else {
-        payBoxContent = `<strong>💵 الدفع بالدولار:</strong> تواصل معنا في المحادثة لتحديد طريقة الدفع (USDT / بايبال).`;
+        payBoxContent = `<strong>💵 الدفع بالدولار:</strong> تواصل معنا عبر الشات لتأكيد التحويل (USDT / بايبال).`;
       }
 
       currentOrder = {
+        serviceId: service.id,
         serviceTitle: service.title,
         packageName: selectedPkg.name,
-        priceUsd: selectedPkg.priceUsd,
         formattedPrice: `${p.val} ${p.symbol}`,
         paymentMethod: payName
       };
@@ -689,13 +697,27 @@
         <strong>الباقة:</strong> ${selectedPkg.name}<br>
         <strong>طريقة الدفع:</strong> ${payName}<br>
         <strong>القيمة الإجمالية:</strong> <span style="color:#38bdf8; font-weight:bold;">${p.val} ${p.symbol}</span>
+        ${appliedDiscount > 0 ? `<div style="color:#10b981; font-weight:bold;">🎉 تم تطبيق خصم ${appliedDiscount}% (${appliedCouponCode})</div>` : ''}
       `;
       document.getElementById('payment-details-box').innerHTML = payBoxContent;
-      document.getElementById('order-modal').style.display = 'flex';
+    }
+
+    function applyCoupon() {
+      const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+      const match = coupons.find(c => c.code === code);
+
+      if (match) {
+        appliedDiscount = match.discount;
+        appliedCouponCode = match.code;
+        document.getElementById('coupon-msg').innerHTML = `<span style="color:#10b981;">✅ تم تفعيل كود الخصم (${match.discount}%) بنجاح!</span>`;
+        updateModalView(currentOrder.serviceId);
+      } else {
+        document.getElementById('coupon-msg').innerHTML = `<span style="color:#ef4444;">❌ كود الكوبون غير صحيح!</span>`;
+      }
     }
 
     function copyText(val) {
-      if(!val) return;
+      if (!val) return;
       navigator.clipboard.writeText(val).then(() => alert('تم النسخ بنجاح!'));
     }
 
@@ -718,6 +740,7 @@
       msg += `📦 *الباقة:* ${currentOrder.packageName}\n`;
       msg += `💳 *طريقة الدفع:* ${currentOrder.paymentMethod}\n`;
       msg += `💰 *القيمة:* ${currentOrder.formattedPrice}\n`;
+      if (appliedDiscount > 0) msg += `🎟️ *الكوبون:* ${appliedCouponCode} (خصم ${appliedDiscount}%)\n`;
       msg += `----------------------------\n`;
       msg += `👤 *اسم العميل:* ${name}\n`;
       msg += `🎯 *الحساب / المعرف للشحن:* ${target}\n`;
