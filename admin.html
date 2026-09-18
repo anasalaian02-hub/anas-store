@@ -3,37 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة الإدارة السحابية | متجر أنس</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>لوحة الإدارة السحابية المتطورة | متجر أنس</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --primary: #2563eb;
-      --accent: #ec4899;
+      --primary-hover: #1d4ed8;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --gold: #f59e0b;
       --bg: #090d16;
       --card-bg: #131b2e;
+      --card-inner: #0b1120;
       --border: #1e293b;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --success: #10b981;
-      --danger: #ef4444;
     }
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 60px; }
+    body { background-color: var(--bg); color: var(--text); padding: 14px; padding-bottom: 60px; }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
     .header h1 { font-size: 1.25rem; color: #38bdf8; font-weight: 800; }
-    .status-badge { background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+    .status-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
 
+    /* Navigation Tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -47,7 +51,7 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 10px 16px;
+      padding: 9px 16px;
       border-radius: 12px;
       font-size: 0.85rem;
       font-weight: 700;
@@ -65,251 +69,263 @@
     .tab-content.active { display: block; }
 
     .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 18px; }
-    .card h2 { font-size: 1.1rem; margin-bottom: 14px; color: #e2e8f0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    
+    .card h2 { font-size: 1.05rem; margin-bottom: 14px; color: #e2e8f0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     @media(max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
     .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 5px; }
+    label { display: block; font-size: 0.83rem; color: var(--muted); margin-bottom: 5px; }
     input, select, textarea {
       width: 100%;
-      background: #0b1120;
+      background: var(--card-inner);
       border: 1px solid var(--border);
-      padding: 11px 13px;
+      padding: 10px 12px;
       border-radius: 10px;
       color: #fff;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       outline: none;
     }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 
-    .file-btn {
-      position: relative;
-      background: #1e293b;
-      border: 1px dashed var(--muted);
-      padding: 12px;
-      border-radius: 10px;
-      text-align: center;
-      color: var(--text);
-      cursor: pointer;
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-    }
-    .file-btn input[type="file"] {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      opacity: 0; cursor: pointer;
-    }
-    .preview-box {
-      width: 100%;
-      height: 140px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      display: none;
-      object-fit: cover;
-      margin-top: 6px;
-    }
-
-    .pkg-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-    .btn-del-row { background: var(--danger); color: white; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: bold; }
-    .btn-add-pkg { background: #10b981; color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
+    .dynamic-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+    .btn-del-row { background: var(--danger); color: white; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; }
+    .btn-add-row { background: var(--accent); color: #022c15; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
 
     .btn {
       width: 100%;
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 12px;
+      padding: 11px;
       border-radius: 10px;
       font-weight: 700;
       cursor: pointer;
+      font-size: 0.9rem;
       margin-top: 6px;
     }
     .btn-danger { background: var(--danger); }
-    .btn-edit { background: #f59e0b; color: #000; }
+    .btn-success { background: var(--accent); color: #022c15; }
+    .btn-edit { background: var(--gold); color: #000; }
     .btn-toggle { background: #334155; color: #cbd5e1; }
 
-    .service-item {
-      background: #0b1120;
+    .data-card {
+      background: var(--card-inner);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+      font-size: 0.85rem;
     }
-    .service-item-header { display: flex; justify-content: space-between; align-items: center; }
-    .pkg-tag { background: #1e293b; color: #38bdf8; padding: 3px 8px; border-radius: 6px; display: inline-block; margin: 3px 2px; font-size: 0.8rem; font-weight: bold; }
-    .actions-bar { display: flex; gap: 6px; margin-top: 6px; }
-    .actions-bar button { flex: 1; padding: 7px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+    .actions-bar { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .actions-bar button { flex: 1; min-width: 80px; padding: 7px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+
+    .preview-box { width: 100%; height: 130px; border-radius: 10px; border: 1px solid var(--border); display: none; object-fit: cover; margin-top: 6px; }
   </style>
 </head>
 <body>
 
-  <div id="login-box" style="max-width: 400px; margin: 5rem auto; text-align: center;" class="card">
+  <!-- Login Overlay -->
+  <div id="login-box" style="max-width: 400px; margin: 6rem auto; text-align: center;" class="card">
     <h2 style="border:none;">🔒 تسجيل دخول الإدارة</h2>
-    <input type="password" id="admin-pass" placeholder="أدخل كلمة المرور (1234)">
-    <button class="btn" onclick="checkAuth()">تسجيل الدخول</button>
+    <input type="password" id="admin-pass" placeholder="أدخل رمز المرور السري (1234)">
+    <button class="btn" onclick="checkAuth()">دخول إلى المنصة</button>
   </div>
 
+  <!-- Main Admin Content -->
   <div id="admin-panel" style="display: none;">
     <div class="header">
-      <h1>⚙️ لوحة إدارة متجر أنس السحابية</h1>
-      <span class="status-badge">مربوط بالسيرفر</span>
+      <h1>⚙️ إدارة متجر أنس السحابية</h1>
+      <span class="status-badge">متصل بالسيرفر المباشر</span>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('services-tab', this)">📦 الخدمات والباقات</button>
-      <button class="tab-btn" onclick="switchTab('rates-tab', this)">💵 أسعار الصرف والدفع</button>
-      <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات والتخفيضات</button>
+      <button class="tab-btn active" onclick="switchTab('orders-tab', this)">📥 الطلبات والتسليم</button>
+      <button class="tab-btn" onclick="switchTab('deposits-tab', this)">💰 إيداعات المحفظة</button>
+      <button class="tab-btn" onclick="switchTab('services-tab', this)">📦 الخدمات والباقات</button>
+      <button class="tab-btn" onclick="switchTab('rates-tab', this)">💳 طرق الدفع وأسعار الصرف</button>
+      <button class="tab-btn" onclick="switchTab('users-tab', this)">👥 المستخدمين والمحافظ</button>
+      <button class="tab-btn" onclick="switchTab('tickets-tab', this)">🎫 التذاكر والدعم</button>
+      <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات</button>
     </div>
 
-    <!-- 1. الخدمات -->
-    <div id="services-tab" class="tab-content active">
+    <!-- 1. Orders Management -->
+    <div id="orders-tab" class="tab-content active">
+      <div class="card">
+        <h2>📥 إدارة طلبات الخدمات المباشرة</h2>
+        <div id="orders-list-container">
+          <p style="text-align:center; color:var(--muted);">جاري تحميل الطلبات...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Deposits Management -->
+    <div id="deposits-tab" class="tab-content">
+      <div class="card">
+        <h2>💰 طلبات شحن المحفظة (مراجعة الإيداعات)</h2>
+        <div id="deposits-list-container">
+          <p style="text-align:center; color:var(--muted);">جاري تحميل الإيداعات...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Services Management -->
+    <div id="services-tab" class="tab-content">
       <div class="card" id="form-card">
-        <h2 id="form-title">➕ إضافة خدمة مع باقات الأسعار</h2>
+        <h2 id="form-title">➕ إضافة خدمة وباقات أسعار جديدة</h2>
         <input type="hidden" id="edit-service-id">
 
         <div class="grid-2">
           <div class="form-group">
-            <label>عنوان الخدمة (مثال: تلجرام مميز Telegram Premium)</label>
-            <input type="text" id="new-title" placeholder="اكتب اسم الخدمة">
+            <label>عنوان الخدمة:</label>
+            <input type="text" id="new-title" placeholder="مثال: تيليجرام بريميوم 3 أشهر">
           </div>
           <div class="form-group">
             <label>التصنيف:</label>
-            <input type="text" id="new-category" placeholder="اشتراكات / تيك توك / ألعاب">
+            <input type="text" id="new-category" placeholder="اشتراكات / ألعاب / بطاقات">
           </div>
         </div>
 
         <div class="form-group">
-          <label>صورة الخدمة (اختيار مباشر من الجهاز أو رابط):</label>
-          <div class="file-btn">
-            📁 اضغط لاختيار صورة من الاستوديو مباشرة
-            <input type="file" id="img-file" accept="image/*" onchange="handleImageUpload(event)">
-          </div>
+          <label>رابط الصورة أو اختيار صورة:</label>
+          <input type="file" id="img-file" accept="image/*" onchange="handleImageUpload(event)" style="margin-bottom:6px;">
           <input type="text" id="new-img" placeholder="أو الصق رابط صورة جاهز هنا...">
           <img id="img-preview" class="preview-box" alt="معاينة الصورة">
         </div>
 
         <div class="form-group">
-          <label>مدة التسليم المتوقعة:</label>
+          <label>مدة التسليم المقدرة:</label>
           <input type="text" id="new-delivery" placeholder="مثال: فوري / 5 - 15 دقيقة">
         </div>
 
-        <label style="font-weight: bold; color: #38bdf8; margin-top: 6px;">📋 باقات الخدمة وأسعارها بالدولار ($):</label>
+        <label style="font-weight: bold; color: #38bdf8;">📋 باقات الخدمة وأسعارها بالدولار ($):</label>
         <div id="packages-container"></div>
-        <button type="button" class="btn-add-pkg" onclick="addPackageRow()">+ إضافة باقة/مدة أخرى</button>
+        <button type="button" class="btn-add-row" onclick="addPackageRow()">+ إضافة باقة/مدة أخرى</button>
 
         <div class="form-group">
-          <label>الملاحظات والشروط التي تظهر للزبون:</label>
-          <textarea id="new-notes" rows="2" placeholder="مثال: الشحن عبر المعرف، لا نحتاج لكلمة المرور"></textarea>
+          <label>ملاحظات وشروط الخدمة:</label>
+          <textarea id="new-notes" rows="2" placeholder="أي تفاصيل خاصة بطريقة الشحن"></textarea>
         </div>
 
         <div style="display: flex; gap: 8px;">
-          <button class="btn" id="save-btn" onclick="saveService()">نشر الخدمة في المتجر أونلاين 🚀</button>
-          <button class="btn btn-toggle" id="cancel-edit-btn" onclick="cancelEdit()" style="display: none;">إلغاء التعديل</button>
+          <button class="btn" id="save-btn" onclick="saveService()">نشر الخدمة في المتجر 🚀</button>
+          <button class="btn btn-toggle" id="cancel-edit-btn" onclick="resetForm()" style="display: none;">إلغاء</button>
         </div>
       </div>
 
       <div class="card">
-        <h2>📋 الخدمات الحالية بالمتجر</h2>
+        <h2>📋 الخدمات المتاحة حالياً</h2>
         <div id="services-list-container"></div>
       </div>
     </div>
 
-    <!-- 2. أسعار الصرف المنفصلة والدفع -->
+    <!-- 4. Payment Accounts & Exchange Rates -->
     <div id="rates-tab" class="tab-content">
       <div class="card">
-        <h2>💵 أسعار الصرف الرسمية (كل طريقة بسعر منفصل)</h2>
-        
+        <h2>💵 أسعار الصرف الرسمية مقابل 1$</h2>
         <div class="grid-3">
           <div class="form-group">
-            <label>سعر 1$ بالتحويل المصرفي (د.ل):</label>
-            <input type="number" step="0.1" id="setting-rate-bank" placeholder="7.2">
+            <label>سعر التحويل المصرفي (د.ل):</label>
+            <input type="number" step="0.1" id="rate-bank" placeholder="7.2">
           </div>
           <div class="form-group">
-            <label>سعر 1$ برصيد ليبيانا (د.ل):</label>
-            <input type="number" step="0.1" id="setting-rate-libyana" placeholder="8.5">
+            <label>سعر رصيد ليبيانا (د.ل):</label>
+            <input type="number" step="0.1" id="rate-libyana" placeholder="8.5">
           </div>
           <div class="form-group">
-            <label>سعر 1$ برصيد مدار (د.ل):</label>
-            <input type="number" step="0.1" id="setting-rate-madar" placeholder="8.7">
+            <label>سعر رصيد مدار (د.ل):</label>
+            <input type="number" step="0.1" id="rate-madar" placeholder="8.7">
           </div>
         </div>
 
-        <h2>📱 أرقام وحسابات استقبال الدفع</h2>
+        <h2>📱 طرق الدفع والحسابات المتعددة</h2>
+        
+        <!-- Libyana Numbers -->
+        <label style="color:#38bdf8; font-weight:bold;">📶 أرقام استقبال رصيد ليبيانا:</label>
+        <div id="libyana-container"></div>
+        <button type="button" class="btn-add-row" onclick="addDynamicInput('libyana-container')">+ إضافة رقم ليبيانا إضافي</button>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label>رقم شحن رصيد ليبيانا (لتحويل الزبون):</label>
-            <input type="text" id="setting-libyana" placeholder="091XXXXXXX">
-          </div>
-          <div class="form-group">
-            <label>رقم شحن رصيد مدار (لتحويل الزبون):</label>
-            <input type="text" id="setting-madar" placeholder="092XXXXXXX">
-          </div>
-        </div>
+        <!-- Madar Numbers -->
+        <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">📡 أرقام استقبال رصيد مدار:</label>
+        <div id="madar-container"></div>
+        <button type="button" class="btn-add-row" onclick="addDynamicInput('madar-container')">+ إضافة رقم مدار إضافي</button>
 
-        <div class="form-group">
-          <label>بيانات الحساب المصرفي (سداد / لي باي / تداول / IBAN):</label>
-          <textarea id="setting-bank" rows="2" placeholder="اكتب رقم الحساب المصرفي والتفاصيل هنا..."></textarea>
-        </div>
+        <!-- Bank Accounts -->
+        <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">🏦 حسابات التحويل المصرفي (سداد / لي باي / تداول / مصارف):</label>
+        <div id="bank-container"></div>
+        <button type="button" class="btn-add-row" onclick="addDynamicInput('bank-container')">+ إضافة حساب مصرفي إضافي</button>
 
-        <h2>✈️ قنوات تلقي الطلبات</h2>
+        <!-- USDT Wallets -->
+        <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">🪙 عناوين محافظ USDT (TRC20 / BEP20):</label>
+        <div id="usdt-container"></div>
+        <button type="button" class="btn-add-row" onclick="addDynamicInput('usdt-container')">+ إضافة عنوان USDT إضافي</button>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label>رقم الواتساب (بالمفتاح الدولي بدون +):</label>
-            <input type="text" id="setting-phone" placeholder="2189XXXXXXXX">
-          </div>
-          <div class="form-group">
-            <label>معرف التلغرام (بدون @):</label>
-            <input type="text" id="setting-telegram" placeholder="AnasStore">
-          </div>
-        </div>
+        <!-- Binance IDs -->
+        <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">🟡 معرفات Binance Pay ID:</label>
+        <div id="binance-container"></div>
+        <button type="button" class="btn-add-row" onclick="addDynamicInput('binance-container')">+ إضافة Binance ID إضافي</button>
 
+        <h2>⚙️ إعدادات المتجر العامة</h2>
         <div class="grid-2">
           <div class="form-group">
             <label>رابط لوقو المتجر:</label>
             <input type="text" id="setting-logo" placeholder="https://...">
           </div>
           <div class="form-group">
-            <label>شريط التنبيهات العلوي بالمتجر:</label>
+            <label>شريط الإعلانات العلوي:</label>
             <input type="text" id="setting-notice" placeholder="اتركه فارغاً للإخفاء">
           </div>
         </div>
 
         <div class="form-group">
-          <label>كلمة مرور لوحة الإدارة:</label>
-          <input type="text" id="setting-new-pass" placeholder="1234">
+          <label>رمز مرور لوحة الإدارة السري:</label>
+          <input type="text" id="setting-pass" placeholder="1234">
         </div>
 
-        <button class="btn" onclick="saveSettings()">💾 حفظ كل الإعدادات في السيرفر</button>
+        <button class="btn" onclick="saveSettings()">💾 حفظ كل الإعدادات وطرق الدفع</button>
       </div>
     </div>
 
-    <!-- 3. الكوبونات -->
+    <!-- 5. Users & Wallets -->
+    <div id="users-tab" class="tab-content">
+      <div class="card">
+        <h2>👥 تصفح وتعديل أرصدة المستخدمين</h2>
+        <input type="text" id="search-user" placeholder="🔍 ابحث عن يوزر نيم أو بريد..." oninput="renderUsersList()" style="margin-bottom:12px;">
+        <div id="users-list-container"></div>
+      </div>
+    </div>
+
+    <!-- 6. Support Tickets -->
+    <div id="tickets-tab" class="tab-content">
+      <div class="card">
+        <h2>🎫 تذاكر الدعم الفني والاستفسارات</h2>
+        <div id="tickets-list-container"></div>
+      </div>
+    </div>
+
+    <!-- 7. Coupons -->
     <div id="coupons-tab" class="tab-content">
       <div class="card">
-        <h2>🎟️ إضافة كوبون تخفيض</h2>
+        <h2>🎟️ إضافة كوبون خصم جديد</h2>
         <div class="grid-2">
           <div class="form-group">
-            <label>رمز الكوبون (Coupon Code):</label>
-            <input type="text" id="cpn-code" placeholder="مثال: ANAS20" style="text-transform: uppercase;">
+            <label>رمز الكوبون:</label>
+            <input type="text" id="cpn-code" placeholder="ANAS20" style="text-transform: uppercase;">
           </div>
           <div class="form-group">
             <label>نسبة الخصم (%):</label>
-            <input type="number" id="cpn-discount" placeholder="مثال: 20">
+            <input type="number" id="cpn-discount" placeholder="20">
           </div>
         </div>
-        <button class="btn" onclick="saveCoupon()">تفعيل ونشر الكوبون أونلاين</button>
+        <button class="btn" onclick="saveCoupon()">نشر الكوبون أونلاين</button>
       </div>
 
       <div class="card">
-        <h2>🏷️ الكوبونات الفعالة حالياً</h2>
+        <h2>🏷️ الكوبونات النشطة</h2>
         <div id="coupons-list-container"></div>
       </div>
     </div>
@@ -332,6 +348,10 @@
     let currentPass = "1234";
     let services = [];
     let coupons = [];
+    let orders = [];
+    let deposits = [];
+    let users = [];
+    let tickets = [];
     let settings = {};
     let localImageBase64 = "";
 
@@ -345,50 +365,347 @@
     function checkAuth() {
       db.collection("settings").doc("main").get().then(doc => {
         if (doc.exists && doc.data().adminPass) currentPass = doc.data().adminPass;
-        const pass = document.getElementById('admin-pass').value.trim();
-        if (pass === currentPass) {
+        const entered = document.getElementById('admin-pass').value.trim();
+        if (entered === currentPass) {
           document.getElementById('login-box').style.display = 'none';
           document.getElementById('admin-panel').style.display = 'block';
           initAdmin();
         } else {
-          alert('كلمة المرور غير صحيحة!');
+          alert('رمز المرور غير صحيح!');
         }
       });
     }
 
     function initAdmin() {
+      // 1. Settings
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
           settings = doc.data();
+          document.getElementById('rate-bank').value = settings.rateBank || 7.2;
+          document.getElementById('rate-libyana').value = settings.rateLibyana || 8.5;
+          document.getElementById('rate-madar').value = settings.rateMadar || 8.7;
           document.getElementById('setting-logo').value = settings.logoUrl || '';
           document.getElementById('setting-notice').value = settings.noticeText || '';
-          document.getElementById('setting-phone').value = settings.waPhone || '';
-          document.getElementById('setting-telegram').value = settings.tgUser || '';
-          document.getElementById('setting-rate-bank').value = settings.rateBank || 7.2;
-          document.getElementById('setting-rate-libyana').value = settings.rateLibyana || settings.rateCard || 8.5;
-          document.getElementById('setting-rate-madar').value = settings.rateMadar || settings.rateCard || 8.7;
-          document.getElementById('setting-libyana').value = settings.phoneLibyana || '';
-          document.getElementById('setting-madar').value = settings.phoneMadar || '';
-          document.getElementById('setting-bank').value = settings.bankDetails || '';
-          document.getElementById('setting-new-pass').value = settings.adminPass || '1234';
+          document.getElementById('setting-pass').value = settings.adminPass || '1234';
+
+          populateDynamicInputs('libyana-container', settings.phoneLibyana);
+          populateDynamicInputs('madar-container', settings.phoneMadar);
+          populateDynamicInputs('bank-container', settings.bankDetails);
+          populateDynamicInputs('usdt-container', settings.usdtWallets);
+          populateDynamicInputs('binance-container', settings.binanceIds);
         }
       });
 
-      db.collection("services").onSnapshot(snapshot => {
+      // 2. Orders
+      db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
+        orders = [];
+        snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+        renderOrdersList();
+      });
+
+      // 3. Deposits
+      db.collection("deposits").orderBy("createdAt", "desc").onSnapshot(snap => {
+        deposits = [];
+        snap.forEach(d => deposits.push({ id: d.id, ...d.data() }));
+        renderDepositsList();
+      });
+
+      // 4. Services
+      db.collection("services").onSnapshot(snap => {
         services = [];
-        snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+        snap.forEach(d => services.push({ id: d.id, ...d.data() }));
         renderServicesList();
       });
 
-      db.collection("coupons").onSnapshot(snapshot => {
+      // 5. Users
+      db.collection("users").onSnapshot(snap => {
+        users = [];
+        snap.forEach(d => users.push({ id: d.id, ...d.data() }));
+        renderUsersList();
+      });
+
+      // 6. Tickets
+      db.collection("tickets").orderBy("createdAt", "desc").onSnapshot(snap => {
+        tickets = [];
+        snap.forEach(d => tickets.push({ id: d.id, ...d.data() }));
+        renderTicketsList();
+      });
+
+      // 7. Coupons
+      db.collection("coupons").onSnapshot(snap => {
         coupons = [];
-        snapshot.forEach(doc => coupons.push({ id: doc.id, ...doc.data() }));
+        snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
         renderCouponsList();
       });
 
       resetForm();
     }
 
+    // --- Dynamic Multi-Account Inputs ---
+    function addDynamicInput(containerId, value = '') {
+      const cont = document.getElementById(containerId);
+      const div = document.createElement('div');
+      div.className = 'dynamic-row';
+      div.innerHTML = `
+        <input type="text" class="dyn-val" value="${value}" placeholder="أدخل الرقم أو الحساب أو المحفظة...">
+        <button type="button" class="btn-del-row" onclick="this.parentElement.remove()">✕</button>
+      `;
+      cont.appendChild(div);
+    }
+
+    function populateDynamicInputs(containerId, list) {
+      const cont = document.getElementById(containerId);
+      cont.innerHTML = '';
+      const arr = Array.isArray(list) ? list : (list ? [list] : []);
+      if (arr.length === 0) {
+        addDynamicInput(containerId);
+      } else {
+        arr.forEach(val => addDynamicInput(containerId, val));
+      }
+    }
+
+    function getDynamicValues(containerId) {
+      const inputs = document.querySelectorAll(`#${containerId} .dyn-val`);
+      const vals = [];
+      inputs.forEach(inp => {
+        const v = inp.value.trim();
+        if (v) vals.push(v);
+      });
+      return vals;
+    }
+
+    // --- Orders Management ---
+    function renderOrdersList() {
+      const cont = document.getElementById('orders-list-container');
+      cont.innerHTML = '';
+
+      if (orders.length === 0) {
+        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد طلبات واردة حتى الآن.</p>';
+        return;
+      }
+
+      orders.forEach(o => {
+        let badgeColor = '#f59e0b';
+        let badgeText = '⏳ قيد الانتظار';
+        if (o.status === 'in_progress') { badgeColor = '#38bdf8'; badgeText = '⚙️ قيد التنفيذ'; }
+        if (o.status === 'completed') { badgeColor = '#10b981'; badgeText = '✅ مكتمل'; }
+        if (o.status === 'cancelled') { badgeColor = '#ef4444'; badgeText = '❌ ملغي ومسترجع'; }
+
+        cont.innerHTML += `
+          <div class="data-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>${o.serviceTitle} (${o.packageName})</strong>
+              <span style="color:${badgeColor}; font-weight:bold;">${badgeText}</span>
+            </div>
+            <div>👤 <strong>الزبون:</strong> @${o.username || 'زبون'} (${o.userEmail}) | 💰 <strong>القيمة:</strong> $${o.costUsd}</div>
+            <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">
+              🎯 <strong>المعرف / الحساب:</strong> <span style="color:#38bdf8;">${o.targetInfo}</span><br>
+              📝 <strong>ملاحظات:</strong> ${o.clientNotes || 'لا توجد'}
+            </div>
+            ${o.deliveredCode ? `<div style="color:var(--accent);">📦 <strong>كود التسليم المعتمد:</strong> ${o.deliveredCode}</div>` : ''}
+            
+            <div class="actions-bar">
+              <button style="background:#38bdf8; color:#000;" onclick="updateOrderStatus('${o.id}', 'in_progress')">قيد التنفيذ</button>
+              <button class="btn-success" onclick="completeOrderPrompt('${o.id}')">إكمال وتسليم كود</button>
+              <button class="btn-danger" onclick="cancelAndRefundOrder('${o.id}', '${o.uid}', ${o.costUsd})">إلغاء واسترجاع الرصيد</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function updateOrderStatus(orderId, status) {
+      db.collection("orders").doc(orderId).update({ status });
+    }
+
+    function completeOrderPrompt(orderId) {
+      const code = prompt('أدخل كود الشحن أو رسالة التسليم للزبون (ستظهر في حسابه فوراً):', '');
+      if (code !== null) {
+        db.collection("orders").doc(orderId).update({
+          status: 'completed',
+          deliveredCode: code
+        });
+      }
+    }
+
+    async function cancelAndRefundOrder(orderId, uid, amount) {
+      if (!confirm(`هل أنت متأكد من إلغاء هذا الطلب وإرجاع مبلغ $${amount} إلى محفظة الزبون تلقائياً؟`)) return;
+
+      const userRef = db.collection("users").doc(uid);
+      const orderRef = db.collection("orders").doc(orderId);
+
+      await db.runTransaction(async (t) => {
+        t.update(userRef, {
+          balance: firebase.firestore.FieldValue.increment(amount),
+          totalSpent: firebase.firestore.FieldValue.increment(-amount)
+        });
+        t.update(orderRef, { status: 'cancelled' });
+      });
+
+      alert('✅ تم إلغاء الطلب وإرجاع الرصيد لمحفظة العميل بنجاح!');
+    }
+
+    // --- Deposits Management ---
+    function renderDepositsList() {
+      const cont = document.getElementById('deposits-list-container');
+      cont.innerHTML = '';
+
+      if (deposits.length === 0) {
+        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد طلبات إيداع حالياً.</p>';
+        return;
+      }
+
+      deposits.forEach(d => {
+        let isPending = d.status === 'pending';
+        cont.innerHTML += `
+          <div class="data-card">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>طلب شحن: $${d.amountUsd}</strong>
+              <span style="color:${isPending ? '#f59e0b' : (d.status === 'approved' ? '#10b981' : '#ef4444')}; font-weight:bold;">
+                ${isPending ? '⏳ قيد المراجعة' : (d.status === 'approved' ? '✅ مقبول' : '❌ مرفوض')}
+              </span>
+            </div>
+            <div>👤 <strong>المرسل:</strong> @${d.username} (${d.userEmail}) | 💳 <strong>طريقة الدفع:</strong> ${d.paymentMethod}</div>
+            <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">
+              📑 <strong>إثبات التحويل / كرت الشحن:</strong> <span style="color:#38bdf8;">${d.referenceText}</span>
+            </div>
+            ${isPending ? `
+              <div class="actions-bar">
+                <button class="btn-success" onclick="approveDeposit('${d.id}', '${d.uid}', ${d.amountUsd})">✅ قبول وإضافة $${d.amountUsd} للمحفظة</button>
+                <button class="btn-danger" onclick="rejectDeposit('${d.id}')">❌ رفض الإيداع</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+    }
+
+    async function approveDeposit(depId, uid, amount) {
+      if (!confirm(`تأكيد استلام المبلغ وإضافة $${amount} لمحفظة هذا المستخدم؟`)) return;
+
+      const userRef = db.collection("users").doc(uid);
+      const depRef = db.collection("deposits").doc(depId);
+
+      await db.runTransaction(async (t) => {
+        t.update(userRef, { balance: firebase.firestore.FieldValue.increment(amount) });
+        t.update(depRef, { status: 'approved' });
+      });
+
+      alert('🎉 تم شحن رصيد المحفظة بنجاح!');
+    }
+
+    function rejectDeposit(depId) {
+      if (confirm('هل أنت متأكد من رفض طلب الشحن هذا؟')) {
+        db.collection("deposits").doc(depId).update({ status: 'rejected' });
+      }
+    }
+
+    // --- Users & Wallets Management ---
+    function renderUsersList() {
+      const q = (document.getElementById('search-user').value || '').trim().toLowerCase();
+      const cont = document.getElementById('users-list-container');
+      cont.innerHTML = '';
+
+      const filtered = users.filter(u => 
+        (u.username && u.username.toLowerCase().includes(q)) || 
+        (u.email && u.email.toLowerCase().includes(q))
+      );
+
+      if (filtered.length === 0) {
+        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا يوجد مستخدمين مطابقين.</p>';
+        return;
+      }
+
+      filtered.forEach(u => {
+        cont.innerHTML += `
+          <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+            <div>
+              <strong style="color:#38bdf8;">@${u.username || 'مستخدم'}</strong> (${u.email})
+              <div style="color:var(--muted); font-size:0.8rem;">الرتبة: ${u.vipLevel || 'برونزي'} | إجمالي الإنفاق: $${(u.totalSpent || 0).toFixed(2)}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:800; color:var(--accent); font-size:1rem;">$${(u.balance || 0).toFixed(2)}</span>
+              <button class="btn-edit" style="padding:6px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;" onclick="editUserBalance('${u.uid}', ${u.balance || 0})">تعديل الرصيد</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function editUserBalance(uid, oldBal) {
+      const val = prompt('أدخل القيمة الجديدة للرصيد بالدولار ($):', oldBal);
+      if (val !== null && !isNaN(parseFloat(val))) {
+        db.collection("users").doc(uid).update({ balance: parseFloat(val) });
+      }
+    }
+
+    // --- Tickets Support ---
+    function renderTicketsList() {
+      const cont = document.getElementById('tickets-list-container');
+      cont.innerHTML = '';
+
+      if (tickets.length === 0) {
+        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد تذاكر دعم حالياً.</p>';
+        return;
+      }
+
+      tickets.forEach(t => {
+        cont.innerHTML += `
+          <div class="data-card">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>${t.subject}</strong>
+              <span style="color:${t.status === 'answered' ? '#10b981' : '#f59e0b'}; font-weight:bold;">
+                ${t.status === 'answered' ? 'تم الرد' : 'مفتوحة'}
+              </span>
+            </div>
+            <div>👤 <strong>من:</strong> @${t.username} (${t.userEmail})</div>
+            <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">${t.message}</div>
+            ${t.reply ? `<div style="color:#38bdf8;"><strong>ردك الحالي:</strong> ${t.reply}</div>` : ''}
+            <div class="actions-bar">
+              <button class="btn-success" onclick="replyTicketPrompt('${t.id}')">الرد على التذكرة 💬</button>
+              <button class="btn-danger" onclick="deleteTicket('${t.id}')">حذف</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function replyTicketPrompt(tId) {
+      const reply = prompt('اكتب رد الإدارة على هذه التذكرة:');
+      if (reply) {
+        db.collection("tickets").doc(tId).update({
+          reply,
+          status: 'answered'
+        });
+      }
+    }
+
+    function deleteTicket(tId) {
+      if (confirm('حذف هذه التذكرة نهائياً؟')) db.collection("tickets").doc(tId).delete();
+    }
+
+    // --- Settings Saver ---
+    function saveSettings() {
+      const data = {
+        rateBank: parseFloat(document.getElementById('rate-bank').value) || 7.2,
+        rateLibyana: parseFloat(document.getElementById('rate-libyana').value) || 8.5,
+        rateMadar: parseFloat(document.getElementById('rate-madar').value) || 8.7,
+        phoneLibyana: getDynamicValues('libyana-container'),
+        phoneMadar: getDynamicValues('madar-container'),
+        bankDetails: getDynamicValues('bank-container'),
+        usdtWallets: getDynamicValues('usdt-container'),
+        binanceIds: getDynamicValues('binance-container'),
+        logoUrl: document.getElementById('setting-logo').value.trim(),
+        noticeText: document.getElementById('setting-notice').value.trim(),
+        adminPass: document.getElementById('setting-pass').value.trim() || '1234'
+      };
+
+      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
+        alert('✅ تم حفظ جميع أسعار الصرف وحسابات الدفع بنجاح!');
+      });
+    }
+
+    // --- Services Management ---
     function handleImageUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -419,9 +736,9 @@
     function addPackageRow(name = '', price = '') {
       const container = document.getElementById('packages-container');
       const div = document.createElement('div');
-      div.className = 'pkg-row';
+      div.className = 'dynamic-row';
       div.innerHTML = `
-        <input type="text" placeholder="اسم الباقة (مثال: شهري / 100 عملة)" class="pkg-name" value="${name}">
+        <input type="text" placeholder="اسم الباقة (مثال: شهري / 100 كوين)" class="pkg-name" value="${name}">
         <input type="number" step="0.1" placeholder="السعر ($)" class="pkg-price" value="${price}" style="max-width: 120px;">
         <button type="button" class="btn-del-row" onclick="this.parentElement.remove()">✕</button>
       `;
@@ -449,7 +766,7 @@
       }
 
       if (!title || packages.length === 0) {
-        alert('يرجى كتابة عنوان الخدمة وإضافة باقة وسعر بالدولار ($) على الأقل!');
+        alert('يرجى كتابة عنوان الخدمة وإضافة باقة واحدة على الأقل');
         return;
       }
 
@@ -466,13 +783,13 @@
 
       if (editId) {
         db.collection("services").doc(editId).update(serviceData).then(() => {
-          alert('✅ تم تحديث الخدمة في المتجر بنجاح!');
+          alert('✅ تم تحديث الخدمة بنجاح!');
           resetForm();
         });
       } else {
         serviceData.createdAt = Date.now();
         db.collection("services").add(serviceData).then(() => {
-          alert('🚀 تم نشر الخدمة في المتجر بنجاح!');
+          alert('🚀 تم نشر الخدمة بنجاح!');
           resetForm();
         });
       }
@@ -506,8 +823,6 @@
       document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
     }
 
-    function cancelEdit() { resetForm(); }
-
     function resetForm() {
       document.getElementById('edit-service-id').value = '';
       document.getElementById('new-title').value = '';
@@ -518,14 +833,13 @@
       document.getElementById('img-preview').style.display = 'none';
       localImageBase64 = "";
 
-      document.getElementById('form-title').innerText = '➕ إضافة خدمة مع باقات الأسعار';
-      document.getElementById('save-btn').innerText = 'نشر الخدمة في المتجر أونلاين 🚀';
+      document.getElementById('form-title').innerText = '➕ إضافة خدمة وباقات أسعار جديدة';
+      document.getElementById('save-btn').innerText = 'نشر الخدمة في المتجر 🚀';
       document.getElementById('cancel-edit-btn').style.display = 'none';
 
       const pkgContainer = document.getElementById('packages-container');
       pkgContainer.innerHTML = '';
       addPackageRow('شهري', '3');
-      addPackageRow('3 شهور', '20');
     }
 
     function toggleServiceStatus(id, currentStatus) {
@@ -534,9 +848,7 @@
     }
 
     function deleteService(id) {
-      if (confirm('هل أنت متأكد من حذف هذه الخدمة بالكامل من المتجر؟')) {
-        db.collection("services").doc(id).delete();
-      }
+      if (confirm('حذف هذه الخدمة نهائياً؟')) db.collection("services").doc(id).delete();
     }
 
     function renderServicesList() {
@@ -544,22 +856,22 @@
       container.innerHTML = '';
 
       if (services.length === 0) {
-        container.innerHTML = '<p style="color:var(--muted); text-align:center; padding:15px;">لا توجد خدمات مضافة حتى الآن.</p>';
+        container.innerHTML = '<p style="color:var(--muted); text-align:center; padding:15px;">لا توجد خدمات حتى الآن.</p>';
         return;
       }
 
       services.forEach(s => {
         const isAvail = s.status !== 'unavailable';
-        const pkgs = (s.packages || []).map(p => `<span class="pkg-tag">${p.name}: $${p.priceUsd}</span>`).join(' ');
+        const pkgs = (s.packages || []).map(p => `<span style="background:#1e293b; color:#38bdf8; padding:2px 6px; border-radius:4px; font-size:0.78rem;">${p.name}: $${p.priceUsd}</span>`).join(' ');
         container.innerHTML += `
-          <div class="service-item">
-            <div class="service-item-header">
+          <div class="data-card">
+            <div style="display:flex; justify-content:space-between;">
               <strong>${s.title}</strong>
-              <span style="font-size:0.75rem; color:${isAvail ? 'var(--success)' : 'var(--danger)'}; font-weight:bold;">
+              <span style="font-size:0.75rem; color:${isAvail ? 'var(--accent)' : 'var(--danger)'}; font-weight:bold;">
                 ${isAvail ? '● متوفرة' : '○ متوقفة'}
               </span>
             </div>
-            <div style="font-size:0.8rem; color:var(--muted);">القسم: ${s.category}</div>
+            <div style="color:var(--muted); font-size:0.8rem;">القسم: ${s.category}</div>
             <div>${pkgs}</div>
             <div class="actions-bar">
               <button class="btn-edit" onclick="editService('${s.id}')">تعديل</button>
@@ -573,32 +885,13 @@
       });
     }
 
-    function saveSettings() {
-      const data = {
-        rateBank: parseFloat(document.getElementById('setting-rate-bank').value) || 7.2,
-        rateLibyana: parseFloat(document.getElementById('setting-rate-libyana').value) || 8.5,
-        rateMadar: parseFloat(document.getElementById('setting-rate-madar').value) || 8.7,
-        phoneLibyana: document.getElementById('setting-libyana').value.trim(),
-        phoneMadar: document.getElementById('setting-madar').value.trim(),
-        bankDetails: document.getElementById('setting-bank').value.trim(),
-        waPhone: document.getElementById('setting-phone').value.trim(),
-        tgUser: document.getElementById('setting-telegram').value.trim(),
-        logoUrl: document.getElementById('setting-logo').value.trim(),
-        noticeText: document.getElementById('setting-notice').value.trim(),
-        adminPass: document.getElementById('setting-new-pass').value.trim() || '1234'
-      };
-
-      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        alert('✅ تم حفظ جميع أسعار الصرف المنفصلة بنجاح!');
-      });
-    }
-
+    // --- Coupons ---
     function saveCoupon() {
       const code = document.getElementById('cpn-code').value.trim().toUpperCase();
       const discount = parseFloat(document.getElementById('cpn-discount').value);
 
       if (!code || isNaN(discount)) {
-        alert('يرجى إدخال كود الكوبون ونسبة الخصم');
+        alert('أدخل الكود ونسبة الخصم');
         return;
       }
 
@@ -607,28 +900,26 @@
         discount,
         createdAt: Date.now()
       }).then(() => {
-        alert('🎟️ تم تفعيل ونشر الكوبون أونلاين!');
+        alert('🎟️ تم نشر الكوبون!');
         document.getElementById('cpn-code').value = '';
         document.getElementById('cpn-discount').value = '';
       });
     }
 
     function deleteCoupon(code) {
-      if (confirm(`حذف الكوبون ${code}؟`)) {
-        db.collection("coupons").doc(code).delete();
-      }
+      if (confirm(`حذف الكوبون ${code}؟`)) db.collection("coupons").doc(code).delete();
     }
 
     function renderCouponsList() {
-      const container = document.getElementById('coupons-list-container');
-      container.innerHTML = '';
+      const cont = document.getElementById('coupons-list-container');
+      cont.innerHTML = '';
       if (coupons.length === 0) {
-        container.innerHTML = '<p style="color:var(--muted); text-align:center; padding:15px;">لا توجد كوبونات مفعلة حالياً.</p>';
+        cont.innerHTML = '<p style="color:var(--muted); text-align:center; padding:15px;">لا توجد كوبونات مفعلة.</p>';
         return;
       }
       coupons.forEach(c => {
-        container.innerHTML += `
-          <div class="service-item" style="flex-direction:row; justify-content:space-between; align-items:center;">
+        cont.innerHTML += `
+          <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
             <div>
               <strong style="color:var(--accent);">🎟️ ${c.code}</strong>
               <div style="font-size:0.8rem; color:var(--muted);">خصم ${c.discount}% على كل الخدمات</div>
@@ -641,4 +932,3 @@
   </script>
 </body>
 </html>
- 
