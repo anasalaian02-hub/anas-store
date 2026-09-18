@@ -2,12 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة الإدارة السحابية المتطورة | متجر أنس</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>لوحة الإدارة السحابية | متجر أنس</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
@@ -24,26 +23,26 @@
       --muted: #94a3b8;
     }
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: var(--text); padding: 14px; padding-bottom: 60px; }
+    body { background-color: var(--bg); color: var(--text); padding: 12px; padding-bottom: 60px; }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
-    .header h1 { font-size: 1.25rem; color: #38bdf8; font-weight: 800; }
-    .status-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+    .header h1 { font-size: 1.15rem; color: #38bdf8; font-weight: 800; }
+    .status-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
 
     /* Navigation Tabs */
     .tabs {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
       padding-bottom: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       scrollbar-width: none;
     }
     .tabs::-webkit-scrollbar { display: none; }
@@ -51,9 +50,9 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 9px 16px;
-      border-radius: 12px;
-      font-size: 0.85rem;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
       font-weight: 700;
       white-space: nowrap;
       cursor: pointer;
@@ -62,47 +61,47 @@
       background: var(--primary);
       color: #fff;
       border-color: var(--primary);
-      box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
     }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 18px; }
-    .card h2 { font-size: 1.05rem; margin-bottom: 14px; color: #e2e8f0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 16px; }
+    .card h2 { font-size: 1rem; margin-bottom: 12px; color: #e2e8f0; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     @media(max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.83rem; color: var(--muted); margin-bottom: 5px; }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
     input, select, textarea {
       width: 100%;
       background: var(--card-inner);
       border: 1px solid var(--border);
-      padding: 10px 12px;
-      border-radius: 10px;
+      padding: 9px 11px;
+      border-radius: 8px;
       color: #fff;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       outline: none;
     }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 
-    .dynamic-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
-    .btn-del-row { background: var(--danger); color: white; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; }
-    .btn-add-row { background: var(--accent); color: #022c15; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
+    .dynamic-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+    .btn-del-row { background: var(--danger); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-weight: bold; }
+    .btn-add-row { background: var(--accent); color: #022c15; border: none; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
 
     .btn {
       width: 100%;
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 11px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       font-weight: 700;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       margin-top: 6px;
     }
     .btn-danger { background: var(--danger); }
@@ -113,30 +112,82 @@
     .data-card {
       background: var(--card-inner);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 12px;
       margin-bottom: 10px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      font-size: 0.85rem;
+      font-size: 0.83rem;
     }
     .actions-bar { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-    .actions-bar button { flex: 1; min-width: 80px; padding: 7px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+    .actions-bar button { flex: 1; min-width: 80px; padding: 7px; border: none; border-radius: 6px; font-weight: bold; font-size: 0.78rem; cursor: pointer; }
 
-    .preview-box { width: 100%; height: 130px; border-radius: 10px; border: 1px solid var(--border); display: none; object-fit: cover; margin-top: 6px; }
+    .preview-box { width: 100%; height: 120px; border-radius: 8px; border: 1px solid var(--border); display: none; object-fit: cover; margin-top: 6px; }
+
+    /* Custom Toast Notification */
+    #app-toast {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: #131b2e;
+      color: #fff;
+      border: 1.5px solid #38bdf8;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width: 90%;
+      text-align: center;
+    }
+    #app-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Modal for Image Zoom */
+    .image-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      padding: 1rem;
+    }
+    .image-modal img {
+      max-width: 95%;
+      max-height: 85vh;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
 
-  <!-- Login Overlay -->
-  <div id="login-box" style="max-width: 400px; margin: 6rem auto; text-align: center;" class="card">
+  <!-- In-App Toast -->
+  <div id="app-toast"></div>
+
+  <!-- Fullscreen Image Viewer Modal -->
+  <div class="image-modal" id="image-modal" onclick="closeImageModal()">
+    <img id="modal-full-img" src="" alt="إيصال التحويل">
+  </div>
+
+  <!-- Login Box -->
+  <div id="login-box" style="max-width: 380px; margin: 6rem auto; text-align: center;" class="card">
     <h2 style="border:none;">🔒 تسجيل دخول الإدارة</h2>
     <input type="password" id="admin-pass" placeholder="أدخل رمز المرور السري (1234)">
     <button class="btn" onclick="checkAuth()">دخول إلى المنصة</button>
   </div>
 
-  <!-- Main Admin Content -->
+  <!-- Main Admin Panel -->
   <div id="admin-panel" style="display: none;">
     <div class="header">
       <h1>⚙️ إدارة متجر أنس السحابية</h1>
@@ -144,8 +195,8 @@
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('orders-tab', this)">📥 الطلبات والتسليم</button>
-      <button class="tab-btn" onclick="switchTab('deposits-tab', this)">💰 إيداعات المحفظة</button>
+      <button class="tab-btn active" onclick="switchTab('deposits-tab', this)">💰 إيداعات المحفظة</button>
+      <button class="tab-btn" onclick="switchTab('orders-tab', this)">📥 الطلبات والتسليم</button>
       <button class="tab-btn" onclick="switchTab('services-tab', this)">📦 الخدمات والباقات</button>
       <button class="tab-btn" onclick="switchTab('rates-tab', this)">💳 طرق الدفع وأسعار الصرف</button>
       <button class="tab-btn" onclick="switchTab('users-tab', this)">👥 المستخدمين والمحافظ</button>
@@ -153,22 +204,22 @@
       <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات</button>
     </div>
 
-    <!-- 1. Orders Management -->
-    <div id="orders-tab" class="tab-content active">
+    <!-- 1. Deposits Management -->
+    <div id="deposits-tab" class="tab-content active">
       <div class="card">
-        <h2>📥 إدارة طلبات الخدمات المباشرة</h2>
-        <div id="orders-list-container">
-          <p style="text-align:center; color:var(--muted);">جاري تحميل الطلبات...</p>
+        <h2>💰 مراجعة طلبات شحن المحفظة (الإيصالات)</h2>
+        <div id="deposits-list-container">
+          <p style="text-align:center; color:var(--muted);">جاري تحميل الإيداعات...</p>
         </div>
       </div>
     </div>
 
-    <!-- 2. Deposits Management -->
-    <div id="deposits-tab" class="tab-content">
+    <!-- 2. Orders Management -->
+    <div id="orders-tab" class="tab-content">
       <div class="card">
-        <h2>💰 طلبات شحن المحفظة (مراجعة الإيداعات)</h2>
-        <div id="deposits-list-container">
-          <p style="text-align:center; color:var(--muted);">جاري تحميل الإيداعات...</p>
+        <h2>📥 إدارة طلبات الخدمات المباشرة</h2>
+        <div id="orders-list-container">
+          <p style="text-align:center; color:var(--muted);">جاري تحميل الطلبات...</p>
         </div>
       </div>
     </div>
@@ -207,8 +258,8 @@
         <button type="button" class="btn-add-row" onclick="addPackageRow()">+ إضافة باقة/مدة أخرى</button>
 
         <div class="form-group">
-          <label>ملاحظات وشروط الخدمة:</label>
-          <textarea id="new-notes" rows="2" placeholder="أي تفاصيل خاصة بطريقة الشحن"></textarea>
+          <label>طريقة وشروط الشحن الخاصة بالخدمة (تظهر للزبون عند الطلب):</label>
+          <textarea id="new-notes" rows="2" placeholder="مثال: الشحن عبر الآيدي فقط، لا نحتاج لكلمة المرور"></textarea>
         </div>
 
         <div style="display: flex; gap: 8px;">
@@ -244,30 +295,37 @@
 
         <h2>📱 طرق الدفع والحسابات المتعددة</h2>
         
-        <!-- Libyana Numbers -->
         <label style="color:#38bdf8; font-weight:bold;">📶 أرقام استقبال رصيد ليبيانا:</label>
         <div id="libyana-container"></div>
         <button type="button" class="btn-add-row" onclick="addDynamicInput('libyana-container')">+ إضافة رقم ليبيانا إضافي</button>
 
-        <!-- Madar Numbers -->
         <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">📡 أرقام استقبال رصيد مدار:</label>
         <div id="madar-container"></div>
         <button type="button" class="btn-add-row" onclick="addDynamicInput('madar-container')">+ إضافة رقم مدار إضافي</button>
 
-        <!-- Bank Accounts -->
         <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">🏦 حسابات التحويل المصرفي (سداد / لي باي / تداول / مصارف):</label>
         <div id="bank-container"></div>
         <button type="button" class="btn-add-row" onclick="addDynamicInput('bank-container')">+ إضافة حساب مصرفي إضافي</button>
 
-        <!-- USDT Wallets -->
         <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">🪙 عناوين محافظ USDT (TRC20 / BEP20):</label>
         <div id="usdt-container"></div>
         <button type="button" class="btn-add-row" onclick="addDynamicInput('usdt-container')">+ إضافة عنوان USDT إضافي</button>
 
-        <!-- Binance IDs -->
         <label style="color:#38bdf8; font-weight:bold; margin-top:8px; display:block;">🟡 معرفات Binance Pay ID:</label>
         <div id="binance-container"></div>
         <button type="button" class="btn-add-row" onclick="addDynamicInput('binance-container')">+ إضافة Binance ID إضافي</button>
+
+        <h2>✈️ قنوات الدعم والتواصل بالمتجر</h2>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>رقم واتساب الدعم (بالمفتاح الدولي بدون +):</label>
+            <input type="text" id="setting-phone" placeholder="21891XXXXXXX">
+          </div>
+          <div class="form-group">
+            <label>يوزر تلجرام الدعم (بدون @):</label>
+            <input type="text" id="setting-telegram" placeholder="AnasStore">
+          </div>
+        </div>
 
         <h2>⚙️ إعدادات المتجر العامة</h2>
         <div class="grid-2">
@@ -355,6 +413,14 @@
     let settings = {};
     let localImageBase64 = "";
 
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('app-toast');
+      toast.innerText = msg;
+      toast.style.borderColor = isError ? 'var(--danger)' : '#38bdf8';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -371,7 +437,7 @@
           document.getElementById('admin-panel').style.display = 'block';
           initAdmin();
         } else {
-          alert('رمز المرور غير صحيح!');
+          showToast('رمز المرور غير صحيح!', true);
         }
       });
     }
@@ -384,6 +450,8 @@
           document.getElementById('rate-bank').value = settings.rateBank || 7.2;
           document.getElementById('rate-libyana').value = settings.rateLibyana || 8.5;
           document.getElementById('rate-madar').value = settings.rateMadar || 8.7;
+          document.getElementById('setting-phone').value = settings.waPhone || '';
+          document.getElementById('setting-telegram').value = settings.tgUser || '';
           document.getElementById('setting-logo').value = settings.logoUrl || '';
           document.getElementById('setting-notice').value = settings.noticeText || '';
           document.getElementById('setting-pass').value = settings.adminPass || '1234';
@@ -396,18 +464,20 @@
         }
       });
 
-      // 2. Orders
-      db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
-        orders = [];
-        snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
-        renderOrdersList();
-      });
-
-      // 3. Deposits
-      db.collection("deposits").orderBy("createdAt", "desc").onSnapshot(snap => {
+      // 2. Deposits
+      db.collection("deposits").onSnapshot(snap => {
         deposits = [];
         snap.forEach(d => deposits.push({ id: d.id, ...d.data() }));
+        deposits.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderDepositsList();
+      });
+
+      // 3. Orders
+      db.collection("orders").onSnapshot(snap => {
+        orders = [];
+        snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+        orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        renderOrdersList();
       });
 
       // 4. Services
@@ -425,9 +495,10 @@
       });
 
       // 6. Tickets
-      db.collection("tickets").orderBy("createdAt", "desc").onSnapshot(snap => {
+      db.collection("tickets").onSnapshot(snap => {
         tickets = [];
         snap.forEach(d => tickets.push({ id: d.id, ...d.data() }));
+        tickets.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderTicketsList();
       });
 
@@ -474,6 +545,77 @@
       return vals;
     }
 
+    // --- Deposits Review Management ---
+    function renderDepositsList() {
+      const cont = document.getElementById('deposits-list-container');
+      cont.innerHTML = '';
+
+      if (deposits.length === 0) {
+        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد طلبات إيداع حالياً.</p>';
+        return;
+      }
+
+      deposits.forEach(d => {
+        let isPending = d.status === 'pending';
+        cont.innerHTML += `
+          <div class="data-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:var(--accent); font-size:0.95rem;">طلب شحن: $${d.amountUsd}</strong>
+              <span style="color:${isPending ? '#f59e0b' : (d.status === 'approved' ? '#10b981' : '#ef4444')}; font-weight:bold;">
+                ${isPending ? '⏳ قيد المراجعة' : (d.status === 'approved' ? '✅ مقبول' : '❌ مرفوض')}
+              </span>
+            </div>
+            <div>👤 <strong>المرسل:</strong> @${d.username} (${d.userEmail}) | 💳 <strong>طريقة الدفع:</strong> ${d.paymentMethod}</div>
+            <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">
+              📲 <strong>المحول منه:</strong> <span style="color:#38bdf8; font-weight:bold;">${d.sourceAccount || d.referenceText || 'غير محدد'}</span>
+            </div>
+            ${d.receiptImg ? `
+              <div style="margin: 6px 0;">
+                <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">🖼️ صورة الإيصال (اضغط للمعاينة الكاملة):</div>
+                <img src="${d.receiptImg}" style="max-width:140px; height:80px; border-radius:6px; object-fit:cover; border:1px solid var(--border); cursor:pointer;" onclick="openImageModal('${d.receiptImg}')">
+              </div>
+            ` : '<div style="color:var(--muted); font-size:0.78rem;">لا توجد صورة إيصال مرفقة</div>'}
+            ${isPending ? `
+              <div class="actions-bar">
+                <button class="btn-success" onclick="approveDeposit('${d.id}', '${d.uid}', ${d.amountUsd})">✅ اعتماد وإضافة $${d.amountUsd}</button>
+                <button class="btn-danger" onclick="rejectDeposit('${d.id}')">❌ رفض الإيداع</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+    }
+
+    async function approveDeposit(depId, uid, amount) {
+      const userRef = db.collection("users").doc(uid);
+      const depRef = db.collection("deposits").doc(depId);
+
+      try {
+        await db.runTransaction(async (t) => {
+          t.update(userRef, { balance: firebase.firestore.FieldValue.increment(amount) });
+          t.update(depRef, { status: 'approved' });
+        });
+        showToast(`🎉 تم اعتماد الإيداع وإضافة $${amount} للمحفظة!`);
+      } catch (e) {
+        showToast('خطأ: ' + e.message, true);
+      }
+    }
+
+    function rejectDeposit(depId) {
+      db.collection("deposits").doc(depId).update({ status: 'rejected' }).then(() => {
+        showToast('تم رفض طلب الإيداع.');
+      });
+    }
+
+    function openImageModal(src) {
+      document.getElementById('modal-full-img').src = src;
+      document.getElementById('image-modal').style.display = 'flex';
+    }
+
+    function closeImageModal() {
+      document.getElementById('image-modal').style.display = 'none';
+    }
+
     // --- Orders Management ---
     function renderOrdersList() {
       const cont = document.getElementById('orders-list-container');
@@ -499,10 +641,10 @@
             </div>
             <div>👤 <strong>الزبون:</strong> @${o.username || 'زبون'} (${o.userEmail}) | 💰 <strong>القيمة:</strong> $${o.costUsd}</div>
             <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">
-              🎯 <strong>المعرف / الحساب:</strong> <span style="color:#38bdf8;">${o.targetInfo}</span><br>
-              📝 <strong>ملاحظات:</strong> ${o.clientNotes || 'لا توجد'}
+              🎯 <strong>المعرف / الحساب:</strong> <span style="color:#38bdf8; font-weight:bold;">${o.targetInfo}</span><br>
+              📝 <strong>ملاحظات العميل:</strong> ${o.clientNotes || 'لا توجد'}
             </div>
-            ${o.deliveredCode ? `<div style="color:var(--accent);">📦 <strong>كود التسليم المعتمد:</strong> ${o.deliveredCode}</div>` : ''}
+            ${o.deliveredCode ? `<div style="color:var(--accent);">📦 <strong>كود أو رسالة التسليم:</strong> ${o.deliveredCode}</div>` : ''}
             
             <div class="actions-bar">
               <button style="background:#38bdf8; color:#000;" onclick="updateOrderStatus('${o.id}', 'in_progress')">قيد التنفيذ</button>
@@ -515,88 +657,38 @@
     }
 
     function updateOrderStatus(orderId, status) {
-      db.collection("orders").doc(orderId).update({ status });
+      db.collection("orders").doc(orderId).update({ status }).then(() => {
+        showToast('تم تحديث حالة الطلب إلى قيد التنفيذ.');
+      });
     }
 
     function completeOrderPrompt(orderId) {
-      const code = prompt('أدخل كود الشحن أو رسالة التسليم للزبون (ستظهر في حسابه فوراً):', '');
+      const code = prompt('أدخل كود الشحن أو رسالة التسليم (ستظهر في سجل طلبات العميل):', '');
       if (code !== null) {
         db.collection("orders").doc(orderId).update({
           status: 'completed',
           deliveredCode: code
+        }).then(() => {
+          showToast('✅ تم إكمال الطلب وتسليم الكود بنجاح!');
         });
       }
     }
 
     async function cancelAndRefundOrder(orderId, uid, amount) {
-      if (!confirm(`هل أنت متأكد من إلغاء هذا الطلب وإرجاع مبلغ $${amount} إلى محفظة الزبون تلقائياً؟`)) return;
-
       const userRef = db.collection("users").doc(uid);
       const orderRef = db.collection("orders").doc(orderId);
 
-      await db.runTransaction(async (t) => {
-        t.update(userRef, {
-          balance: firebase.firestore.FieldValue.increment(amount),
-          totalSpent: firebase.firestore.FieldValue.increment(-amount)
+      try {
+        await db.runTransaction(async (t) => {
+          t.update(userRef, {
+            balance: firebase.firestore.FieldValue.increment(amount),
+            totalSpent: firebase.firestore.FieldValue.increment(-amount)
+          });
+          t.update(orderRef, { status: 'cancelled' });
         });
-        t.update(orderRef, { status: 'cancelled' });
-      });
-
-      alert('✅ تم إلغاء الطلب وإرجاع الرصيد لمحفظة العميل بنجاح!');
-    }
-
-    // --- Deposits Management ---
-    function renderDepositsList() {
-      const cont = document.getElementById('deposits-list-container');
-      cont.innerHTML = '';
-
-      if (deposits.length === 0) {
-        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد طلبات إيداع حالياً.</p>';
-        return;
-      }
-
-      deposits.forEach(d => {
-        let isPending = d.status === 'pending';
-        cont.innerHTML += `
-          <div class="data-card">
-            <div style="display:flex; justify-content:space-between;">
-              <strong>طلب شحن: $${d.amountUsd}</strong>
-              <span style="color:${isPending ? '#f59e0b' : (d.status === 'approved' ? '#10b981' : '#ef4444')}; font-weight:bold;">
-                ${isPending ? '⏳ قيد المراجعة' : (d.status === 'approved' ? '✅ مقبول' : '❌ مرفوض')}
-              </span>
-            </div>
-            <div>👤 <strong>المرسل:</strong> @${d.username} (${d.userEmail}) | 💳 <strong>طريقة الدفع:</strong> ${d.paymentMethod}</div>
-            <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">
-              📑 <strong>إثبات التحويل / كرت الشحن:</strong> <span style="color:#38bdf8;">${d.referenceText}</span>
-            </div>
-            ${isPending ? `
-              <div class="actions-bar">
-                <button class="btn-success" onclick="approveDeposit('${d.id}', '${d.uid}', ${d.amountUsd})">✅ قبول وإضافة $${d.amountUsd} للمحفظة</button>
-                <button class="btn-danger" onclick="rejectDeposit('${d.id}')">❌ رفض الإيداع</button>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      });
-    }
-
-    async function approveDeposit(depId, uid, amount) {
-      if (!confirm(`تأكيد استلام المبلغ وإضافة $${amount} لمحفظة هذا المستخدم؟`)) return;
-
-      const userRef = db.collection("users").doc(uid);
-      const depRef = db.collection("deposits").doc(depId);
-
-      await db.runTransaction(async (t) => {
-        t.update(userRef, { balance: firebase.firestore.FieldValue.increment(amount) });
-        t.update(depRef, { status: 'approved' });
-      });
-
-      alert('🎉 تم شحن رصيد المحفظة بنجاح!');
-    }
-
-    function rejectDeposit(depId) {
-      if (confirm('هل أنت متأكد من رفض طلب الشحن هذا؟')) {
-        db.collection("deposits").doc(depId).update({ status: 'rejected' });
+        showToast('✅ تم إلغاء الطلب واسترجاع الرصيد لمحفظة الزبون!');
+      } catch (e) {
+        showToast('خطأ: ' + e.message, true);
       }
     }
 
@@ -621,11 +713,11 @@
           <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap;">
             <div>
               <strong style="color:#38bdf8;">@${u.username || 'مستخدم'}</strong> (${u.email})
-              <div style="color:var(--muted); font-size:0.8rem;">الرتبة: ${u.vipLevel || 'برونزي'} | إجمالي الإنفاق: $${(u.totalSpent || 0).toFixed(2)}</div>
+              <div style="color:var(--muted); font-size:0.78rem;">الرتبة: ${u.vipLevel || 'برونزي'} | إجمالي الإنفاق: $${(u.totalSpent || 0).toFixed(2)}</div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="font-weight:800; color:var(--accent); font-size:1rem;">$${(u.balance || 0).toFixed(2)}</span>
-              <button class="btn-edit" style="padding:6px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;" onclick="editUserBalance('${u.uid}', ${u.balance || 0})">تعديل الرصيد</button>
+              <button class="btn-edit" style="padding:6px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;" onclick="editUserBalance('${u.uid}', ${u.balance || 0})">تعديل الرصيد</button>
             </div>
           </div>
         `;
@@ -635,7 +727,9 @@
     function editUserBalance(uid, oldBal) {
       const val = prompt('أدخل القيمة الجديدة للرصيد بالدولار ($):', oldBal);
       if (val !== null && !isNaN(parseFloat(val))) {
-        db.collection("users").doc(uid).update({ balance: parseFloat(val) });
+        db.collection("users").doc(uid).update({ balance: parseFloat(val) }).then(() => {
+          showToast('تم تحديث رصيد المستخدم بنجاح!');
+        });
       }
     }
 
@@ -676,12 +770,12 @@
         db.collection("tickets").doc(tId).update({
           reply,
           status: 'answered'
-        });
+        }).then(() => showToast('تم إرسال الرد للعميل بنجاح!'));
       }
     }
 
     function deleteTicket(tId) {
-      if (confirm('حذف هذه التذكرة نهائياً؟')) db.collection("tickets").doc(tId).delete();
+      db.collection("tickets").doc(tId).delete().then(() => showToast('تم حذف التذكرة.'));
     }
 
     // --- Settings Saver ---
@@ -695,13 +789,15 @@
         bankDetails: getDynamicValues('bank-container'),
         usdtWallets: getDynamicValues('usdt-container'),
         binanceIds: getDynamicValues('binance-container'),
+        waPhone: document.getElementById('setting-phone').value.trim() || '218910000000',
+        tgUser: document.getElementById('setting-telegram').value.trim() || 'AnasStore',
         logoUrl: document.getElementById('setting-logo').value.trim(),
         noticeText: document.getElementById('setting-notice').value.trim(),
         adminPass: document.getElementById('setting-pass').value.trim() || '1234'
       };
 
       db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        alert('✅ تم حفظ جميع أسعار الصرف وحسابات الدفع بنجاح!');
+        showToast('✅ تم حفظ جميع الإعدادات وطرق الدفع بنجاح!');
       });
     }
 
@@ -738,7 +834,7 @@
       const div = document.createElement('div');
       div.className = 'dynamic-row';
       div.innerHTML = `
-        <input type="text" placeholder="اسم الباقة (مثال: شهري / 100 كوين)" class="pkg-name" value="${name}">
+        <input type="text" placeholder="اسم الباقة (مثال: شهري / 60 شدة)" class="pkg-name" value="${name}">
         <input type="number" step="0.1" placeholder="السعر ($)" class="pkg-price" value="${price}" style="max-width: 120px;">
         <button type="button" class="btn-del-row" onclick="this.parentElement.remove()">✕</button>
       `;
@@ -766,7 +862,7 @@
       }
 
       if (!title || packages.length === 0) {
-        alert('يرجى كتابة عنوان الخدمة وإضافة باقة واحدة على الأقل');
+        showToast('يرجى كتابة عنوان الخدمة وإضافة باقة واحدة على الأقل', true);
         return;
       }
 
@@ -783,13 +879,13 @@
 
       if (editId) {
         db.collection("services").doc(editId).update(serviceData).then(() => {
-          alert('✅ تم تحديث الخدمة بنجاح!');
+          showToast('✅ تم تحديث الخدمة بنجاح!');
           resetForm();
         });
       } else {
         serviceData.createdAt = Date.now();
         db.collection("services").add(serviceData).then(() => {
-          alert('🚀 تم نشر الخدمة بنجاح!');
+          showToast('🚀 تم نشر الخدمة بنجاح!');
           resetForm();
         });
       }
@@ -844,11 +940,13 @@
 
     function toggleServiceStatus(id, currentStatus) {
       const newStatus = currentStatus === 'available' ? 'unavailable' : 'available';
-      db.collection("services").doc(id).update({ status: newStatus });
+      db.collection("services").doc(id).update({ status: newStatus }).then(() => {
+        showToast('تم تغيير حالة توفر الخدمة.');
+      });
     }
 
     function deleteService(id) {
-      if (confirm('حذف هذه الخدمة نهائياً؟')) db.collection("services").doc(id).delete();
+      db.collection("services").doc(id).delete().then(() => showToast('تم حذف الخدمة.'));
     }
 
     function renderServicesList() {
@@ -891,7 +989,7 @@
       const discount = parseFloat(document.getElementById('cpn-discount').value);
 
       if (!code || isNaN(discount)) {
-        alert('أدخل الكود ونسبة الخصم');
+        showToast('أدخل الكود ونسبة الخصم', true);
         return;
       }
 
@@ -900,14 +998,14 @@
         discount,
         createdAt: Date.now()
       }).then(() => {
-        alert('🎟️ تم نشر الكوبون!');
+        showToast('🎟️ تم نشر الكوبون!');
         document.getElementById('cpn-code').value = '';
         document.getElementById('cpn-discount').value = '';
       });
     }
 
     function deleteCoupon(code) {
-      if (confirm(`حذف الكوبون ${code}؟`)) db.collection("coupons").doc(code).delete();
+      db.collection("coupons").doc(code).delete().then(() => showToast('تم حذف الكوبون.'));
     }
 
     function renderCouponsList() {
@@ -921,7 +1019,7 @@
         cont.innerHTML += `
           <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
             <div>
-              <strong style="color:var(--accent);">🎟️ ${c.code}</strong>
+              <strong style="color:#ec4899;">🎟️ ${c.code}</strong>
               <div style="font-size:0.8rem; color:var(--muted);">خصم ${c.discount}% على كل الخدمات</div>
             </div>
             <button class="btn-del-row" onclick="deleteCoupon('${c.code}')">حذف</button>

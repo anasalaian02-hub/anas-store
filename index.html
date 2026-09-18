@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>متجر أنس | Anas Store للخدمات الرقمية</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Firebase SDKs -->
@@ -12,7 +12,6 @@
   <style>
     :root {
       --primary: #2563eb;
-      --primary-hover: #1d4ed8;
       --accent: #10b981;
       --gold: #f59e0b;
       --danger: #ef4444;
@@ -26,22 +25,21 @@
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg); color: var(--text); padding-bottom: 60px; overflow-x: hidden; }
 
-    /* Announcement */
     #announcement-bar {
       background: linear-gradient(90deg, #1e3a8a, #0284c7);
       color: #fff;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 700;
       text-align: center;
-      padding: 8px 15px;
+      padding: 6px 12px;
       display: none;
     }
 
-    /* Header */
+    /* Sticky Header */
     header {
-      background: rgba(21, 29, 48, 0.95);
-      backdrop-filter: blur(12px);
-      padding: 0.8rem 1.2rem;
+      background: rgba(21, 29, 48, 0.98);
+      backdrop-filter: blur(10px);
+      padding: 0.7rem 1rem;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -49,66 +47,275 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
     }
-    .brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .brand { display: flex; align-items: center; gap: 10px; }
     .brand-logo { 
-      width: 48px; 
-      height: 48px; 
-      border-radius: 12px; 
+      width: 42px; 
+      height: 42px; 
+      border-radius: 10px; 
       object-fit: cover; 
       border: 2px solid #38bdf8; 
       display: none; 
     }
-    .brand h1 { font-size: 1.15rem; font-weight: 800; color: #38bdf8; line-height: 1.2; }
-    .brand span { font-size: 0.75rem; color: var(--text-muted); }
+    .brand h1 { font-size: 1.1rem; font-weight: 800; color: #38bdf8; line-height: 1.2; }
+    .brand span { font-size: 0.72rem; color: var(--text-muted); }
 
-    .header-user-actions { display: flex; align-items: center; gap: 10px; }
-
-    /* Live User Stats */
-    .user-stats-bar {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      background: var(--card-inner);
-      padding: 4px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .auth-btn-top {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
     }
-    .stat-badge {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2px 8px;
-    }
-    .stat-badge span:first-child { font-size: 0.65rem; color: var(--text-muted); }
-    .stat-badge span:last-child { font-size: 0.85rem; font-weight: 800; color: #38bdf8; }
-    .stat-badge.wallet span:last-child { color: var(--accent); }
-    .stat-badge.vip span:last-child { color: var(--gold); }
-
-    .menu-trigger-btn {
+    .menu-btn-top {
       background: var(--card-inner);
       border: 1px solid var(--border);
       color: #fff;
-      padding: 8px 12px;
+      padding: 7px 12px;
       border-radius: 10px;
       cursor: pointer;
       font-weight: 700;
-      display: flex;
+      display: none;
       align-items: center;
       gap: 6px;
       font-size: 0.85rem;
     }
-    .auth-trigger-btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0.8rem; }
+
+    /* Top User Live Stats Bar */
+    .user-profile-header-card {
+      display: none;
+      background: linear-gradient(135deg, #151d30, #0f1626);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .user-welcome-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .user-welcome-row strong { color: #38bdf8; font-size: 0.95rem; }
+    .user-welcome-row span { font-size: 0.75rem; background: rgba(245, 158, 11, 0.15); color: var(--gold); padding: 2px 8px; border-radius: 6px; font-weight: bold; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+    .stat-box {
+      background: #090d16;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      font-weight: 700;
+      padding: 8px 4px;
+    }
+    .stat-box span { display: block; font-size: 0.7rem; color: var(--text-muted); }
+    .stat-box strong { font-size: 0.95rem; font-weight: 800; }
+    .stat-box.balance strong { color: var(--accent); }
+    .stat-box.spent strong { color: #f43f5e; }
+    .stat-box.orders strong { color: #38bdf8; }
+
+    /* Currency Box */
+    .currency-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .currency-bar h3 { font-size: 0.88rem; margin-bottom: 8px; color: #e2e8f0; }
+    .currency-options { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+    .curr-btn {
+      flex: 1 1 45%;
+      max-width: 200px;
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1.5px solid transparent;
+      padding: 8px 6px;
+      border-radius: 10px;
       cursor: pointer;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .curr-btn.active {
+      background: #1e3a8a;
+      color: #60a5fa;
+      border-color: #3b82f6;
+    }
+    .exchange-badge {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.1);
+      padding: 3px 12px;
+      border-radius: 20px;
+    }
+
+    /* Filters Bar */
+    .filters-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #151d30;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: white;
+      outline: none;
       font-size: 0.88rem;
     }
+    .categories-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .categories-list::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      background: #151d30;
+      color: #94a3b8;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+    .cat-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+    /* Services Grid */
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 640px) {
+      .services-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+      .curr-btn { flex: unset; }
+      .filters-bar { flex-direction: row; justify-content: space-between; align-items: center; }
+      .search-input { width: 220px; }
+    }
+
+    .service-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .status-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      z-index: 2;
+    }
+    .status-badge.avail { background: #10b981; color: #022c15; }
+    .status-badge.unavail { background: #ef4444; color: white; }
+
+    .service-img { width: 100%; height: 160px; object-fit: cover; }
+    .service-body { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; }
+    .service-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .service-category { font-size: 0.72rem; background: #243049; color: #94a3b8; padding: 2px 6px; border-radius: 6px; }
+    .delivery-time-badge { font-size: 0.72rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 2px 6px; border-radius: 6px; font-weight: bold; }
+    
+    .service-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
+
+    .toggle-prices-btn {
+      width: 100%;
+      background: #0f172a;
+      color: #38bdf8;
+      border: 1px dashed #334155;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .packages-collapsible {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding: 6px;
+      background: rgba(11, 15, 25, 0.6);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .packages-collapsible.show { display: flex; }
+
+    .pkg-chip {
+      background: #0b0f19;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #cbd5e1;
+    }
+    .pkg-chip.selected { background: rgba(37, 99, 235, 0.15); border-color: #38bdf8; color: #fff; }
+    .pkg-chip-name { font-weight: 600; font-size: 0.82rem; }
+    .pkg-chip-price { font-weight: 800; color: #10b981; font-size: 0.88rem; }
+
+    .price-display-box {
+      margin: 2px 0 8px;
+      background: #0b0f19;
+      padding: 8px 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border);
+    }
+    .price-val { font-size: 1.15rem; font-weight: 800; color: #10b981; }
+
+    .notes-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-right: 3px solid #f59e0b;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin: 4px 0 12px;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: #fde68a;
+    }
+
+    .order-btn {
+      margin-top: auto;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .order-btn:disabled { background: #475569; cursor: not-allowed; }
 
     /* Sidebar Drawer */
     .sidebar-overlay {
@@ -123,8 +330,8 @@
       position: fixed;
       top: 0;
       bottom: 0;
-      right: -320px;
-      width: 300px;
+      right: -300px;
+      width: 280px;
       background: var(--card-bg);
       border-left: 1px solid var(--border);
       z-index: 260;
@@ -138,286 +345,170 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 12px;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
-    .sidebar-user-info { display: flex; flex-direction: column; gap: 4px; }
-    .sidebar-user-info strong { color: #38bdf8; font-size: 1rem; }
-    .sidebar-user-info span { color: var(--text-muted); font-size: 0.8rem; }
-    .sidebar-nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
     .side-nav-btn {
       background: var(--card-inner);
       border: 1px solid var(--border);
       color: #e2e8f0;
-      padding: 12px 14px;
-      border-radius: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       text-align: right;
-      font-size: 0.9rem;
-    }
-    .side-nav-btn:hover { background: #1e293b; border-color: #38bdf8; }
-
-    /* Layout */
-    .container { max-width: 1200px; margin: 1.2rem auto; padding: 0 1rem; }
-
-    /* Currency Bar */
-    .currency-bar {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.2rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    }
-    .currency-bar h3 { font-size: 0.95rem; margin-bottom: 0.8rem; color: #e2e8f0; }
-    .currency-options { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-    .curr-btn {
-      background: #1e293b;
-      color: #cbd5e1;
-      border: 2px solid transparent;
-      padding: 8px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.85rem;
-      transition: all 0.2s ease;
-    }
-    .curr-btn.active {
-      background: #1e3a8a;
-      color: #60a5fa;
-      border-color: #3b82f6;
-    }
-    .exchange-badge {
-      display: inline-block;
-      margin-top: 10px;
-      font-size: 0.8rem;
-      color: var(--accent);
-      background: rgba(16, 185, 129, 0.1);
-      padding: 4px 14px;
-      border-radius: 20px;
+      font-size: 0.88rem;
     }
 
-    /* Filters & Search */
-    .filters-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .categories-list { display: flex; gap: 8px; flex-wrap: wrap; }
-    .cat-btn {
-      background: #151d30;
-      color: #94a3b8;
-      border: 1px solid var(--border);
-      padding: 7px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
-    .cat-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
-    .search-input {
-      padding: 8px 14px;
-      background: #151d30;
+    /* Support Channels Box at Bottom of Sidebar */
+    .sidebar-support-box {
+      margin-top: auto;
+      background: var(--card-inner);
       border: 1px solid var(--border);
       border-radius: 10px;
-      color: white;
-      outline: none;
-      min-width: 220px;
-    }
-
-    /* Services Grid */
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
-    }
-    .service-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
+      padding: 10px;
       display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-    .service-card.disabled { opacity: 0.65; }
-    .status-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      z-index: 2;
-    }
-    .status-badge.avail { background: #10b981; color: #022c15; }
-    .status-badge.unavail { background: #ef4444; color: white; }
-
-    .service-img { width: 100%; height: 175px; object-fit: cover; }
-    .service-body { padding: 1.2rem; flex-grow: 1; display: flex; flex-direction: column; }
-    .service-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .service-category { font-size: 0.75rem; background: #243049; color: #94a3b8; padding: 2px 8px; border-radius: 6px; }
-    .delivery-time-badge { font-size: 0.75rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 2px 8px; border-radius: 6px; font-weight: bold; }
-    
-    .service-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
-
-    .toggle-prices-btn {
-      width: 100%;
-      background: #0f172a;
-      color: #38bdf8;
-      border: 1px dashed #334155;
-      padding: 9px 12px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .packages-collapsible {
-      display: none;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 12px;
+    }
+    .support-link-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       padding: 8px;
-      background: rgba(11, 15, 25, 0.6);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-    .packages-collapsible.show { display: flex; }
-
-    .pkg-chip {
-      background: #0b0f19;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 12px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #cbd5e1;
-    }
-    .pkg-chip.selected { background: rgba(37, 99, 235, 0.15); border-color: #38bdf8; color: #fff; }
-    .pkg-chip-name { font-weight: 600; font-size: 0.85rem; }
-    .pkg-chip-price { font-weight: 800; color: #10b981; font-size: 0.9rem; }
-
-    .price-display-box {
-      margin: 4px 0 10px;
-      background: #0b0f19;
-      padding: 10px 12px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid var(--border);
-    }
-    .price-val { font-size: 1.2rem; font-weight: 800; color: #10b981; }
-
-    .notes-box {
-      background: rgba(245, 158, 11, 0.08);
-      border-right: 3px solid #f59e0b;
-      padding: 8px 12px;
-      border-radius: 6px;
-      margin: 6px 0 14px;
+      border-radius: 8px;
       font-size: 0.82rem;
-      line-height: 1.5;
-      color: #fde68a;
+      font-weight: bold;
+      text-decoration: none;
+      color: #fff;
     }
+    .support-wa { background: #16a34a; }
+    .support-tg { background: #0284c7; }
 
-    .order-btn {
-      margin-top: auto;
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 11px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-    .order-btn:disabled { background: #475569; cursor: not-allowed; }
-
-    /* Modals Generic */
+    /* Modals */
     .modal {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(5px);
       justify-content: center;
       align-items: center;
       z-index: 300;
-      padding: 1rem;
+      padding: 0.8rem;
     }
     .modal-content {
       background: var(--card-bg);
-      padding: 1.5rem;
-      border-radius: 16px;
+      padding: 1.2rem;
+      border-radius: 14px;
       width: 100%;
-      max-width: 520px;
-      max-height: 90vh;
+      max-width: 480px;
+      max-height: 92vh;
       overflow-y: auto;
       border: 1px solid var(--border);
     }
-    .modal-content h3 { color: #38bdf8; margin-bottom: 12px; font-size: 1.2rem; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
-    .form-group input, .form-group textarea, .form-group select {
+    .modal-content h3 { color: #38bdf8; margin-bottom: 10px; font-size: 1.1rem; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+    .form-group input, .form-group textarea {
       width: 100%;
-      padding: 10px;
+      padding: 9px;
       background: #0b0f19;
       border: 1px solid var(--border);
       border-radius: 8px;
       color: white;
       outline: none;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
     .btn-submit {
       width: 100%;
       background: var(--primary);
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 11px;
+      border-radius: 8px;
       font-weight: 800;
       cursor: pointer;
-      font-size: 0.95rem;
-      margin-top: 8px;
+      font-size: 0.92rem;
+      margin-top: 6px;
     }
     .btn-submit.deposit { background: var(--accent); color: #022c15; }
-    .close-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: #94a3b8; padding: 10px; border-radius: 8px; margin-top: 8px; cursor: pointer; }
+    .close-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: #94a3b8; padding: 9px; border-radius: 8px; margin-top: 6px; cursor: pointer; font-size: 0.85rem; }
+
+    /* Custom Modern Payment Grid */
+    .methods-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .method-chip {
+      background: #0b0f19;
+      border: 1.5px solid var(--border);
+      color: #cbd5e1;
+      padding: 9px 8px;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .method-chip.active {
+      background: rgba(37, 99, 235, 0.18);
+      border-color: #38bdf8;
+      color: #fff;
+    }
 
     .copy-chip {
       background: #1e293b;
-      padding: 4px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
       color: #38bdf8;
       cursor: pointer;
       font-weight: bold;
       display: inline-block;
       margin-top: 4px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
 
     .order-history-card, .ticket-card {
       background: var(--card-inner);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 10px;
-      font-size: 0.85rem;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+    }
+
+    /* Custom In-App Toast Notification (Replaces Browser Alerts) */
+    #app-toast {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: #151d30;
+      color: #fff;
+      border: 1.5px solid #38bdf8;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width: 90%;
+      text-align: center;
+    }
+    #app-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
   </style>
 </head>
@@ -425,8 +516,11 @@
 
   <div id="announcement-bar"></div>
 
+  <!-- In-App Toast Alert -->
+  <div id="app-toast"></div>
+
   <header>
-    <div class="brand" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+    <div class="brand">
       <img id="store-logo" class="brand-logo" alt="Logo">
       <div>
         <h1>متجر أنس | Anas Store</h1>
@@ -434,39 +528,21 @@
       </div>
     </div>
 
-    <div class="header-user-actions">
-      <!-- User Bar when logged in -->
-      <div class="user-stats-bar" id="user-stats-bar">
-        <div class="stat-badge wallet">
-          <span>المحفظة</span>
-          <span id="header-balance">$0.00</span>
-        </div>
-        <div class="stat-badge">
-          <span>طلباتي</span>
-          <span id="header-orders">0</span>
-        </div>
-        <div class="stat-badge vip">
-          <span>الرتبة</span>
-          <span id="header-vip">برونزي</span>
-        </div>
-      </div>
-
-      <button class="auth-trigger-btn" id="auth-btn" onclick="openAuthModal()">تسجيل الدخول</button>
-      <button class="menu-trigger-btn" id="menu-btn" style="display:none;" onclick="toggleSidebar()">
-        ☰ القائمة
-      </button>
+    <div class="header-actions">
+      <button class="auth-btn-top" id="auth-btn" onclick="openAuthModal()">تسجيل الدخول</button>
+      <button class="menu-btn-top" id="menu-btn" onclick="toggleSidebar()">☰ القائمة</button>
     </div>
   </header>
 
-  <!-- Sidebar Drawer -->
+  <!-- Sidebar -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-user-info">
-        <strong id="side-username">@username</strong>
-        <span id="side-email">user@email.com</span>
+      <div>
+        <strong id="side-username" style="color:#38bdf8;">@username</strong>
+        <div id="side-email" style="font-size:0.75rem; color:var(--text-muted);">user@email.com</div>
       </div>
-      <button onclick="toggleSidebar()" style="background:none; border:none; color:#94a3b8; font-size:1.4rem; cursor:pointer;">✕</button>
+      <button onclick="toggleSidebar()" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer;">✕</button>
     </div>
 
     <div class="sidebar-nav">
@@ -475,12 +551,46 @@
       <button class="side-nav-btn" onclick="openTicketsModal()">🎫 التذاكر والدعم الفني</button>
     </div>
 
-    <button class="side-nav-btn" style="border-color: #ef4444; color: #ef4444; margin-top: auto;" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+    <!-- Direct Support Section -->
+    <div class="sidebar-support-box">
+      <span style="font-size:0.75rem; color:var(--text-muted); text-align:center;">للدعم السريع والتواصل:</span>
+      <a id="side-wa-link" href="#" target="_blank" class="support-link-btn support-wa">💬 محادثة واتساب</a>
+      <a id="side-tg-link" href="#" target="_blank" class="support-link-btn support-tg">✈️ محادثة تلجرام</a>
+    </div>
+
+    <button class="side-nav-btn" style="border-color: #ef4444; color: #ef4444; margin-top: 10px;" onclick="logoutUser()">🚪 تسجيل الخروج</button>
   </div>
 
   <div class="container">
+
+    <!-- 1. Top User Live Stats Bar -->
+    <div class="user-profile-header-card" id="user-stats-card">
+      <div class="user-welcome-row">
+        <div>
+          <span>مرحباً بك:</span>
+          <strong id="card-username">@username</strong>
+        </div>
+        <span id="card-vip">برونزي 👑</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box balance">
+          <span>رصيدي بالمحفظة</span>
+          <strong id="card-balance">$0.00</strong>
+        </div>
+        <div class="stat-box spent">
+          <span>إجمالي الإنفاق</span>
+          <strong id="card-spent">$0.00</strong>
+        </div>
+        <div class="stat-box orders">
+          <span>عدد طلباتي</span>
+          <strong id="card-orders">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Currency Rates & Selector -->
     <div class="currency-bar">
-      <h3>عرض الأسعار الحالية بالعملات وطرق الدفع:</h3>
+      <h3>اختر وسيلة الدفع لعرض الأسعار بها:</h3>
       <div class="currency-options">
         <button class="curr-btn active" onclick="setCurrency('usd', this)">💵 بالدولار ($)</button>
         <button class="curr-btn" onclick="setCurrency('libyana', this)">📶 رصيد ليبيانا</button>
@@ -490,30 +600,32 @@
       <div class="exchange-badge" id="rate-badge">سعر العرض: بالدولار ($)</div>
     </div>
 
+    <!-- 3. Search and Categories -->
     <div class="filters-bar">
+      <input type="text" class="search-input" id="search-box" placeholder="🔍 ابحث عن خدمة..." oninput="handleSearch()">
       <div class="categories-list" id="category-filters">
         <button class="cat-btn active" onclick="filterCategory('الكل', this)">الكل</button>
       </div>
-      <input type="text" class="search-input" id="search-box" placeholder="🔍 ابحث عن خدمة..." oninput="handleSearch()">
     </div>
 
+    <!-- 4. Services Grid -->
     <div class="services-grid" id="services-container">
-      <div style="text-align: center; grid-column: 1/-1; padding: 40px; color: #94a3b8;">جاري تحميل الخدمات...</div>
+      <div style="text-align: center; grid-column: 1/-1; padding: 30px; color: #94a3b8;">جاري تحميل الخدمات...</div>
     </div>
 
-    <footer style="text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem;">
-      <p>© متجر أنس - Anas Store. المنصة السحابية المعتمدة.</p>
+    <footer style="text-align: center; margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem;">
+      <p>© متجر أنس - Anas Store. المنصة المعتمدة.</p>
     </footer>
   </div>
 
-  <!-- 1. Modal: Auth (Login / Register) -->
+  <!-- Auth Modal -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
       <h3 id="auth-title">تسجيل الدخول إلى حسابك</h3>
-      <div id="auth-error" style="color:var(--danger); font-size:0.85rem; margin-bottom:8px;"></div>
+      <div id="auth-error" style="color:var(--danger); font-size:0.8rem; margin-bottom:8px;"></div>
 
       <div class="form-group" id="username-group" style="display:none;">
-        <label>اسم المستخدم الفريد (Username بدون مسافات):</label>
+        <label>اسم المستخدم (بدون مسافات):</label>
         <input type="text" id="auth-username" placeholder="مثال: anas_ly">
       </div>
 
@@ -529,37 +641,40 @@
 
       <button class="btn-submit" id="auth-submit-btn" onclick="handleEmailAuth()">دخول</button>
       
-      <div style="text-align:center; margin: 12px 0; color:var(--text-muted); font-size:0.85rem;">أو</div>
+      <div style="text-align:center; margin: 10px 0; color:var(--text-muted); font-size:0.8rem;">أو</div>
       
       <button class="btn-submit" style="background:#ea4335;" onclick="handleGoogleAuth()">🌐 الدخول السريع عبر Google</button>
 
-      <div style="text-align:center; margin-top:12px;">
-        <span id="auth-toggle-text" style="color:#38bdf8; font-size:0.85rem; cursor:pointer;" onclick="toggleAuthMode()">ليس لديك حساب؟ اضغط لإنشاء حساب جديد</span>
+      <div style="text-align:center; margin-top:10px;">
+        <span id="auth-toggle-text" style="color:#38bdf8; font-size:0.82rem; cursor:pointer;" onclick="toggleAuthMode()">ليس لديك حساب؟ اضغط لإنشاء حساب جديد</span>
       </div>
       <button class="close-btn" onclick="closeModals()">إغلاق</button>
     </div>
   </div>
 
-  <!-- 2. Modal: Checkout Service -->
+  <!-- Order Modal with Dedicated Method Info -->
   <div class="modal" id="order-modal">
     <div class="modal-content">
       <h3>تأكيد طلب الخدمة 🚀</h3>
-      <div id="modal-summary" style="background:#0b0f19; padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.6; border:1px solid var(--border); margin-bottom:12px;"></div>
+      <div id="modal-summary" style="background:#0b0f19; padding:10px; border-radius:8px; font-size:0.85rem; line-height:1.5; border:1px solid var(--border); margin-bottom:10px;"></div>
 
-      <div style="display:flex; gap:6px; margin-bottom: 12px;">
-        <input type="text" id="coupon-input" placeholder="كود الخصم (اختياري)" style="text-transform:uppercase; flex-grow:1; background:#0b0f19; border:1px solid var(--border); border-radius:8px; padding:8px; color:#fff;">
-        <button type="button" onclick="applyCoupon()" style="background:#ec4899; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">تطبيق</button>
+      <!-- Specific Service Charging Instructions -->
+      <div id="modal-service-instructions" style="background:rgba(56, 189, 248, 0.08); border-right:3px solid #38bdf8; padding:8px 10px; border-radius:6px; font-size:0.8rem; color:#bae6fd; margin-bottom:10px;"></div>
+
+      <div style="display:flex; gap:6px; margin-bottom: 10px;">
+        <input type="text" id="coupon-input" placeholder="كود الخصم (اختياري)" style="text-transform:uppercase; flex-grow:1; background:#0b0f19; border:1px solid var(--border); border-radius:8px; padding:7px; color:#fff; font-size:0.85rem;">
+        <button type="button" onclick="applyCoupon()" style="background:#ec4899; color:#fff; border:none; padding:7px 12px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">تطبيق</button>
       </div>
-      <div id="coupon-msg" style="font-size:0.8rem; margin-bottom:8px;"></div>
+      <div id="coupon-msg" style="font-size:0.75rem; margin-bottom:8px;"></div>
 
       <div class="form-group">
-        <label>بيانات الحساب / المعرف (ID أو اليوزر المطلوب شحنه):</label>
-        <input type="text" id="order-target" placeholder="مثال: يوزر التلجرام أو آيدي الحساب">
+        <label id="order-target-label">بيانات الحساب / المعرف المطلوب شحنه:</label>
+        <input type="text" id="order-target" placeholder="اكتب المطلوب هنا بدقة...">
       </div>
 
       <div class="form-group">
         <label>ملاحظة إضافية (اختياري):</label>
-        <textarea id="order-notes" rows="2" placeholder="أي تفاصيل أخرى تحتاج كتابتها"></textarea>
+        <textarea id="order-notes" rows="2" placeholder="أي تفاصيل أخرى تحتاج إضافتها"></textarea>
       </div>
 
       <button class="btn-submit" id="confirm-order-btn" onclick="executeOrder()">خصم من المحفظة وتأكيد الطلب 💳</button>
@@ -567,21 +682,18 @@
     </div>
   </div>
 
-  <!-- 3. Modal: Wallet Deposit -->
+  <!-- Deposit Modal -->
   <div class="modal" id="deposit-modal">
     <div class="modal-content">
       <h3>➕ شحن رصيد المحفظة</h3>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">اختر وسيلة الدفع المناسبة وحول القيمة، ثم أرسل إثبات التحويل لاعتماده فوراً.</p>
-
-      <div class="form-group">
-        <label>طريقة الشحن:</label>
-        <select id="deposit-method" onchange="renderDepositDetails()">
-          <option value="bank">تحويل مصرفي (سداد / لي باي / مصارف)</option>
-          <option value="libyana">رصيد ليبيانا</option>
-          <option value="madar">رصيد مدار</option>
-          <option value="usdt">USDT (TRC20 / BEP20)</option>
-          <option value="binance">Binance Pay ID</option>
-        </select>
+      <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">اختر طريقة الشحن:</label>
+      
+      <div class="methods-grid">
+        <div class="method-chip active" id="chip-bank" onclick="selectDepositMethod('bank')">🏦 تحويل مصرفي</div>
+        <div class="method-chip" id="chip-libyana" onclick="selectDepositMethod('libyana')">📶 رصيد ليبيانا</div>
+        <div class="method-chip" id="chip-madar" onclick="selectDepositMethod('madar')">📡 رصيد مدار</div>
+        <div class="method-chip" id="chip-usdt" onclick="selectDepositMethod('usdt')">🪙 USDT</div>
+        <div class="method-chip" id="chip-binance" onclick="selectDepositMethod('binance')" style="grid-column: span 2;">🟡 Binance Pay ID</div>
       </div>
 
       <div class="form-group">
@@ -589,23 +701,29 @@
         <input type="number" id="deposit-amount-usd" step="1" min="1" placeholder="مثال: 10" oninput="calculateDepositEquiv()">
       </div>
 
-      <div id="deposit-equiv-box" style="background:#0f1626; padding:10px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; margin-bottom:12px; color:var(--gold);">
-        القيمة المطلوبة بالعملة المحلية: <strong>$0.00</strong>
+      <div id="deposit-equiv-box" style="background:#0f1626; padding:8px; border-radius:8px; border:1px solid var(--border); font-size:0.82rem; margin-bottom:10px; color:var(--gold);">
+        المطلوب تحويله: <strong>$0.00</strong>
       </div>
 
-      <div id="deposit-accounts-box" style="background:rgba(56,189,248,0.06); border:1px dashed #38bdf8; padding:12px; border-radius:10px; margin-bottom:12px; font-size:0.85rem;"></div>
+      <div id="deposit-accounts-box" style="background:rgba(56,189,248,0.06); border:1px dashed #38bdf8; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.82rem;"></div>
 
       <div class="form-group">
-        <label>رقم الحوالة / كرت الشحن / TXID أو اسم المحول:</label>
-        <input type="text" id="deposit-ref" placeholder="مثال: حوالة من رقم 091XXXX أو كود الكرت">
+        <label id="deposit-source-label">رقم الحساب أو الهاتف الذي قمت بالتحويل منه:</label>
+        <input type="text" id="deposit-source-val" placeholder="مثال: رقم حسابك المصرفي أو رقمك">
       </div>
 
-      <button class="btn-submit deposit" onclick="submitDepositRequest()">إرسال طلب الشحن للمراجعة 🚀</button>
+      <div class="form-group">
+        <label>صورة إيصال التحويل (سكرين شوت أو كرت الشحن):</label>
+        <input type="file" id="deposit-receipt-file" accept="image/*" onchange="handleReceiptUpload(event)" style="padding: 6px; font-size:0.8rem;">
+        <img id="receipt-preview" style="width:100%; height:110px; border-radius:8px; border:1px solid var(--border); display:none; object-fit:cover; margin-top:6px;">
+      </div>
+
+      <button class="btn-submit deposit" id="deposit-submit-btn" onclick="submitDepositRequest()">إرسال طلب الشحن للمراجعة 🚀</button>
       <button class="close-btn" onclick="closeModals()">إغلاق</button>
     </div>
   </div>
 
-  <!-- 4. Modal: Orders & Codes -->
+  <!-- Orders Modal -->
   <div class="modal" id="orders-modal">
     <div class="modal-content">
       <h3>📋 سجل طلباتي والأكواد</h3>
@@ -616,21 +734,21 @@
     </div>
   </div>
 
-  <!-- 5. Modal: Tickets -->
+  <!-- Tickets Modal -->
   <div class="modal" id="tickets-modal">
     <div class="modal-content">
       <h3>🎫 التذاكر والدعم الفني</h3>
       <div class="form-group">
-        <label>عنوان المشكلة / الاستفسار:</label>
-        <input type="text" id="ticket-subject" placeholder="مثال: استفسار حول شحن رصيد">
+        <label>الموضوع:</label>
+        <input type="text" id="ticket-subject" placeholder="عنوان الاستفسار">
       </div>
       <div class="form-group">
-        <label>تفاصيل التذكرة:</label>
-        <textarea id="ticket-msg" rows="3" placeholder="اشرح طلبك بالتفصيل..."></textarea>
+        <label>الرسالة:</label>
+        <textarea id="ticket-msg" rows="2" placeholder="اشرح مشكلتك..."></textarea>
       </div>
-      <button class="btn-submit" onclick="submitTicket()">فتح تذكرة جديدة</button>
+      <button class="btn-submit" onclick="submitTicket()">فتح التذكرة</button>
 
-      <h4 style="color:#e2e8f0; margin:16px 0 8px; font-size:0.95rem;">تذاكري السابقة:</h4>
+      <h4 style="color:#e2e8f0; margin:14px 0 6px; font-size:0.9rem;">تذاكري السابقة:</h4>
       <div id="my-tickets-list"></div>
       <button class="close-btn" onclick="closeModals()">إغلاق</button>
     </div>
@@ -669,6 +787,8 @@
       phoneMadar: [],
       usdtWallets: [],
       binanceIds: [],
+      waPhone: "218910000000",
+      tgUser: "AnasStore",
       logoUrl: "",
       noticeText: ""
     };
@@ -679,29 +799,38 @@
     let searchQuery = '';
     let pendingOrderServiceId = null;
 
-    // --- Auth Listeners ---
+    let selectedDepositMethod = 'bank';
+    let receiptImageBase64 = "";
+
+    // In-App Toast Helper (Replaces Default Browser Alert)
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('app-toast');
+      toast.innerText = msg;
+      toast.style.borderColor = isError ? 'var(--danger)' : '#38bdf8';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
     auth.onAuthStateChanged(async (user) => {
       currentUser = user;
       if (user) {
         document.getElementById('auth-btn').style.display = 'none';
-        document.getElementById('user-stats-bar').style.display = 'flex';
         document.getElementById('menu-btn').style.display = 'flex';
+        document.getElementById('user-stats-card').style.display = 'block';
 
-        // Listen to User Profile
         db.collection("users").doc(user.uid).onSnapshot(doc => {
           if (doc.exists) {
             currentUserProfile = doc.data();
             updateUserUI();
           } else {
-            // First time auto-create if needed
             createUserProfile(user);
           }
         });
       } else {
         currentUserProfile = null;
         document.getElementById('auth-btn').style.display = 'block';
-        document.getElementById('user-stats-bar').style.display = 'none';
         document.getElementById('menu-btn').style.display = 'none';
+        document.getElementById('user-stats-card').style.display = 'none';
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').style.display = 'none';
       }
@@ -731,24 +860,23 @@
 
     function updateUserUI() {
       if (!currentUserProfile) return;
-      document.getElementById('header-balance').innerText = `$${(currentUserProfile.balance || 0).toFixed(2)}`;
-      document.getElementById('header-orders').innerText = currentUserProfile.ordersCount || 0;
-      document.getElementById('header-vip').innerText = currentUserProfile.vipLevel || 'برونزي';
+      document.getElementById('card-username').innerText = `@${currentUserProfile.username || 'مستخدم'}`;
+      document.getElementById('card-balance').innerText = `$${(currentUserProfile.balance || 0).toFixed(2)}`;
+      document.getElementById('card-spent').innerText = `$${(currentUserProfile.totalSpent || 0).toFixed(2)}`;
+      document.getElementById('card-orders').innerText = currentUserProfile.ordersCount || 0;
+      document.getElementById('card-vip').innerText = (currentUserProfile.vipLevel || 'برونزي') + ' 👑';
 
       document.getElementById('side-username').innerText = `@${currentUserProfile.username || 'مستخدم'}`;
       document.getElementById('side-email').innerText = currentUserProfile.email || '';
     }
 
-    // --- Auth Handlers ---
-    function openAuthModal() {
-      document.getElementById('auth-modal').style.display = 'flex';
-    }
+    function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
 
     function toggleAuthMode() {
       isRegisterMode = !isRegisterMode;
-      document.getElementById('auth-title').innerText = isRegisterMode ? 'إنشاء حساب جديد بالمتجر' : 'تسجيل الدخول إلى حسابك';
+      document.getElementById('auth-title').innerText = isRegisterMode ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
       document.getElementById('auth-submit-btn').innerText = isRegisterMode ? 'إنشاء الحساب' : 'دخول';
-      document.getElementById('auth-toggle-text').innerText = isRegisterMode ? 'لديك حساب بالفعل؟ اضغط لتسجيل الدخول' : 'ليس لديك حساب؟ اضغط لإنشاء حساب جديد';
+      document.getElementById('auth-toggle-text').innerText = isRegisterMode ? 'لديك حساب بالفعل؟ سجل دخول' : 'ليس لديك حساب؟ إنشاء حساب جديد';
       document.getElementById('username-group').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('auth-error').innerText = '';
     }
@@ -760,37 +888,25 @@
       const errBox = document.getElementById('auth-error');
       errBox.innerText = '';
 
-      if (!email || !pass) {
-        errBox.innerText = 'يرجى إدخال البريد الإلكتروني وكلمة المرور';
-        return;
-      }
+      if (!email || !pass) { errBox.innerText = 'يرجى كتابة الإيميل وكلمة السر'; return; }
 
       if (isRegisterMode) {
-        if (!username || username.length < 3) {
-          errBox.innerText = 'يرجى إدخال اسم مستخدم صالح (3 حروف على الأقل بدون رموز)';
-          return;
-        }
-        // Check Username Uniqueness
+        if (!username || username.length < 3) { errBox.innerText = 'اسم مستخدم غير صالح (3 حروف على الأقل)'; return; }
         const uDoc = await db.collection("usernames").doc(username).get();
-        if (uDoc.exists) {
-          errBox.innerText = '❌ اسم المستخدم محجوز بالفعل! يرجى اختيار اسم آخر.';
-          return;
-        }
+        if (uDoc.exists) { errBox.innerText = 'اسم المستخدم مأخوذ بالفعل!'; return; }
 
         try {
           const res = await auth.createUserWithEmailAndPassword(email, pass);
           await createUserProfile(res.user, username);
           closeModals();
-        } catch (e) {
-          errBox.innerText = e.message;
-        }
+          showToast('🎉 تم إنشاء حسابك بنجاح!');
+        } catch (e) { errBox.innerText = e.message; }
       } else {
         try {
           await auth.signInWithEmailAndPassword(email, pass);
           closeModals();
-        } catch (e) {
-          errBox.innerText = 'بيانات الدخول غير صحيحة!';
-        }
+          showToast('✅ تم تسجيل الدخول بنجاح!');
+        } catch (e) { errBox.innerText = 'البيانات غير صحيحة!'; }
       }
     }
 
@@ -799,17 +915,17 @@
       try {
         const res = await auth.signInWithPopup(provider);
         const doc = await db.collection("users").doc(res.user.uid).get();
-        if (!doc.exists) {
-          await createUserProfile(res.user);
-        }
+        if (!doc.exists) await createUserProfile(res.user);
         closeModals();
+        showToast('✅ تم الدخول بحساب Google بنجاح!');
       } catch (e) {
         document.getElementById('auth-error').innerText = e.message;
       }
     }
 
-    function logoutUser() {
+    function logoutUser() { 
       auth.signOut();
+      showToast('تم تسجيل الخروج بنجاح.');
     }
 
     function toggleSidebar() {
@@ -824,7 +940,6 @@
       }
     }
 
-    // --- Init App Data ---
     function initData() {
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
@@ -839,11 +954,17 @@
             phoneMadar: Array.isArray(data.phoneMadar) ? data.phoneMadar : (data.phoneMadar ? [data.phoneMadar] : []),
             usdtWallets: Array.isArray(data.usdtWallets) ? data.usdtWallets : (data.usdtWallets ? [data.usdtWallets] : []),
             binanceIds: Array.isArray(data.binanceIds) ? data.binanceIds : (data.binanceIds ? [data.binanceIds] : []),
+            waPhone: data.waPhone || "218910000000",
+            tgUser: data.tgUser || "AnasStore",
             logoUrl: data.logoUrl || "",
             noticeText: data.noticeText || ""
           };
 
           updateRateBadge();
+
+          // Sidebar Direct Support Links
+          document.getElementById('side-wa-link').href = `https://wa.me/${settings.waPhone}`;
+          document.getElementById('side-tg-link').href = `https://t.me/${settings.tgUser}`;
 
           if (settings.logoUrl) {
             const logoEl = document.getElementById('store-logo');
@@ -887,21 +1008,19 @@
     function updateRateBadge() {
       const badge = document.getElementById('rate-badge');
       if (currentCurrency === 'usd') badge.innerText = `سعر العرض: بالدولار ($)`;
-      else if (currentCurrency === 'libyana') badge.innerText = `سعر الصرف لرصيد ليبيانا: 1$ = ${settings.rateLibyana} د.ل`;
-      else if (currentCurrency === 'madar') badge.innerText = `سعر الصرف لرصيد مدار: 1$ = ${settings.rateMadar} د.ل`;
-      else if (currentCurrency === 'bank') badge.innerText = `سعر الصرف للتحويل المصرفي: 1$ = ${settings.rateBank} د.ل`;
+      else if (currentCurrency === 'libyana') badge.innerText = `1$ = ${settings.rateLibyana} د.ل (ليبيانا)`;
+      else if (currentCurrency === 'madar') badge.innerText = `1$ = ${settings.rateMadar} د.ل (مدار)`;
+      else if (currentCurrency === 'bank') badge.innerText = `1$ = ${settings.rateBank} د.ل (مصرفي)`;
     }
 
     function formatPrice(usd) {
       let finalUsd = usd;
-      if (appliedDiscount > 0) {
-        finalUsd = usd - (usd * (appliedDiscount / 100));
-      }
+      if (appliedDiscount > 0) finalUsd = usd - (usd * (appliedDiscount / 100));
 
-      if (currentCurrency === 'usd') return { val: finalUsd.toFixed(2), symbol: '$ دولار', rawUsd: finalUsd };
-      if (currentCurrency === 'libyana') return { val: (finalUsd * settings.rateLibyana).toFixed(1), symbol: 'د.ل (ليبيانا)', rawUsd: finalUsd };
-      if (currentCurrency === 'madar') return { val: (finalUsd * settings.rateMadar).toFixed(1), symbol: 'د.ل (مدار)', rawUsd: finalUsd };
-      return { val: (finalUsd * settings.rateBank).toFixed(1), symbol: 'د.ل (مصرفي)', rawUsd: finalUsd };
+      if (currentCurrency === 'usd') return { val: finalUsd.toFixed(2), symbol: '$', rawUsd: finalUsd };
+      if (currentCurrency === 'libyana') return { val: (finalUsd * settings.rateLibyana).toFixed(1), symbol: 'د.ل ليبيانا', rawUsd: finalUsd };
+      if (currentCurrency === 'madar') return { val: (finalUsd * settings.rateMadar).toFixed(1), symbol: 'د.ل مدار', rawUsd: finalUsd };
+      return { val: (finalUsd * settings.rateBank).toFixed(1), symbol: 'د.ل مصرفي', rawUsd: finalUsd };
     }
 
     function buildCategories() {
@@ -965,7 +1084,7 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 40px; color: #94a3b8;">لا توجد خدمات مطابقة حالياً.</div>';
+        container.innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 30px; color: #94a3b8;">لا توجد خدمات مطابقة.</div>';
         return;
       }
 
@@ -997,18 +1116,18 @@
         container.innerHTML += `
           <div class="service-card ${isAvailable ? '' : 'disabled'}" id="card-${item.id}">
             <div class="status-badge ${isAvailable ? 'avail' : 'unavail'}">
-              ${isAvailable ? 'متوفرة للشحن' : 'غير متوفرة حالياً'}
+              ${isAvailable ? 'متوفرة' : 'متوقفة'}
             </div>
             <img src="${item.img || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500'}" class="service-img" alt="${item.title}">
             <div class="service-body">
               <div class="service-header">
-                <span class="service-category">${item.category || 'خدمة رقمية'}</span>
+                <span class="service-category">${item.category || 'خدمة'}</span>
                 ${item.deliveryTime ? `<span class="delivery-time-badge">⚡ ${item.deliveryTime}</span>` : ''}
               </div>
               <h2 class="service-title">${item.title}</h2>
 
               <button type="button" class="toggle-prices-btn" onclick="togglePricingMenu('${item.id}')">
-                <span>📋 اضغط لاختيار المدة أو الباقة (${packagesCount})</span>
+                <span>📋 اختر الباقة أو المدة (${packagesCount})</span>
                 <span id="arrow-${item.id}">🔻</span>
               </button>
 
@@ -1016,8 +1135,8 @@
 
               <div class="price-display-box">
                 <div>
-                  <div style="color:#94a3b8; font-size:0.75rem;">الباقة المحددة:</div>
-                  <strong style="color:#38bdf8; font-size:0.85rem;" id="selected-pkg-name-${item.id}">${selPkg.name}</strong>
+                  <div style="color:#94a3b8; font-size:0.72rem;">الباقة المحددة:</div>
+                  <strong style="color:#38bdf8; font-size:0.82rem;" id="selected-pkg-name-${item.id}">${selPkg.name}</strong>
                 </div>
                 <span class="price-val" id="price-val-${item.id}">
                   ${priceObj.val} <small style="font-size:0.75rem;">${priceObj.symbol}</small>
@@ -1025,8 +1144,8 @@
               </div>
 
               <div class="notes-box">
-                <strong>⚠️ طريقة الشحن والملاحظات:</strong>
-                <div>${item.notes || 'تسليم سريع ومضمون عبر متجر أنس.'}</div>
+                <strong>⚠️ طريقة وملاحظات الشحن:</strong>
+                <div>${item.notes || 'تسليم سريع ومباشر عبر متجر أنس.'}</div>
               </div>
 
               <button class="order-btn" onclick="triggerOrder('${item.id}')" ${!isAvailable ? 'disabled' : ''}>
@@ -1038,12 +1157,8 @@
       });
     }
 
-    // --- Order Checkout via Wallet ---
     function triggerOrder(serviceId) {
-      if (!currentUser) {
-        openAuthModal();
-        return;
-      }
+      if (!currentUser) { openAuthModal(); return; }
       pendingOrderServiceId = serviceId;
       appliedDiscount = 0;
       appliedCouponCode = "";
@@ -1062,23 +1177,29 @@
       document.getElementById('modal-summary').innerHTML = `
         <strong>الخدمة:</strong> ${service.title}<br>
         <strong>الباقة:</strong> ${selectedPkg.name}<br>
-        <strong>القيمة المخصومة:</strong> <span style="color:#10b981; font-weight:bold;">$${p.rawUsd.toFixed(2)}</span> (${p.val} ${p.symbol})<br>
-        <strong>رصيد محفظتك الحالي:</strong> <span style="color:#38bdf8; font-weight:bold;">$${(currentUserProfile.balance || 0).toFixed(2)}</span>
-        ${appliedDiscount > 0 ? `<div style="color:#10b981; font-weight:bold;">🎉 تم تطبيق خصم ${appliedDiscount}\% (${appliedCouponCode})</div>` : ''}
+        <strong>القيمة:</strong> <span style="color:#10b981; font-weight:bold;">$${p.rawUsd.toFixed(2)}</span> (${p.val} ${p.symbol})<br>
+        <strong>رصيد محفظتك:</strong> <span style="color:#38bdf8; font-weight:bold;">$${(currentUserProfile.balance || 0).toFixed(2)}</span>
       `;
+
+      // Specific Service Charging Instructions
+      const instBox = document.getElementById('modal-service-instructions');
+      instBox.innerHTML = `<strong>📌 شروط وطريقة شحن (${service.title}):</strong><br>${service.notes || 'يرجى تزويدنا بالمعرف المطلوب للشحن بدقة.'}`;
+
+      const targetInput = document.getElementById('order-target');
+      targetInput.value = '';
+      targetInput.placeholder = `أدخل المطلوب لشحن ${service.title}...`;
     }
 
     function applyCoupon() {
       const code = document.getElementById('coupon-input').value.trim().toUpperCase();
       const match = coupons.find(c => c.code === code);
-
       if (match) {
         appliedDiscount = match.discount;
         appliedCouponCode = match.code;
-        document.getElementById('coupon-msg').innerHTML = `<span style="color:#10b981;">✅ تم تفعيل كود الخصم (${match.discount}%)</span>`;
+        document.getElementById('coupon-msg').innerHTML = `<span style="color:#10b981;">✅ تم تفعيل خصم ${match.discount}%</span>`;
         updateOrderModalView();
       } else {
-        document.getElementById('coupon-msg').innerHTML = `<span style="color:#ef4444;">❌ كود الكوبون غير صحيح!</span>`;
+        document.getElementById('coupon-msg').innerHTML = `<span style="color:#ef4444;">❌ الكوبون غير صحيح</span>`;
       }
     }
 
@@ -1086,10 +1207,7 @@
       const target = document.getElementById('order-target').value.trim();
       const notes = document.getElementById('order-notes').value.trim();
 
-      if (!target) {
-        alert('يرجى كتابة المعرف أو الحساب المطلوب شحنه!');
-        return;
-      }
+      if (!target) { showToast('يرجى كتابة المعرف أو الحساب المطلوب شحنه', true); return; }
 
       const service = services.find(s => s.id == pendingOrderServiceId);
       const pkgIndex = selectedPackages[pendingOrderServiceId] || 0;
@@ -1099,21 +1217,18 @@
 
       const confirmBtn = document.getElementById('confirm-order-btn');
       confirmBtn.disabled = true;
-      confirmBtn.innerText = 'جاري التحقق والخصم...';
+      confirmBtn.innerText = 'جاري المعالجة...';
 
       const userRef = db.collection("users").doc(currentUser.uid);
 
       try {
         await db.runTransaction(async (transaction) => {
           const userDoc = await transaction.get(userRef);
-          if (!userDoc.exists) throw "المستخدم غير مسجل!";
+          if (!userDoc.exists) throw "الحساب غير موجود";
 
           const currentBal = userDoc.data().balance || 0;
-          if (currentBal < costUsd) {
-            throw "رصيدك غير كافٍ في المحفظة! يرجى شحن رصيدك أولاً.";
-          }
+          if (currentBal < costUsd) throw "رصيد محفظتك لا يكفي! يرجى شحن الرصيد أولاً.";
 
-          // Atomic deductions
           transaction.update(userRef, {
             balance: firebase.firestore.FieldValue.increment(-costUsd),
             totalSpent: firebase.firestore.FieldValue.increment(costUsd),
@@ -1132,67 +1247,88 @@
             costUsd: costUsd,
             targetInfo: target,
             clientNotes: notes,
-            status: 'pending', // pending, in_progress, completed, cancelled
+            status: 'pending',
             deliveredCode: '',
             createdAt: Date.now()
           });
         });
 
-        alert('🎉 تم تأكيد طلبك وخصمه من المحفظة بنجاح!');
         closeModals();
+        showToast('🎉 تم تأكيد طلبك وخصمه من المحفظة بنجاح!');
       } catch (err) {
-        alert('خطأ: ' + err);
+        showToast('خطأ: ' + err, true);
       } finally {
         confirmBtn.disabled = false;
         confirmBtn.innerText = 'خصم من المحفظة وتأكيد الطلب 💳';
       }
     }
 
-    // --- Deposit System ---
+    // --- Deposit Functions ---
     function openDepositModal() {
       if (!currentUser) { openAuthModal(); return; }
-      renderDepositDetails();
+      receiptImageBase64 = "";
+      document.getElementById('deposit-receipt-file').value = "";
+      document.getElementById('receipt-preview').style.display = "none";
+      document.getElementById('deposit-source-val').value = "";
+      selectDepositMethod('bank');
       document.getElementById('deposit-modal').style.display = 'flex';
       toggleSidebar();
     }
 
+    function selectDepositMethod(method) {
+      selectedDepositMethod = method;
+      document.querySelectorAll('.method-chip').forEach(c => c.classList.remove('active'));
+      const activeEl = document.getElementById(`chip-${method}`);
+      if (activeEl) activeEl.classList.add('active');
+
+      const sourceLabel = document.getElementById('deposit-source-label');
+      const sourceInput = document.getElementById('deposit-source-val');
+
+      if (method === 'bank') {
+        sourceLabel.innerText = "رقم الحساب المصرفي الذي قمت بالتحويل منه:";
+        sourceInput.placeholder = "مثال: رقم حسابك في سداد أو لي باي أو مصرفك";
+      } else if (method === 'libyana') {
+        sourceLabel.innerText = "رقم هاتف ليبيانا الذي قمت بالتحويل منه:";
+        sourceInput.placeholder = "مثال: 091XXXXXXX";
+      } else if (method === 'madar') {
+        sourceLabel.innerText = "رقم هاتف مدار الذي قمت بالتحويل منه:";
+        sourceInput.placeholder = "مثال: 092XXXXXXX";
+      } else if (method === 'usdt') {
+        sourceLabel.innerText = "عنوان محفظتك (USDT Wallet) أو رمز المعاملة TXID:";
+        sourceInput.placeholder = "عنوان المحفظة أو رمز التحويل";
+      } else if (method === 'binance') {
+        sourceLabel.innerText = "معرف Binance Pay ID الخاص بك:";
+        sourceInput.placeholder = "مثال: 12345678";
+      }
+
+      renderDepositDetails();
+    }
+
     function renderDepositDetails() {
-      const method = document.getElementById('deposit-method').value;
       const box = document.getElementById('deposit-accounts-box');
       box.innerHTML = '';
 
       let list = [];
       let label = "";
 
-      if (method === 'libyana') {
-        list = settings.phoneLibyana;
-        label = "📶 أرقام شحن رصيد ليبيانا:";
-      } else if (method === 'madar') {
-        list = settings.phoneMadar;
-        label = "📡 أرقام شحن رصيد مدار:";
-      } else if (method === 'bank') {
-        list = settings.bankDetails;
-        label = "🏦 حسابات التحويل المصرفي:";
-      } else if (method === 'usdt') {
-        list = settings.usdtWallets;
-        label = "🪙 عناوين محافظ USDT (TRC20 / BEP20):";
-      } else if (method === 'binance') {
-        list = settings.binanceIds;
-        label = "🟡 Binance Pay IDs المعتمدة:";
-      }
+      if (selectedDepositMethod === 'libyana') { list = settings.phoneLibyana; label = "📶 أرقام استقبال رصيد ليبيانا:"; }
+      else if (selectedDepositMethod === 'madar') { list = settings.phoneMadar; label = "📡 أرقام استقبال رصيد مدار:"; }
+      else if (selectedDepositMethod === 'bank') { list = settings.bankDetails; label = "🏦 حسابات التحويل المصرفي المعتمدة:"; }
+      else if (selectedDepositMethod === 'usdt') { list = settings.usdtWallets; label = "🪙 محافظ استقبال USDT:"; }
+      else if (selectedDepositMethod === 'binance') { list = settings.binanceIds; label = "🟡 معرفات Binance Pay ID المعتمدة:"; }
 
       let html = `<strong>${label}</strong><br>`;
       if (list && list.length > 0) {
-        list.forEach((acc, i) => {
+        list.forEach(acc => {
           html += `
-            <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center; background:#0b0f19; padding:6px 10px; border-radius:6px;">
+            <div style="margin-top:4px; display:flex; justify-content:space-between; align-items:center; background:#0b0f19; padding:5px 8px; border-radius:6px;">
               <span>${acc}</span>
               <span class="copy-chip" onclick="copyText('${acc}')">نسخ</span>
             </div>
           `;
         });
       } else {
-        html += `<span style="color:var(--text-muted);">تواصل مع الدعم الفني للحصول على بيانات التحويل المباشرة.</span>`;
+        html += `<span style="color:var(--text-muted);">تواصل معنا لتزويدك ببيانات الحساب.</span>`;
       }
 
       box.innerHTML = html;
@@ -1200,49 +1336,76 @@
     }
 
     function calculateDepositEquiv() {
-      const method = document.getElementById('deposit-method').value;
       const usd = parseFloat(document.getElementById('deposit-amount-usd').value) || 0;
       const box = document.getElementById('deposit-equiv-box');
 
-      if (usd <= 0) {
-        box.innerHTML = `القيمة المطلوبة: <strong>$0.00</strong>`;
-        return;
-      }
+      if (usd <= 0) { box.innerHTML = `المطلوب تحويله: <strong>$0.00</strong>`; return; }
 
-      if (method === 'libyana') {
-        box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateLibyana).toFixed(1)} د.ل رصيد ليبيانا</strong>`;
-      } else if (method === 'madar') {
-        box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateMadar).toFixed(1)} د.ل رصيد مدار</strong>`;
-      } else if (method === 'bank') {
-        box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateBank).toFixed(1)} د.ل مصرفي</strong>`;
-      } else {
-        box.innerHTML = `المطلوب تحويله: <strong>${usd.toFixed(2)} USDT</strong>`;
-      }
+      if (selectedDepositMethod === 'libyana') box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateLibyana).toFixed(1)} د.ل ليبيانا</strong>`;
+      else if (selectedDepositMethod === 'madar') box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateMadar).toFixed(1)} د.ل مدار</strong>`;
+      else if (selectedDepositMethod === 'bank') box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateBank).toFixed(1)} د.ل مصرفي</strong>`;
+      else box.innerHTML = `المطلوب تحويله: <strong>${usd.toFixed(2)} USDT</strong>`;
+    }
+
+    function handleReceiptUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxW = 600;
+          const scale = maxW / img.width;
+          canvas.width = (img.width > maxW) ? maxW : img.width;
+          canvas.height = (img.width > maxW) ? (img.height * scale) : img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          receiptImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+          const prev = document.getElementById('receipt-preview');
+          prev.src = receiptImageBase64;
+          prev.style.display = 'block';
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
     }
 
     async function submitDepositRequest() {
-      const method = document.getElementById('deposit-method').value;
       const usd = parseFloat(document.getElementById('deposit-amount-usd').value);
-      const ref = document.getElementById('deposit-ref').value.trim();
+      const source = document.getElementById('deposit-source-val').value.trim();
 
-      if (!usd || usd <= 0 || !ref) {
-        alert('يرجى تحديد المبلغ وكتابة رقم الحوالة أو إثبات الدفع!');
-        return;
+      if (!usd || usd <= 0) { showToast('يرجى تحديد المبلغ المراد شحنه', true); return; }
+      if (!source) { showToast('يرجى كتابة رقم الحساب أو الهاتف الذي قمت بالتحويل منه', true); return; }
+      if (!receiptImageBase64) { showToast('يرجى إرفاق صورة إيصال التحويل أو كرت الشحن', true); return; }
+
+      const btn = document.getElementById('deposit-submit-btn');
+      btn.disabled = true;
+      btn.innerText = 'جاري إرسال الإيصال...';
+
+      try {
+        await db.collection("deposits").add({
+          uid: currentUser.uid,
+          username: currentUserProfile.username,
+          userEmail: currentUser.email || '',
+          amountUsd: usd,
+          paymentMethod: selectedDepositMethod,
+          sourceAccount: source,
+          receiptImg: receiptImageBase64,
+          status: 'pending',
+          createdAt: Date.now()
+        });
+
+        closeModals();
+        showToast('✅ تم إرسال طلب الشحن بنجاح! سيتم اعتماده قريباً.');
+      } catch (err) {
+        showToast('حدث خطأ: ' + err.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'إرسال طلب الشحن للمراجعة 🚀';
       }
-
-      await db.collection("deposits").add({
-        uid: currentUser.uid,
-        username: currentUserProfile.username,
-        userEmail: currentUser.email || '',
-        amountUsd: usd,
-        paymentMethod: method,
-        referenceText: ref,
-        status: 'pending', // pending, approved, rejected
-        createdAt: Date.now()
-      });
-
-      alert('✅ تم إرسال طلب شحن المحفظة بنجاح! سيتم التحقق من الحوالة وإضافة الرصيد لحسابك قريباً.');
-      closeModals();
     }
 
     // --- Orders History ---
@@ -1251,20 +1414,23 @@
       document.getElementById('orders-modal').style.display = 'flex';
       toggleSidebar();
 
-      db.collection("orders").where("uid", "==", currentUser.uid).orderBy("createdAt", "desc").onSnapshot(snap => {
+      db.collection("orders").where("uid", "==", currentUser.uid).onSnapshot(snap => {
         const box = document.getElementById('my-orders-list');
         box.innerHTML = '';
         if (snap.empty) {
-          box.innerHTML = '<p style="color:var(--text-muted); text-align:center;">ليس لديك طلبات سابقة حتى الآن.</p>';
+          box.innerHTML = '<p style="color:var(--text-muted); text-align:center;">ليس لديك طلبات سابقة.</p>';
           return;
         }
 
-        snap.forEach(doc => {
-          const ord = doc.data();
+        let userOrders = [];
+        snap.forEach(doc => userOrders.push({ id: doc.id, ...doc.data() }));
+        userOrders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        userOrders.forEach(ord => {
           let stBadge = '<span style="color:#f59e0b;">⏳ قيد الانتظار</span>';
           if (ord.status === 'in_progress') stBadge = '<span style="color:#38bdf8;">⚙️ قيد التنفيذ</span>';
           if (ord.status === 'completed') stBadge = '<span style="color:#10b981;">✅ مكتمل</span>';
-          if (ord.status === 'cancelled') stBadge = '<span style="color:#ef4444;">❌ ملغي وتم استرجاع الرصيد</span>';
+          if (ord.status === 'cancelled') stBadge = '<span style="color:#ef4444;">❌ ملغي ومسترجع</span>';
 
           box.innerHTML += `
             <div class="order-history-card">
@@ -1274,8 +1440,8 @@
               </div>
               <div style="color:var(--text-muted); margin:4px 0;">القيمة: $${ord.costUsd.toFixed(2)} | الحساب: ${ord.targetInfo}</div>
               ${ord.deliveredCode ? `
-                <div style="background:#0b0f19; padding:6px 10px; border-radius:6px; margin-top:6px; border:1px dashed #10b981;">
-                  <span style="color:#10b981; font-weight:bold;">📦 بيانات التسليم / الكود:</span> 
+                <div style="background:#0b0f19; padding:5px 8px; border-radius:6px; margin-top:5px; border:1px dashed #10b981;">
+                  <span style="color:#10b981; font-weight:bold;">📦 الكود:</span> 
                   <strong style="color:#fff;">${ord.deliveredCode}</strong>
                   <span class="copy-chip" onclick="copyText('${ord.deliveredCode}')">نسخ</span>
                 </div>
@@ -1283,34 +1449,37 @@
             </div>
           `;
         });
+      }, err => {
+        document.getElementById('my-orders-list').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر تحميل الطلبات: ${err.message}</p>`;
       });
     }
 
-    // --- Tickets System ---
     function openTicketsModal() {
       if (!currentUser) { openAuthModal(); return; }
       document.getElementById('tickets-modal').style.display = 'flex';
       toggleSidebar();
 
-      db.collection("tickets").where("uid", "==", currentUser.uid).orderBy("createdAt", "desc").onSnapshot(snap => {
+      db.collection("tickets").where("uid", "==", currentUser.uid).onSnapshot(snap => {
         const box = document.getElementById('my-tickets-list');
         box.innerHTML = '';
         if (snap.empty) {
-          box.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا توجد تذاكر دعم مفتوحة.</p>';
+          box.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا توجد تذاكر.</p>';
           return;
         }
 
-        snap.forEach(doc => {
-          const t = doc.data();
-          let statusText = t.status === 'answered' ? '<span style="color:#10b981;">تم الرد من الإدارة</span>' : '<span style="color:#f59e0b;">قيد المراجعة</span>';
+        let userTickets = [];
+        snap.forEach(doc => userTickets.push({ id: doc.id, ...doc.data() }));
+        userTickets.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        userTickets.forEach(t => {
           box.innerHTML += `
             <div class="ticket-card">
               <div style="display:flex; justify-content:space-between;">
                 <strong>${t.subject}</strong>
-                <span>${statusText}</span>
+                <span>${t.status === 'answered' ? '✅ تم الرد' : '⏳ قيد المراجعة'}</span>
               </div>
-              <div style="color:var(--text-muted); margin:4px 0;">رسالتك: ${t.message}</div>
-              ${t.reply ? `<div style="background:#0b0f19; padding:6px 10px; border-radius:6px; color:#38bdf8; margin-top:4px;"><strong>رد الإدارة:</strong> ${t.reply}</div>` : ''}
+              <div style="color:var(--text-muted); margin:4px 0;">${t.message}</div>
+              ${t.reply ? `<div style="background:#0b0f19; padding:5px 8px; border-radius:6px; color:#38bdf8;"><strong>رد الإدارة:</strong> ${t.reply}</div>` : ''}
             </div>
           `;
         });
@@ -1320,11 +1489,7 @@
     async function submitTicket() {
       const subject = document.getElementById('ticket-subject').value.trim();
       const message = document.getElementById('ticket-msg').value.trim();
-
-      if (!subject || !message) {
-        alert('يرجى كتابة عنوان التذكرة ورسالتك');
-        return;
-      }
+      if (!subject || !message) { showToast('يرجى كتابة الموضوع والرسالة', true); return; }
 
       await db.collection("tickets").add({
         uid: currentUser.uid,
@@ -1339,13 +1504,12 @@
 
       document.getElementById('ticket-subject').value = '';
       document.getElementById('ticket-msg').value = '';
-      alert('✅ تم فتح التذكرة بنجاح!');
+      showToast('✅ تم فتح التذكرة بنجاح');
     }
 
-    // --- Helpers ---
     function copyText(val) {
       if (!val) return;
-      navigator.clipboard.writeText(val).then(() => alert('تم النسخ بنجاح!'));
+      navigator.clipboard.writeText(val).then(() => showToast('تم النسخ بنجاح!'));
     }
 
     function closeModals() {
