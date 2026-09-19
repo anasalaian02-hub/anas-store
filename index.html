@@ -822,7 +822,7 @@
 
       <div class="form-group">
         <label>صورة إيصال التحويل (سكرين شوت أو كرت الشحن):</label>
-        <input type="file" id="deposit-receipt-file" accept="image/*" onchange="handleReceiptUpload(event)" style="padding: 6px; font-size:0.8rem;">
+        <input type="file" id="deposit-receipt-file" accept="image/*" onchange="handleReceiptUpload(this)" style="padding: 6px; font-size:0.8rem;">
         <img id="receipt-preview" style="width:100%; height:110px; border-radius:8px; border:1px solid var(--border); display:none; object-fit:cover; margin-top:6px;">
       </div>
 
@@ -940,10 +940,10 @@
     const urlParams = new URLSearchParams(window.location.search);
     const referralCode = urlParams.get('ref');
 
-    // Initial Logo Preload for Gate Screen
-    db.collection("settings").doc("main").get().then(doc => {
-      if (doc.exists) {
-        const data = doc.data();
+    // Preload Logo for Gate Screen
+    db.collection("settings").doc("main").get().then((docSnapshot) => {
+      if (docSnapshot.exists) {
+        const data = docSnapshot.data();
         if (data.logoUrl) {
           const gateLogo = document.getElementById('gate-store-logo');
           gateLogo.src = data.logoUrl;
@@ -953,22 +953,45 @@
       }
     });
 
-    function showToast(msg, isError = false) {
+    function showToast(messageText, isError = false) {
       const toast = document.getElementById('app-toast');
-      toast.innerText = msg;
+      toast.innerText = messageText;
       toast.style.borderColor = isError ? 'var(--danger)' : '#38bdf8';
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    function sendTelegramNotification(text) {
-      if (!settings.tgBotToken || !settings.tgChatId) return;
-      fetch(`https://api.telegram.org/bot${settings.tgBotToken}/sendMessage?chat_id=${settings.tgChatId}&text=${encodeURIComponent(text)}&parse_mode=Markdown`)
-        .catch(err => console.log('Telegram Alert Error:', err));
+    async function sendTelegramNotification(notificationText) {
+      try {
+        let token = settings.tgBotToken;
+        let chatId = settings.tgChatId;
+
+        if (!token || !chatId) {
+          const docSnapshot = await db.collection("settings").doc("main").get();
+          if (docSnapshot.exists) {
+            token = docSnapshot.data().tgBotToken;
+            chatId = docSnapshot.data().tgChatId;
+          }
+        }
+
+        if (!token || !chatId) return;
+
+        const url = `https://api.telegram.org/bot${token}/sendMessage`;
+        await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: notificationText
+          })
+        });
+      } catch (err) {
+        console.error('Telegram notification error:', err);
+      }
     }
 
-    function calculateVipInfo(totalSpent) {
-      const spent = parseFloat(totalSpent) || 0;
+    function calculateVipInfo(userTotalSpent) {
+      const spent = parseFloat(userTotalSpent) || 0;
       if (spent >= (settings.vipDiamondMin || 400)) {
         return { name: 'ماسي 💎', discount: settings.vipDiamondDisc || 4.0 };
       } else if (spent >= (settings.vipGoldMin || 150)) {
@@ -980,21 +1003,21 @@
     }
 
     // Auth State Monitor: Lock / Unlock Screen
-    auth.onAuthStateChanged(async (user) => {
-      currentUser = user;
+    auth.onAuthStateChanged(async (authUser) => {
+      currentUser = authUser;
       const gate = document.getElementById('auth-gate');
       const app = document.getElementById('main-app');
 
-      if (user) {
+      if (authUser) {
         gate.style.display = 'none';
         app.style.display = 'block';
 
-        db.collection("users").doc(user.uid).onSnapshot(doc => {
-          if (doc.exists) {
-            currentUserProfile = doc.data();
+        db.collection("users").doc(authUser.uid).onSnapshot((docSnapshot) => {
+          if (docSnapshot.exists) {
+            currentUserProfile = docSnapshot.data();
             updateUserUI();
           } else {
-            createUserProfile(user);
+            createUserProfile(authUser);
           }
         });
 
@@ -1011,10 +1034,10 @@
       }
     });
 
-    async function createUserProfile(user, customUsername = null) {
+    async function createUserProfile(authUser, customUsername = null) {
       let username = customUsername;
       if (!username) {
-        username = (user.email ? user.email.split('@')[0] : 'user') + '_' + Math.floor(1000 + Math.random() * 9000);
+        username = (authUser.email ? authUser.email.split('@')[0] : 'user') + '_' + Math.floor(1000 + Math.random() * 9000);
       }
       username = username.toLowerCase().replace(/[^a-z0-9_]/g, '');
 
@@ -1025,9 +1048,9 @@
       }
 
       const userDoc = {
-        uid: user.uid,
+        uid: authUser.uid,
         username: username,
-        email: user.email || '',
+        email: authUser.email || '',
         balance: 0.0,
         totalSpent: 0.0,
         ordersCount: 0,
@@ -1035,8 +1058,8 @@
         createdAt: Date.now()
       };
 
-      await db.collection("users").doc(user.uid).set(userDoc, { merge: true });
-      await db.collection("usernames").doc(username).set({ uid: user.uid });
+      await db.collection("users").doc(authUser.uid).set(userDoc, { merge: true });
+      await db.collection("usernames").doc(username).set({ uid: authUser.uid });
     }
 
     function updateUserUI() {
@@ -1098,8 +1121,8 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
         const res = await auth.signInWithPopup(provider);
-        const doc = await db.collection("users").doc(res.user.uid).get();
-        if (!doc.exists) await createUserProfile(res.user);
+        const docSnapshot = await db.collection("users").doc(res.user.uid).get();
+        if (!docSnapshot.exists) await createUserProfile(res.user);
         showToast('✅ تم الدخول بحساب Google بنجاح!');
       } catch (e) {
         document.getElementById('auth-error').innerText = e.message;
@@ -1145,9 +1168,9 @@
     }
 
     function initData() {
-      db.collection("settings").doc("main").onSnapshot(doc => {
-        if (doc.exists) {
-          const data = doc.data();
+      db.collection("settings").doc("main").onSnapshot((docSnapshot) => {
+        if (docSnapshot.exists) {
+          const data = docSnapshot.data();
           settings = {
             rateBank: data.rateBank || 7.2,
             rateLibyana: data.rateLibyana || data.rateCard || 8.5,
@@ -1202,23 +1225,23 @@
         }
       });
 
-      db.collection("services").onSnapshot(snapshot => {
+      db.collection("services").onSnapshot((snapshot) => {
         services = [];
-        snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+        snapshot.forEach((docSnapshot) => services.push({ id: docSnapshot.id, ...docSnapshot.data() }));
         buildCategories();
         renderServices();
       });
 
-      db.collection("coupons").onSnapshot(snapshot => {
+      db.collection("coupons").onSnapshot((snapshot) => {
         coupons = [];
-        snapshot.forEach(doc => coupons.push({ id: doc.id, ...doc.data() }));
+        snapshot.forEach((docSnapshot) => coupons.push({ id: docSnapshot.id, ...docSnapshot.data() }));
       });
     }
 
-    function setCurrency(mode, btn) {
+    function setCurrency(mode, btnElement) {
       currentCurrency = mode;
-      document.querySelectorAll('.curr-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll('.curr-btn').forEach((b) => b.classList.remove('active'));
+      btnElement.classList.add('active');
       updateRateBadge();
       renderServices();
     }
@@ -1231,8 +1254,8 @@
       else if (currentCurrency === 'bank') badge.innerText = `1$ = ${settings.rateBank} د.ل (مصرفي)`;
     }
 
-    function formatPrice(usd) {
-      let finalUsd = usd;
+    function formatPrice(usdPrice) {
+      let finalUsd = usdPrice;
       let totalDiscountPercent = appliedDiscount;
 
       if (currentUserProfile) {
@@ -1241,7 +1264,7 @@
       }
 
       if (totalDiscountPercent > 0) {
-        finalUsd = usd - (usd * (totalDiscountPercent / 100));
+        finalUsd = usdPrice - (usdPrice * (totalDiscountPercent / 100));
       }
 
       if (currentCurrency === 'usd') return { val: finalUsd.toFixed(2), symbol: '$', rawUsd: finalUsd };
@@ -1251,19 +1274,19 @@
     }
 
     function buildCategories() {
-      const cats = ['الكل', ...new Set(services.map(s => s.category).filter(Boolean))];
+      const cats = ['الكل', ...new Set(services.map((s) => s.category).filter(Boolean))];
       const container = document.getElementById('category-filters');
       container.innerHTML = '';
-      cats.forEach(c => {
+      cats.forEach((c) => {
         const activeClass = c === currentCategory ? 'active' : '';
         container.innerHTML += `<button class="cat-btn ${activeClass}" onclick="filterCategory('${c}', this)">${c}</button>`;
       });
     }
 
-    function filterCategory(cat, btn) {
+    function filterCategory(cat, btnElement) {
       currentCategory = cat;
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll('.cat-btn').forEach((b) => b.classList.remove('active'));
+      btnElement.classList.add('active');
       renderServices();
     }
 
@@ -1286,7 +1309,7 @@
 
     function selectPkg(serviceId, pkgIndex) {
       selectedPackages[serviceId] = pkgIndex;
-      const service = services.find(s => s.id == serviceId);
+      const service = services.find((s) => s.id === serviceId);
       const pkg = service.packages[pkgIndex];
       const p = formatPrice(pkg.priceUsd);
 
@@ -1304,7 +1327,7 @@
       const container = document.getElementById('services-container');
       container.innerHTML = '';
 
-      let filtered = services.filter(s => {
+      let filtered = services.filter((s) => {
         const matchesCat = (currentCategory === 'الكل' || s.category === currentCategory);
         const matchesSearch = s.title.toLowerCase().includes(searchQuery);
         return matchesCat && matchesSearch;
@@ -1315,7 +1338,7 @@
         return;
       }
 
-      filtered.forEach(item => {
+      filtered.forEach((item) => {
         const isAvailable = item.status !== 'unavailable';
         if (selectedPackages[item.id] === undefined) selectedPackages[item.id] = 0;
         const currentPkgIndex = selectedPackages[item.id];
@@ -1396,7 +1419,7 @@
     }
 
     function updateOrderModalView() {
-      const service = services.find(s => s.id == pendingOrderServiceId);
+      const service = services.find((s) => s.id === pendingOrderServiceId);
       const pkgIndex = selectedPackages[pendingOrderServiceId] || 0;
       const selectedPkg = service.packages[pkgIndex];
       const p = formatPrice(selectedPkg.priceUsd);
@@ -1430,11 +1453,11 @@
 
     function applyCoupon() {
       const code = document.getElementById('coupon-input').value.trim().toUpperCase();
-      const match = coupons.find(c => c.code === code);
+      const match = coupons.find((c) => c.code === code);
       if (match) {
         appliedDiscount = match.discount;
         appliedCouponCode = match.code;
-        document.getElementById('coupon-msg').innerHTML = `<span style="color:#10b981;">✅ تم تفعيل خصم ${match.discount}%</span>`;
+        document.getElementById('coupon-msg').innerHTML = `<span style="color:#10b981;">✅ تم تفعيل خصم ${match.discount}% (${appliedCouponCode})</span>`;
         updateOrderModalView();
       } else {
         document.getElementById('coupon-msg').innerHTML = `<span style="color:#ef4444;">❌ الكوبون غير صحيح</span>`;
@@ -1442,7 +1465,7 @@
     }
 
     async function executeOrder() {
-      const service = services.find(s => s.id == pendingOrderServiceId);
+      const service = services.find((s) => s.id === pendingOrderServiceId);
       const pkgIndex = selectedPackages[pendingOrderServiceId] || 0;
       const selectedPkg = service.packages[pkgIndex];
       const p = formatPrice(selectedPkg.priceUsd);
@@ -1472,22 +1495,22 @@
 
         await db.runTransaction(async (transaction) => {
           const userDoc = await transaction.get(userRef);
-          if (!userDoc.exists) throw "الحساب غير موجود";
+          if (!userDoc.exists) throw new Error("الحساب غير موجود");
 
           const currentBal = userDoc.data().balance || 0;
-          if (currentBal < costUsd) throw "رصيد محفظتك لا يكفي! يرجى شحن الرصيد أولاً.";
+          if (currentBal < costUsd) throw new Error("رصيد محفظتك لا يكفي! يرجى شحن الرصيد أولاً.");
 
           let finalStatus = 'pending';
 
           if (selectedPkg.isAutoDelivery) {
             const sDoc = await transaction.get(serviceRef);
-            if (!sDoc.exists) throw "الخدمة غير موجودة";
+            if (!sDoc.exists) throw new Error("الخدمة غير موجودة");
             
             const currentPkgs = sDoc.data().packages || [];
             const targetPkg = currentPkgs[pkgIndex];
 
             if (!targetPkg || !targetPkg.stockCodes || targetPkg.stockCodes.length === 0) {
-              throw "عذراً، نفدت كمية الأكواد الفورية لهذه الباقة حالياً!";
+              throw new Error("عذراً، نفدت كمية الأكواد الفورية لهذه الباقة حالياً!");
             }
 
             deliveredCodeResult = targetPkg.stockCodes.shift();
@@ -1527,8 +1550,18 @@
           setTimeout(() => openOrdersModal(), 1200);
         } else {
           showToast('🎉 تم تأكيد طلبك وخصمه من المحفظة بنجاح!');
-          sendTelegramNotification(`📦 *طلب خدمة جديد!*\n👤 الزبون: @${currentUserProfile.username}\n📌 الخدمة: ${service.title} (${selectedPkg.name})\n🎯 المعرف: ${target}\n💰 القيمة: $${costUsd.toFixed(2)}`);
         }
+
+        // Send Telegram Notification for all orders
+        const orderType = selectedPkg.isAutoDelivery ? '⚡ تسليم كود فوري' : '✋ طلب شحن يدوي';
+        sendTelegramNotification(
+          `📦 طلب جديد في المتجر!\n` +
+          `النوع: ${orderType}\n` +
+          `الزبون: @${currentUserProfile.username}\n` +
+          `الخدمة: ${service.title} (${selectedPkg.name})\n` +
+          `المعرف: ${target}\n` +
+          `القيمة: $${costUsd.toFixed(2)}`
+        );
       } catch (err) {
         showToast('خطأ: ' + (err.message || err), true);
       } finally {
@@ -1550,7 +1583,7 @@
 
     function selectDepositMethod(method) {
       selectedDepositMethod = method;
-      document.querySelectorAll('.method-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.method-chip').forEach((c) => c.classList.remove('active'));
       const activeEl = document.getElementById(`chip-${method}`);
       if (activeEl) activeEl.classList.add('active');
 
@@ -1592,7 +1625,7 @@
 
       let html = `<strong>${label}</strong><br>`;
       if (list && list.length > 0) {
-        list.forEach(acc => {
+        list.forEach((acc) => {
           html += `
             <div style="margin-top:4px; display:flex; justify-content:space-between; align-items:center; background:#0b0f19; padding:5px 8px; border-radius:6px;">
               <span>${acc}</span>
@@ -1620,12 +1653,12 @@
       else box.innerHTML = `المطلوب تحويله: <strong>${usd.toFixed(2)} USDT</strong>`;
     }
 
-    function handleReceiptUpload(e) {
-      const file = e.target.files[0];
+    function handleReceiptUpload(inputElement) {
+      const file = inputElement.files ? inputElement.files[0] : null;
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(evt) {
+      reader.onload = function(fileEvent) {
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
@@ -1634,14 +1667,16 @@
           canvas.width = (img.width > maxW) ? maxW : img.width;
           canvas.height = (img.width > maxW) ? (img.height * scale) : img.height;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          receiptImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            receiptImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
-          const prev = document.getElementById('receipt-preview');
-          prev.src = receiptImageBase64;
-          prev.style.display = 'block';
+            const prev = document.getElementById('receipt-preview');
+            prev.src = receiptImageBase64;
+            prev.style.display = 'block';
+          }
         };
-        img.src = evt.target.result;
+        img.src = fileEvent.target ? fileEvent.target.result : '';
       };
       reader.readAsDataURL(file);
     }
@@ -1674,7 +1709,7 @@
         closeModals();
         showToast('✅ تم إرسال طلب الشحن بنجاح! سيتم اعتماده قريباً.');
 
-        sendTelegramNotification(`💰 *طلب إيداع محفظة جديد!*\n👤 الزبون: @${currentUserProfile.username}\n💵 القيمة: $${usd}\n💳 الطريقة: ${selectedDepositMethod}\n📲 المحول منه: ${source}\nراجع لوحة التحكم لاعتماد الرصيد.`);
+        sendTelegramNotification(`💰 طلب إيداع محفظة جديد!\nالزبون: @${currentUserProfile.username}\nالقيمة: $${usd}\nالطريقة: ${selectedDepositMethod}\nالمحول منه: ${source}\nيرجى مراجعة لوحة التحكم.`);
       } catch (err) {
         showToast('حدث خطأ: ' + err.message, true);
       } finally {
@@ -1688,7 +1723,7 @@
       document.getElementById('orders-modal').style.display = 'flex';
       toggleSidebar();
 
-      db.collection("orders").where("uid", "==", currentUser.uid).onSnapshot(snap => {
+      db.collection("orders").where("uid", "==", currentUser.uid).onSnapshot((snap) => {
         const box = document.getElementById('my-orders-list');
         box.innerHTML = '';
         if (snap.empty) {
@@ -1697,10 +1732,10 @@
         }
 
         let userOrders = [];
-        snap.forEach(doc => userOrders.push({ id: doc.id, ...doc.data() }));
+        snap.forEach((docSnapshot) => userOrders.push({ id: docSnapshot.id, ...docSnapshot.data() }));
         userOrders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-        userOrders.forEach(ord => {
+        userOrders.forEach((ord) => {
           let stBadge = '<span style="color:#f59e0b;">⏳ قيد الانتظار</span>';
           if (ord.status === 'in_progress') stBadge = '<span style="color:#38bdf8;">⚙️ قيد التنفيذ</span>';
           if (ord.status === 'completed') stBadge = '<span style="color:#10b981;">✅ مكتمل</span>';
@@ -1723,7 +1758,7 @@
             </div>
           `;
         });
-      }, err => {
+      }, (err) => {
         document.getElementById('my-orders-list').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر تحميل الطلبات: ${err.message}</p>`;
       });
     }
@@ -1746,7 +1781,7 @@
       document.getElementById('tickets-modal').style.display = 'flex';
       toggleSidebar();
 
-      db.collection("tickets").where("uid", "==", currentUser.uid).onSnapshot(snap => {
+      db.collection("tickets").where("uid", "==", currentUser.uid).onSnapshot((snap) => {
         const box = document.getElementById('my-tickets-list');
         box.innerHTML = '';
         if (snap.empty) {
@@ -1755,10 +1790,10 @@
         }
 
         let userTickets = [];
-        snap.forEach(doc => userTickets.push({ id: doc.id, ...doc.data() }));
+        snap.forEach((docSnapshot) => userTickets.push({ id: docSnapshot.id, ...docSnapshot.data() }));
         userTickets.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-        userTickets.forEach(t => {
+        userTickets.forEach((t) => {
           box.innerHTML += `
             <div class="ticket-card">
               <div style="display:flex; justify-content:space-between;">
@@ -1792,7 +1827,7 @@
       document.getElementById('ticket-subject').value = '';
       document.getElementById('ticket-msg').value = '';
       showToast('✅ تم فتح التذكرة بنجاح');
-      sendTelegramNotification(`🎫 *تذكرة دعم فني جديدة!*\n👤 الزبون: @${currentUserProfile.username}\n📌 الموضوع: ${subject}`);
+      sendTelegramNotification(`🎫 تذكرة دعم فني جديدة!\nالزبون: @${currentUserProfile.username}\nالموضوع: ${subject}`);
     }
 
     function copyText(val) {
@@ -1801,7 +1836,7 @@
     }
 
     function closeModals() {
-      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+      document.querySelectorAll('.modal').forEach((m) => m.style.display = 'none');
     }
   </script>
 </body>
