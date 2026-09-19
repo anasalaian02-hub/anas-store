@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>لوحة الإدارة السحابية | متجر أنس</title>
+  <title>لوحة الإدارة السحابية المتقدمة | متجر أنس</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -125,7 +125,15 @@
 
     .preview-box { width: 100%; height: 120px; border-radius: 8px; border: 1px solid var(--border); display: none; object-fit: cover; margin-top: 6px; }
 
-    /* Custom Toast Notification */
+    /* Package Row Layout in Service Form */
+    .pkg-editor-box {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
     #app-toast {
       position: fixed;
       bottom: 25px;
@@ -150,7 +158,6 @@
       opacity: 1;
     }
 
-    /* Modal for Image Zoom */
     .image-modal {
       display: none;
       position: fixed;
@@ -172,22 +179,18 @@
 </head>
 <body>
 
-  <!-- In-App Toast -->
   <div id="app-toast"></div>
 
-  <!-- Fullscreen Image Viewer Modal -->
   <div class="image-modal" id="image-modal" onclick="closeImageModal()">
     <img id="modal-full-img" src="" alt="إيصال التحويل">
   </div>
 
-  <!-- Login Box -->
   <div id="login-box" style="max-width: 380px; margin: 6rem auto; text-align: center;" class="card">
     <h2 style="border:none;">🔒 تسجيل دخول الإدارة</h2>
     <input type="password" id="admin-pass" placeholder="أدخل رمز المرور السري (1234)">
     <button class="btn" onclick="checkAuth()">دخول إلى المنصة</button>
   </div>
 
-  <!-- Main Admin Panel -->
   <div id="admin-panel" style="display: none;">
     <div class="header">
       <h1>⚙️ إدارة متجر أنس السحابية</h1>
@@ -197,8 +200,10 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('deposits-tab', this)">💰 إيداعات المحفظة</button>
       <button class="tab-btn" onclick="switchTab('orders-tab', this)">📥 الطلبات والتسليم</button>
-      <button class="tab-btn" onclick="switchTab('services-tab', this)">📦 الخدمات والباقات</button>
-      <button class="tab-btn" onclick="switchTab('rates-tab', this)">💳 طرق الدفع وأسعار الصرف</button>
+      <button class="tab-btn" onclick="switchTab('services-tab', this)">📦 الخدمات والأكواد</button>
+      <button class="tab-btn" onclick="switchTab('vip-tab', this)">👑 مستويات العضوية (VIP)</button>
+      <button class="tab-btn" onclick="switchTab('telegram-tab', this)">🔔 إشعارات التيليجرام</button>
+      <button class="tab-btn" onclick="switchTab('rates-tab', this)">💳 طرق الدفع والصرف</button>
       <button class="tab-btn" onclick="switchTab('users-tab', this)">👥 المستخدمين والمحافظ</button>
       <button class="tab-btn" onclick="switchTab('tickets-tab', this)">🎫 التذاكر والدعم</button>
       <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات</button>
@@ -224,16 +229,16 @@
       </div>
     </div>
 
-    <!-- 3. Services Management -->
+    <!-- 3. Services & Auto-Delivery Stock -->
     <div id="services-tab" class="tab-content">
       <div class="card" id="form-card">
-        <h2 id="form-title">➕ إضافة خدمة وباقات أسعار جديدة</h2>
+        <h2 id="form-title">➕ إضافة خدمة مع خيار التسليم الفوري للأكواد</h2>
         <input type="hidden" id="edit-service-id">
 
         <div class="grid-2">
           <div class="form-group">
             <label>عنوان الخدمة:</label>
-            <input type="text" id="new-title" placeholder="مثال: تيليجرام بريميوم 3 أشهر">
+            <input type="text" id="new-title" placeholder="مثال: بطاقات بلايستيشن / تيليجرام بريميوم">
           </div>
           <div class="form-group">
             <label>التصنيف:</label>
@@ -249,11 +254,11 @@
         </div>
 
         <div class="form-group">
-          <label>مدة التسليم المقدرة:</label>
-          <input type="text" id="new-delivery" placeholder="مثال: فوري / 5 - 15 دقيقة">
+          <label>مدة التسليم المقدرة (تظهر إذا كان تسليماً يدوياً):</label>
+          <input type="text" id="new-delivery" placeholder="مثال: 5 - 15 دقيقة">
         </div>
 
-        <label style="font-weight: bold; color: #38bdf8;">📋 باقات الخدمة وأسعارها بالدولار ($):</label>
+        <label style="font-weight: bold; color: #38bdf8; display:block; margin-bottom:6px;">📋 باقات الخدمة، الأسعار، ومخزون الأكواد (التسليم الفوري):</label>
         <div id="packages-container"></div>
         <button type="button" class="btn-add-row" onclick="addPackageRow()">+ إضافة باقة/مدة أخرى</button>
 
@@ -269,12 +274,87 @@
       </div>
 
       <div class="card">
-        <h2>📋 الخدمات المتاحة حالياً</h2>
+        <h2>📋 الخدمات الحالية ومخزون الأكواد</h2>
         <div id="services-list-container"></div>
       </div>
     </div>
 
-    <!-- 4. Payment Accounts & Exchange Rates -->
+    <!-- 4. VIP Tiers Control -->
+    <div id="vip-tab" class="tab-content">
+      <div class="card">
+        <h2>👑 التحكم في مستويات العضوية والخصومات التلقائية</h2>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">المستوى البرونزي يكون تلقائياً لأي عميل إنفاقه أقل من المستوى الفضي (بدون خصم).</p>
+
+        <h3 style="color:#cbd5e1; font-size:0.9rem; margin-bottom:8px;">🥈 المستوى الفضي:</h3>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>الحد الأدنى للإنفاق ($):</label>
+            <input type="number" step="1" id="vip-silver-min" placeholder="50">
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم التلقائي (%):</label>
+            <input type="number" step="0.5" id="vip-silver-disc" placeholder="1.5">
+          </div>
+        </div>
+
+        <h3 style="color:#f59e0b; font-size:0.9rem; margin:10px 0 8px;">🥇 المستوى الذهبي:</h3>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>الحد الأدنى للإنفاق ($):</label>
+            <input type="number" step="1" id="vip-gold-min" placeholder="150">
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم التلقائي (%):</label>
+            <input type="number" step="0.5" id="vip-gold-disc" placeholder="2.5">
+          </div>
+        </div>
+
+        <h3 style="color:#38bdf8; font-size:0.9rem; margin:10px 0 8px;">💎 المستوى الماسي (VIP):</h3>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>الحد الأدنى للإنفاق ($):</label>
+            <input type="number" step="1" id="vip-diamond-min" placeholder="400">
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم التلقائي (%):</label>
+            <input type="number" step="0.5" id="vip-diamond-disc" placeholder="4">
+          </div>
+        </div>
+
+        <h3 style="color:var(--accent); font-size:0.9rem; margin:10px 0 8px;">🤝 برنامج الإحالة والتسويق بالعمولة (Affiliate):</h3>
+        <div class="form-group">
+          <label>نسبة العمولة التي يحصل عليها العميل من شحنات أصدقائه (%):</label>
+          <input type="number" step="0.5" id="affiliate-percent" placeholder="1">
+        </div>
+
+        <button class="btn" onclick="saveVipSettings()">💾 حفظ إعدادات العضويات والعمولة</button>
+      </div>
+    </div>
+
+    <!-- 5. Telegram Notifications Settings -->
+    <div id="telegram-tab" class="tab-content">
+      <div class="card">
+        <h2>🔔 إشعارات التيليجرام الفورية لطلبات المتجر</h2>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">تصلك رسالة فورية على التيليجرام أول ما يقوم عميل بشحن المحفظة أو شراء خدمة يدوية.</p>
+
+        <div class="form-group">
+          <label>توكن بوت التيليجرام (Telegram Bot Token):</label>
+          <input type="text" id="tg-bot-token" placeholder="مثال: 1234567890:ABCdefGhIJKlmNoPQR">
+        </div>
+
+        <div class="form-group">
+          <label>معرف الشات الخاص بك (Admin Chat ID):</label>
+          <input type="text" id="tg-chat-id" placeholder="مثال: 987654321">
+        </div>
+
+        <div class="grid-2">
+          <button class="btn" onclick="saveTelegramSettings()">💾 حفظ إعدادات التنبيهات</button>
+          <button class="btn btn-edit" onclick="testTelegramAlert()">📲 إرسال رسالة تجريبية لتأكيد الربط</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Payment Accounts & Exchange Rates -->
     <div id="rates-tab" class="tab-content">
       <div class="card">
         <h2>💵 أسعار الصرف الرسمية مقابل 1$</h2>
@@ -348,16 +428,16 @@
       </div>
     </div>
 
-    <!-- 5. Users & Wallets -->
+    <!-- 7. Users & Wallets -->
     <div id="users-tab" class="tab-content">
       <div class="card">
-        <h2>👥 تصفح وتعديل أرصدة المستخدمين</h2>
+        <h2>👥 تصفح وتعديل أرصدة ورتب المستخدمين</h2>
         <input type="text" id="search-user" placeholder="🔍 ابحث عن يوزر نيم أو بريد..." oninput="renderUsersList()" style="margin-bottom:12px;">
         <div id="users-list-container"></div>
       </div>
     </div>
 
-    <!-- 6. Support Tickets -->
+    <!-- 8. Support Tickets -->
     <div id="tickets-tab" class="tab-content">
       <div class="card">
         <h2>🎫 تذاكر الدعم الفني والاستفسارات</h2>
@@ -365,7 +445,7 @@
       </div>
     </div>
 
-    <!-- 7. Coupons -->
+    <!-- 9. Coupons -->
     <div id="coupons-tab" class="tab-content">
       <div class="card">
         <h2>🎟️ إضافة كوبون خصم جديد</h2>
@@ -443,7 +523,7 @@
     }
 
     function initAdmin() {
-      // 1. Settings
+      // 1. Main Settings
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
           settings = doc.data();
@@ -455,6 +535,17 @@
           document.getElementById('setting-logo').value = settings.logoUrl || '';
           document.getElementById('setting-notice').value = settings.noticeText || '';
           document.getElementById('setting-pass').value = settings.adminPass || '1234';
+
+          document.getElementById('tg-bot-token').value = settings.tgBotToken || '';
+          document.getElementById('tg-chat-id').value = settings.tgChatId || '';
+
+          document.getElementById('vip-silver-min').value = settings.vipSilverMin || 50;
+          document.getElementById('vip-silver-disc').value = settings.vipSilverDisc || 1.5;
+          document.getElementById('vip-gold-min').value = settings.vipGoldMin || 150;
+          document.getElementById('vip-gold-disc').value = settings.vipGoldDisc || 2.5;
+          document.getElementById('vip-diamond-min').value = settings.vipDiamondMin || 400;
+          document.getElementById('vip-diamond-disc').value = settings.vipDiamondDisc || 4.0;
+          document.getElementById('affiliate-percent').value = settings.affiliatePercent || 1.0;
 
           populateDynamicInputs('libyana-container', settings.phoneLibyana);
           populateDynamicInputs('madar-container', settings.phoneMadar);
@@ -545,7 +636,44 @@
       return vals;
     }
 
-    // --- Deposits Review Management ---
+    // --- Package Stock Editor Rows ---
+    function addPackageRow(name = '', price = '', isAuto = false, codes = []) {
+      const container = document.getElementById('packages-container');
+      const div = document.createElement('div');
+      div.className = 'pkg-editor-box';
+      const rowId = 'pkg_row_' + Math.random().toString(36).substr(2, 9);
+      div.id = rowId;
+
+      const codesText = Array.isArray(codes) ? codes.join('\n') : '';
+
+      div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="color:#38bdf8; font-size:0.85rem;">باقة خدمة</strong>
+          <button type="button" class="btn-del-row" onclick="document.getElementById('${rowId}').remove()">✕ حذف الباقة</button>
+        </div>
+        <div class="grid-2">
+          <input type="text" placeholder="اسم الباقة (مثال: 60 شدة / شهر)" class="pkg-name" value="${name}">
+          <input type="number" step="0.01" placeholder="السعر ($)" class="pkg-price" value="${price}">
+        </div>
+        <div style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" class="pkg-is-auto" id="auto_${rowId}" onchange="toggleCodeBox('${rowId}')" ${isAuto ? 'checked' : ''} style="width:auto;">
+          <label for="auto_${rowId}" style="margin:0; color:#10b981; font-weight:bold; cursor:pointer;">⚡ تفعيل التسليم الفوري للأكواد لهذه الباقة</label>
+        </div>
+        <div class="pkg-codes-box" id="codes_box_${rowId}" style="display:${isAuto ? 'block' : 'none'}; margin-top:8px;">
+          <label style="color:#f59e0b;">📦 الأكواد المتاحة في الستوك (اكتب كل كود في سطر):</label>
+          <textarea class="pkg-codes" rows="3" placeholder="CODE-1234\nCODE-5678">${codesText}</textarea>
+          <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">عدد الأكواد في الستوك: <strong style="color:#10b981;" class="stock-counter">${codes.length}</strong></div>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    function toggleCodeBox(rowId) {
+      const isChecked = document.querySelector(`#${rowId} .pkg-is-auto`).checked;
+      document.getElementById(`codes_box_${rowId}`).style.display = isChecked ? 'block' : 'none';
+    }
+
+    // --- Deposits Management ---
     function renderDepositsList() {
       const cont = document.getElementById('deposits-list-container');
       cont.innerHTML = '';
@@ -576,9 +704,9 @@
               </div>
             ` : '<div style="color:var(--muted); font-size:0.78rem;">لا توجد صورة إيصال مرفقة</div>'}
             ${isPending ? `
-              <div class="actions-bar">
-                <button class="btn-success" onclick="approveDeposit('${d.id}', '${d.uid}', ${d.amountUsd})">✅ اعتماد وإضافة $${d.amountUsd}</button>
-                <button class="btn-danger" onclick="rejectDeposit('${d.id}')">❌ رفض الإيداع</button>
+              <div class="actions-bar" id="dep_actions_${d.id}">
+                <button class="btn-success" onclick="approveDeposit('${d.id}', '${d.uid}', ${d.amountUsd}, this)">✅ اعتماد وإضافة $${d.amountUsd}</button>
+                <button class="btn-danger" onclick="rejectDeposit('${d.id}', this)">❌ رفض الإيداع</button>
               </div>
             ` : ''}
           </div>
@@ -586,22 +714,43 @@
       });
     }
 
-    async function approveDeposit(depId, uid, amount) {
+    async function approveDeposit(depId, uid, amount, btn) {
+      if (btn) btn.disabled = true;
+      const actionsDiv = document.getElementById(`dep_actions_${depId}`);
+      if (actionsDiv) actionsDiv.style.display = 'none';
+
       const userRef = db.collection("users").doc(uid);
       const depRef = db.collection("deposits").doc(depId);
 
       try {
         await db.runTransaction(async (t) => {
+          const uDoc = await t.get(userRef);
+          if (!uDoc.exists) throw "المستخدم غير موجود!";
+
           t.update(userRef, { balance: firebase.firestore.FieldValue.increment(amount) });
           t.update(depRef, { status: 'approved' });
+
+          // Handle Affiliate Referral Bonus
+          const uData = uDoc.data();
+          if (uData.referredBy) {
+            const bonus = amount * ((settings.affiliatePercent || 1.0) / 100);
+            if (bonus > 0) {
+              const referrerRef = db.collection("users").doc(uData.referredBy);
+              t.update(referrerRef, { balance: firebase.firestore.FieldValue.increment(bonus) });
+            }
+          }
         });
-        showToast(`🎉 تم اعتماد الإيداع وإضافة $${amount} للمحفظة!`);
+
+        showToast(`🎉 تم اعتماد الإيداع وإضافة $${amount} للمحفظة بنجاح!`);
       } catch (e) {
+        if (actionsDiv) actionsDiv.style.display = 'flex';
+        if (btn) btn.disabled = false;
         showToast('خطأ: ' + e.message, true);
       }
     }
 
-    function rejectDeposit(depId) {
+    function rejectDeposit(depId, btn) {
+      if (btn) btn.disabled = true;
       db.collection("deposits").doc(depId).update({ status: 'rejected' }).then(() => {
         showToast('تم رفض طلب الإيداع.');
       });
@@ -616,7 +765,7 @@
       document.getElementById('image-modal').style.display = 'none';
     }
 
-    // --- Orders Management ---
+    // --- Orders Management with Auto Prevention ---
     function renderOrdersList() {
       const cont = document.getElementById('orders-list-container');
       cont.innerHTML = '';
@@ -633,8 +782,10 @@
         if (o.status === 'completed') { badgeColor = '#10b981'; badgeText = '✅ مكتمل'; }
         if (o.status === 'cancelled') { badgeColor = '#ef4444'; badgeText = '❌ ملغي ومسترجع'; }
 
+        const canAction = (o.status === 'pending' || o.status === 'in_progress');
+
         cont.innerHTML += `
-          <div class="data-card">
+          <div class="data-card" id="order-card-${o.id}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <strong>${o.serviceTitle} (${o.packageName})</strong>
               <span style="color:${badgeColor}; font-weight:bold;">${badgeText}</span>
@@ -644,27 +795,34 @@
               🎯 <strong>المعرف / الحساب:</strong> <span style="color:#38bdf8; font-weight:bold;">${o.targetInfo}</span><br>
               📝 <strong>ملاحظات العميل:</strong> ${o.clientNotes || 'لا توجد'}
             </div>
-            ${o.deliveredCode ? `<div style="color:var(--accent);">📦 <strong>كود أو رسالة التسليم:</strong> ${o.deliveredCode}</div>` : ''}
+            ${o.deliveredCode ? `<div style="color:var(--accent); font-weight:bold; background:rgba(16,185,129,0.1); padding:6px; border-radius:6px; margin-top:4px;">📦 كود أو رسالة التسليم: ${o.deliveredCode}</div>` : ''}
             
-            <div class="actions-bar">
-              <button style="background:#38bdf8; color:#000;" onclick="updateOrderStatus('${o.id}', 'in_progress')">قيد التنفيذ</button>
-              <button class="btn-success" onclick="completeOrderPrompt('${o.id}')">إكمال وتسليم كود</button>
-              <button class="btn-danger" onclick="cancelAndRefundOrder('${o.id}', '${o.uid}', ${o.costUsd})">إلغاء واسترجاع الرصيد</button>
-            </div>
+            ${canAction ? `
+              <div class="actions-bar" id="actions-${o.id}">
+                ${o.status === 'pending' ? `<button style="background:#38bdf8; color:#000;" onclick="updateOrderStatus('${o.id}', 'in_progress', this)">قيد التنفيذ</button>` : ''}
+                <button class="btn-success" onclick="completeOrderPrompt('${o.id}', this)">إكمال وتسليم كود</button>
+                <button class="btn-danger" onclick="cancelAndRefundOrder('${o.id}', '${o.uid}',${o.costUsd}, this)">إلغاء واسترجاع الرصيد</button>
+              </div>
+            ` : ''}
           </div>
         `;
       });
     }
 
-    function updateOrderStatus(orderId, status) {
+    function updateOrderStatus(orderId, status, btn) {
+      if (btn) btn.disabled = true;
       db.collection("orders").doc(orderId).update({ status }).then(() => {
         showToast('تم تحديث حالة الطلب إلى قيد التنفيذ.');
       });
     }
 
-    function completeOrderPrompt(orderId) {
+    function completeOrderPrompt(orderId, btn) {
       const code = prompt('أدخل كود الشحن أو رسالة التسليم (ستظهر في سجل طلبات العميل):', '');
       if (code !== null) {
+        if (btn) btn.disabled = true;
+        const actionsDiv = document.getElementById(`actions-${orderId}`);
+        if (actionsDiv) actionsDiv.style.display = 'none';
+
         db.collection("orders").doc(orderId).update({
           status: 'completed',
           deliveredCode: code
@@ -674,21 +832,35 @@
       }
     }
 
-    async function cancelAndRefundOrder(orderId, uid, amount) {
+    async function cancelAndRefundOrder(orderId, uid, amount, btn) {
+      if (!confirm(`هل أنت متأكد من إلغاء هذا الطلب وإرجاع مبلغ $${amount} للمحفظة؟`)) return;
+
+      if (btn) btn.disabled = true;
+      const actionsDiv = document.getElementById(`actions-${orderId}`);
+      if (actionsDiv) actionsDiv.style.display = 'none';
+
       const userRef = db.collection("users").doc(uid);
       const orderRef = db.collection("orders").doc(orderId);
 
       try {
         await db.runTransaction(async (t) => {
+          const currentOrderDoc = await t.get(orderRef);
+          if (!currentOrderDoc.exists) throw "الطلب غير موجود!";
+          if (currentOrderDoc.data().status === 'cancelled') {
+            throw "تم إلغاء هذا الطلب واسترجاع رصيده مسبقاً!";
+          }
+
           t.update(userRef, {
             balance: firebase.firestore.FieldValue.increment(amount),
             totalSpent: firebase.firestore.FieldValue.increment(-amount)
           });
           t.update(orderRef, { status: 'cancelled' });
         });
-        showToast('✅ تم إلغاء الطلب واسترجاع الرصيد لمحفظة الزبون!');
+        showToast('✅ تم إلغاء الطلب واسترجاع الرصيد لمحفظة الزبون بنجاح!');
       } catch (e) {
-        showToast('خطأ: ' + e.message, true);
+        if (actionsDiv) actionsDiv.style.display = 'flex';
+        if (btn) btn.disabled = false;
+        showToast('خطأ: ' + (e.message || e), true);
       }
     }
 
@@ -713,7 +885,7 @@
           <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap;">
             <div>
               <strong style="color:#38bdf8;">@${u.username || 'مستخدم'}</strong> (${u.email})
-              <div style="color:var(--muted); font-size:0.78rem;">الرتبة: ${u.vipLevel || 'برونزي'} | إجمالي الإنفاق: $${(u.totalSpent || 0).toFixed(2)}</div>
+              <div style="color:var(--muted); font-size:0.78rem;">الرتبة: <span style="color:var(--gold); font-weight:bold;">${u.vipLevel || 'برونزي'}</span> | إجمالي الإنفاق: $${(u.totalSpent || 0).toFixed(2)}</div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="font-weight:800; color:var(--accent); font-size:1rem;">$${(u.balance || 0).toFixed(2)}</span>
@@ -778,7 +950,7 @@
       db.collection("tickets").doc(tId).delete().then(() => showToast('تم حذف التذكرة.'));
     }
 
-    // --- Settings Saver ---
+    // --- Settings Savers ---
     function saveSettings() {
       const data = {
         rateBank: parseFloat(document.getElementById('rate-bank').value) || 7.2,
@@ -799,6 +971,52 @@
       db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
         showToast('✅ تم حفظ جميع الإعدادات وطرق الدفع بنجاح!');
       });
+    }
+
+    function saveVipSettings() {
+      const data = {
+        vipSilverMin: parseFloat(document.getElementById('vip-silver-min').value) || 50,
+        vipSilverDisc: parseFloat(document.getElementById('vip-silver-disc').value) || 1.5,
+        vipGoldMin: parseFloat(document.getElementById('vip-gold-min').value) || 150,
+        vipGoldDisc: parseFloat(document.getElementById('vip-gold-disc').value) || 2.5,
+        vipDiamondMin: parseFloat(document.getElementById('vip-diamond-min').value) || 400,
+        vipDiamondDisc: parseFloat(document.getElementById('vip-diamond-disc').value) || 4.0,
+        affiliatePercent: parseFloat(document.getElementById('affiliate-percent').value) || 1.0
+      };
+
+      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
+        showToast('✅ تم حفظ إعدادات رتب VIP ونسبة الإحالة بنجاح!');
+      });
+    }
+
+    function saveTelegramSettings() {
+      const data = {
+        tgBotToken: document.getElementById('tg-bot-token').value.trim(),
+        tgChatId: document.getElementById('tg-chat-id').value.trim()
+      };
+
+      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
+        showToast('✅ تم حفظ إعدادات توكن وشات التيليجرام!');
+      });
+    }
+
+    function testTelegramAlert() {
+      const token = document.getElementById('tg-bot-token').value.trim();
+      const chatId = document.getElementById('tg-chat-id').value.trim();
+
+      if (!token || !chatId) {
+        showToast('يرجى إدخال التوكن والشات آيدي أولاً', true);
+        return;
+      }
+
+      const msg = `🔔 *تجربة إشعارات متجر أنس - Anas Store*\nتم ربط لوحة التحكم بالبوت بنجاح! ستصلك تنبيهات الإيداعات والطلبات هنا.`;
+      fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) showToast('🚀 تم إرسال رسالة التجربة إلى حسابك على التيليجرام بنجاح!');
+          else showToast('فشل الإرسال: تأكد من صحة التوكن والآيدي، وأنك ضغطت Start في البوت', true);
+        })
+        .catch(err => showToast('خطأ اتصال: ' + err.message, true));
     }
 
     // --- Services Management ---
@@ -829,18 +1047,6 @@
       reader.readAsDataURL(file);
     }
 
-    function addPackageRow(name = '', price = '') {
-      const container = document.getElementById('packages-container');
-      const div = document.createElement('div');
-      div.className = 'dynamic-row';
-      div.innerHTML = `
-        <input type="text" placeholder="اسم الباقة (مثال: شهري / 60 شدة)" class="pkg-name" value="${name}">
-        <input type="number" step="0.1" placeholder="السعر ($)" class="pkg-price" value="${price}" style="max-width: 120px;">
-        <button type="button" class="btn-del-row" onclick="this.parentElement.remove()">✕</button>
-      `;
-      container.appendChild(div);
-    }
-
     function saveService() {
       const editId = document.getElementById('edit-service-id').value;
       const title = document.getElementById('new-title').value.trim();
@@ -849,17 +1055,25 @@
       const deliveryTime = document.getElementById('new-delivery').value.trim();
       const notes = document.getElementById('new-notes').value.trim();
 
-      const pkgNames = document.querySelectorAll('.pkg-name');
-      const pkgPrices = document.querySelectorAll('.pkg-price');
+      const pkgBoxes = document.querySelectorAll('#packages-container .pkg-editor-box');
       let packages = [];
 
-      for (let i = 0; i < pkgNames.length; i++) {
-        const pName = pkgNames[i].value.trim();
-        const pPrice = parseFloat(pkgPrices[i].value);
+      pkgBoxes.forEach(box => {
+        const pName = box.querySelector('.pkg-name').value.trim();
+        const pPrice = parseFloat(box.querySelector('.pkg-price').value);
+        const isAuto = box.querySelector('.pkg-is-auto').checked;
+        const rawCodes = box.querySelector('.pkg-codes') ? box.querySelector('.pkg-codes').value : '';
+        const codes = rawCodes.split('\n').map(c => c.trim()).filter(c => c.length > 0);
+
         if (pName && !isNaN(pPrice)) {
-          packages.push({ name: pName, priceUsd: pPrice });
+          packages.push({
+            name: pName,
+            priceUsd: pPrice,
+            isAutoDelivery: isAuto,
+            stockCodes: codes
+          });
         }
-      }
+      });
 
       if (!title || packages.length === 0) {
         showToast('يرجى كتابة عنوان الخدمة وإضافة باقة واحدة على الأقل', true);
@@ -879,7 +1093,7 @@
 
       if (editId) {
         db.collection("services").doc(editId).update(serviceData).then(() => {
-          showToast('✅ تم تحديث الخدمة بنجاح!');
+          showToast('✅ تم تحديث الخدمة ومخزون الأكواد بنجاح!');
           resetForm();
         });
       } else {
@@ -910,7 +1124,7 @@
 
       const pkgContainer = document.getElementById('packages-container');
       pkgContainer.innerHTML = '';
-      (s.packages || []).forEach(p => addPackageRow(p.name, p.priceUsd));
+      (s.packages || []).forEach(p => addPackageRow(p.name, p.priceUsd, p.isAutoDelivery, p.stockCodes || []));
 
       document.getElementById('form-title').innerText = `✏️ تعديل: ${s.title}`;
       document.getElementById('save-btn').innerText = 'حفظ التعديلات أونلاين 💾';
@@ -929,13 +1143,13 @@
       document.getElementById('img-preview').style.display = 'none';
       localImageBase64 = "";
 
-      document.getElementById('form-title').innerText = '➕ إضافة خدمة وباقات أسعار جديدة';
+      document.getElementById('form-title').innerText = '➕ إضافة خدمة مع خيار التسليم الفوري للأكواد';
       document.getElementById('save-btn').innerText = 'نشر الخدمة في المتجر 🚀';
       document.getElementById('cancel-edit-btn').style.display = 'none';
 
       const pkgContainer = document.getElementById('packages-container');
       pkgContainer.innerHTML = '';
-      addPackageRow('شهري', '3');
+      addPackageRow('شهري', '3', false, []);
     }
 
     function toggleServiceStatus(id, currentStatus) {
@@ -960,7 +1174,11 @@
 
       services.forEach(s => {
         const isAvail = s.status !== 'unavailable';
-        const pkgs = (s.packages || []).map(p => `<span style="background:#1e293b; color:#38bdf8; padding:2px 6px; border-radius:4px; font-size:0.78rem;">${p.name}: $${p.priceUsd}</span>`).join(' ');
+        const pkgs = (s.packages || []).map(p => {
+          const autoBadge = p.isAutoDelivery ? `<span style="color:#10b981;">[⚡ فوري: ${(p.stockCodes || []).length} كود]</span>` : '[يدوي]';
+          return `<span style="background:#1e293b; color:#38bdf8; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-left:3px;">${p.name}: $${p.priceUsd} ${autoBadge}</span>`;
+        }).join(' ');
+
         container.innerHTML += `
           <div class="data-card">
             <div style="display:flex; justify-content:space-between;">
@@ -970,9 +1188,9 @@
               </span>
             </div>
             <div style="color:var(--muted); font-size:0.8rem;">القسم: ${s.category}</div>
-            <div>${pkgs}</div>
+            <div style="margin:4px 0;">${pkgs}</div>
             <div class="actions-bar">
-              <button class="btn-edit" onclick="editService('${s.id}')">تعديل</button>
+              <button class="btn-edit" onclick="editService('${s.id}')">تعديل الأكواد والأسعار</button>
               <button class="btn-toggle" onclick="toggleServiceStatus('${s.id}', '${s.status || 'available'}')">
                 ${isAvail ? 'إيقاف' : 'تفعيل'}
               </button>
@@ -1030,3 +1248,4 @@
   </script>
 </body>
 </html>
+

@@ -12,6 +12,7 @@
   <style>
     :root {
       --primary: #2563eb;
+      --primary-hover: #1d4ed8;
       --accent: #10b981;
       --gold: #f59e0b;
       --danger: #ef4444;
@@ -25,6 +26,107 @@
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg); color: var(--text); padding-bottom: 60px; overflow-x: hidden; }
 
+    /* Hide Netlify Badge */
+    [data-netlify-deploy-id], .netlify-badge, iframe[src*="netlify"], div[class*="netlify"], netlify-drawer {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    /* Modern Glassmorphic Login Gate */
+    #auth-gate {
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      background: #090d16;
+      overflow: hidden;
+    }
+    #auth-gate::before {
+      content: '';
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.35), transparent 70%);
+      top: 10%;
+      right: 15%;
+      filter: blur(50px);
+      z-index: 1;
+    }
+    #auth-gate::after {
+      content: '';
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.2), transparent 70%);
+      bottom: 10%;
+      left: 15%;
+      filter: blur(50px);
+      z-index: 1;
+    }
+
+    .gate-glass-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(21, 29, 48, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 2rem 1.6rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      text-align: center;
+    }
+    .gate-logo-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+    .gate-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      object-fit: cover;
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+      margin-bottom: 10px;
+      display: block;
+    }
+    .gate-logo-fallback {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #1e3a8a, #0284c7);
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .gate-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .gate-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* Protected App Area */
+    #main-app { display: none; }
+
     #announcement-bar {
       background: linear-gradient(90deg, #1e3a8a, #0284c7);
       color: #fff;
@@ -35,7 +137,7 @@
       display: none;
     }
 
-    /* Sticky Header */
+    /* Header */
     header {
       background: rgba(21, 29, 48, 0.98);
       backdrop-filter: blur(10px);
@@ -60,17 +162,6 @@
     .brand h1 { font-size: 1.1rem; font-weight: 800; color: #38bdf8; line-height: 1.2; }
     .brand span { font-size: 0.72rem; color: var(--text-muted); }
 
-    .header-actions { display: flex; align-items: center; gap: 8px; }
-    .auth-btn-top {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 7px 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
     .menu-btn-top {
       background: var(--card-inner);
       border: 1px solid var(--border);
@@ -79,7 +170,7 @@
       border-radius: 10px;
       cursor: pointer;
       font-weight: 700;
-      display: none;
+      display: flex;
       align-items: center;
       gap: 6px;
       font-size: 0.85rem;
@@ -89,7 +180,6 @@
 
     /* Top User Live Stats Bar */
     .user-profile-header-card {
-      display: none;
       background: linear-gradient(135deg, #151d30, #0f1626);
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -106,7 +196,7 @@
       margin-bottom: 10px;
     }
     .user-welcome-row strong { color: #38bdf8; font-size: 0.95rem; }
-    .user-welcome-row span { font-size: 0.75rem; background: rgba(245, 158, 11, 0.15); color: var(--gold); padding: 2px 8px; border-radius: 6px; font-weight: bold; }
+    .vip-badge-pill { font-size: 0.75rem; background: rgba(245, 158, 11, 0.15); color: var(--gold); padding: 2px 8px; border-radius: 6px; font-weight: bold; }
     
     .stats-grid {
       display: grid;
@@ -365,7 +455,7 @@
       font-size: 0.88rem;
     }
 
-    /* Support Channels Box at Bottom of Sidebar */
+    /* Support Channels Box */
     .sidebar-support-box {
       margin-top: auto;
       background: var(--card-inner);
@@ -391,7 +481,7 @@
     .support-wa { background: #16a34a; }
     .support-tg { background: #0284c7; }
 
-    /* Modals */
+    /* Modals & Forms */
     .modal {
       display: none;
       position: fixed;
@@ -414,18 +504,23 @@
       border: 1px solid var(--border);
     }
     .modal-content h3 { color: #38bdf8; margin-bottom: 10px; font-size: 1.1rem; }
-    .form-group { margin-bottom: 10px; }
+    .form-group { margin-bottom: 10px; text-align: right; }
     .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
     .form-group input, .form-group textarea {
       width: 100%;
-      padding: 9px;
-      background: #0b0f19;
+      padding: 10px;
+      background: rgba(11, 15, 25, 0.7);
       border: 1px solid var(--border);
       border-radius: 8px;
       color: white;
       outline: none;
       font-size: 0.88rem;
+      transition: border-color 0.2s;
     }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: #38bdf8;
+    }
+
     .btn-submit {
       width: 100%;
       background: var(--primary);
@@ -437,7 +532,9 @@
       cursor: pointer;
       font-size: 0.92rem;
       margin-top: 6px;
+      transition: background 0.2s;
     }
+    .btn-submit:hover { background: var(--primary-hover); }
     .btn-submit.deposit { background: var(--accent); color: #022c15; }
     .close-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: #94a3b8; padding: 9px; border-radius: 8px; margin-top: 6px; cursor: pointer; font-size: 0.85rem; }
 
@@ -486,7 +583,7 @@
       font-size: 0.82rem;
     }
 
-    /* Custom In-App Toast Notification (Replaces Browser Alerts) */
+    /* Custom In-App Toast Notification */
     #app-toast {
       position: fixed;
       bottom: 25px;
@@ -514,115 +611,20 @@
 </head>
 <body>
 
-  <div id="announcement-bar"></div>
-
   <!-- In-App Toast Alert -->
   <div id="app-toast"></div>
 
-  <header>
-    <div class="brand">
-      <img id="store-logo" class="brand-logo" alt="Logo">
-      <div>
-        <h1>متجر أنس | Anas Store</h1>
-        <span>⚡ المنصة الرقمية لشحن الحسابات</span>
+  <!-- 1. Authentication Gate (Glassmorphism & Anas Store Logo) -->
+  <div id="auth-gate">
+    <div class="gate-glass-card">
+      <div class="gate-logo-wrapper">
+        <img id="gate-store-logo" class="gate-logo" alt="Logo" style="display: none;">
+        <div id="gate-logo-fallback" class="gate-logo-fallback">⚡</div>
+        <h2 class="gate-title" id="auth-title">متجر أنس | Anas Store</h2>
+        <p class="gate-subtitle" id="auth-desc">المنصة الرقمية الأولى لشحن الحسابات والبطاقات</p>
       </div>
-    </div>
-
-    <div class="header-actions">
-      <button class="auth-btn-top" id="auth-btn" onclick="openAuthModal()">تسجيل الدخول</button>
-      <button class="menu-btn-top" id="menu-btn" onclick="toggleSidebar()">☰ القائمة</button>
-    </div>
-  </header>
-
-  <!-- Sidebar -->
-  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div>
-        <strong id="side-username" style="color:#38bdf8;">@username</strong>
-        <div id="side-email" style="font-size:0.75rem; color:var(--text-muted);">user@email.com</div>
-      </div>
-      <button onclick="toggleSidebar()" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer;">✕</button>
-    </div>
-
-    <div class="sidebar-nav">
-      <button class="side-nav-btn" onclick="openDepositModal()">➕ شحن رصيد المحفظة</button>
-      <button class="side-nav-btn" onclick="openOrdersModal()">📋 سجل طلباتي والأكواد</button>
-      <button class="side-nav-btn" onclick="openTicketsModal()">🎫 التذاكر والدعم الفني</button>
-    </div>
-
-    <!-- Direct Support Section -->
-    <div class="sidebar-support-box">
-      <span style="font-size:0.75rem; color:var(--text-muted); text-align:center;">للدعم السريع والتواصل:</span>
-      <a id="side-wa-link" href="#" target="_blank" class="support-link-btn support-wa">💬 محادثة واتساب</a>
-      <a id="side-tg-link" href="#" target="_blank" class="support-link-btn support-tg">✈️ محادثة تلجرام</a>
-    </div>
-
-    <button class="side-nav-btn" style="border-color: #ef4444; color: #ef4444; margin-top: 10px;" onclick="logoutUser()">🚪 تسجيل الخروج</button>
-  </div>
-
-  <div class="container">
-
-    <!-- 1. Top User Live Stats Bar -->
-    <div class="user-profile-header-card" id="user-stats-card">
-      <div class="user-welcome-row">
-        <div>
-          <span>مرحباً بك:</span>
-          <strong id="card-username">@username</strong>
-        </div>
-        <span id="card-vip">برونزي 👑</span>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-box balance">
-          <span>رصيدي بالمحفظة</span>
-          <strong id="card-balance">$0.00</strong>
-        </div>
-        <div class="stat-box spent">
-          <span>إجمالي الإنفاق</span>
-          <strong id="card-spent">$0.00</strong>
-        </div>
-        <div class="stat-box orders">
-          <span>عدد طلباتي</span>
-          <strong id="card-orders">0</strong>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. Currency Rates & Selector -->
-    <div class="currency-bar">
-      <h3>اختر وسيلة الدفع لعرض الأسعار بها:</h3>
-      <div class="currency-options">
-        <button class="curr-btn active" onclick="setCurrency('usd', this)">💵 بالدولار ($)</button>
-        <button class="curr-btn" onclick="setCurrency('libyana', this)">📶 رصيد ليبيانا</button>
-        <button class="curr-btn" onclick="setCurrency('madar', this)">📡 رصيد مدار</button>
-        <button class="curr-btn" onclick="setCurrency('bank', this)">🏦 تحويل مصرفي</button>
-      </div>
-      <div class="exchange-badge" id="rate-badge">سعر العرض: بالدولار ($)</div>
-    </div>
-
-    <!-- 3. Search and Categories -->
-    <div class="filters-bar">
-      <input type="text" class="search-input" id="search-box" placeholder="🔍 ابحث عن خدمة..." oninput="handleSearch()">
-      <div class="categories-list" id="category-filters">
-        <button class="cat-btn active" onclick="filterCategory('الكل', this)">الكل</button>
-      </div>
-    </div>
-
-    <!-- 4. Services Grid -->
-    <div class="services-grid" id="services-container">
-      <div style="text-align: center; grid-column: 1/-1; padding: 30px; color: #94a3b8;">جاري تحميل الخدمات...</div>
-    </div>
-
-    <footer style="text-align: center; margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem;">
-      <p>© متجر أنس - Anas Store. المنصة المعتمدة.</p>
-    </footer>
-  </div>
-
-  <!-- Auth Modal -->
-  <div class="modal" id="auth-modal">
-    <div class="modal-content">
-      <h3 id="auth-title">تسجيل الدخول إلى حسابك</h3>
-      <div id="auth-error" style="color:var(--danger); font-size:0.8rem; margin-bottom:8px;"></div>
+      
+      <div id="auth-error" style="color:var(--danger); font-size:0.8rem; margin-bottom:10px;"></div>
 
       <div class="form-group" id="username-group" style="display:none;">
         <label>اسم المستخدم (بدون مسافات):</label>
@@ -634,31 +636,137 @@
         <input type="email" id="auth-email" placeholder="name@example.com">
       </div>
 
-      <div class="form-group">
-        <label>كلمة المرور:</label>
+      <div class="form-group" id="password-group">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="margin:0;">كلمة المرور:</label>
+          <span style="color:#38bdf8; font-size:0.75rem; cursor:pointer;" onclick="handleForgotPassword()">نسيت كلمة السر؟</span>
+        </div>
         <input type="password" id="auth-pass" placeholder="••••••••">
       </div>
 
-      <button class="btn-submit" id="auth-submit-btn" onclick="handleEmailAuth()">دخول</button>
+      <button class="btn-submit" id="auth-submit-btn" onclick="handleEmailAuth()">تسجيل الدخول</button>
       
-      <div style="text-align:center; margin: 10px 0; color:var(--text-muted); font-size:0.8rem;">أو</div>
+      <div style="text-align:center; margin: 12px 0; color:var(--text-muted); font-size:0.8rem;">أو عبر حسابك المباشر</div>
       
       <button class="btn-submit" style="background:#ea4335;" onclick="handleGoogleAuth()">🌐 الدخول السريع عبر Google</button>
 
-      <div style="text-align:center; margin-top:10px;">
-        <span id="auth-toggle-text" style="color:#38bdf8; font-size:0.82rem; cursor:pointer;" onclick="toggleAuthMode()">ليس لديك حساب؟ اضغط لإنشاء حساب جديد</span>
+      <div style="text-align:center; margin-top:14px;">
+        <span id="auth-toggle-text" style="color:#38bdf8; font-size:0.82rem; cursor:pointer;" onclick="toggleAuthMode()">ليس لديك حساب؟ اضغط هنا لإنشاء حساب جديد</span>
       </div>
-      <button class="close-btn" onclick="closeModals()">إغلاق</button>
     </div>
   </div>
 
-  <!-- Order Modal with Dedicated Method Info -->
+  <!-- 2. Main App Interface (Unlocked after login) -->
+  <div id="main-app">
+    <div id="announcement-bar"></div>
+
+    <header>
+      <div class="brand">
+        <img id="store-logo" class="brand-logo" alt="Logo">
+        <div>
+          <h1>متجر أنس | Anas Store</h1>
+          <span>⚡ المنصة الرقمية لشحن الحسابات</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="menu-btn-top" onclick="toggleSidebar()">☰ القائمة</button>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div>
+          <strong id="side-username" style="color:#38bdf8;">@username</strong>
+          <div id="side-email" style="font-size:0.75rem; color:var(--text-muted);">user@email.com</div>
+        </div>
+        <button onclick="toggleSidebar()" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer;">✕</button>
+      </div>
+
+      <div class="sidebar-nav">
+        <button class="side-nav-btn" onclick="openDepositModal()">➕ شحن رصيد المحفظة</button>
+        <button class="side-nav-btn" onclick="openOrdersModal()">📋 سجل طلباتي والأكواد</button>
+        <button class="side-nav-btn" onclick="openAffiliateModal()">🤝 رابط الإحالة والعمولة</button>
+        <button class="side-nav-btn" onclick="openTicketsModal()">🎫 التذاكر والدعم الفني</button>
+      </div>
+
+      <!-- Direct Support Section -->
+      <div class="sidebar-support-box">
+        <span style="font-size:0.75rem; color:var(--text-muted); text-align:center;">للدعم السريع والتواصل:</span>
+        <a id="side-wa-link" href="#" target="_blank" class="support-link-btn support-wa">💬 محادثة واتساب</a>
+        <a id="side-tg-link" href="#" target="_blank" class="support-link-btn support-tg">✈️ محادثة تلجرام</a>
+      </div>
+
+      <button class="side-nav-btn" style="border-color: #ef4444; color: #ef4444; margin-top: 10px;" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+    </div>
+
+    <div class="container">
+
+      <!-- Top User Live Stats Bar -->
+      <div class="user-profile-header-card" id="user-stats-card">
+        <div class="user-welcome-row">
+          <div>
+            <span>مرحباً بك:</span>
+            <strong id="card-username">@username</strong>
+          </div>
+          <span class="vip-badge-pill" id="card-vip">برونزي 👑</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box balance">
+            <span>رصيدي بالمحفظة</span>
+            <strong id="card-balance">$0.00</strong>
+          </div>
+          <div class="stat-box spent">
+            <span>إجمالي الإنفاق</span>
+            <strong id="card-spent">$0.00</strong>
+          </div>
+          <div class="stat-box orders">
+            <span>عدد طلباتي</span>
+            <strong id="card-orders">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Currency Rates & Selector -->
+      <div class="currency-bar">
+        <h3>اختر وسيلة الدفع لعرض الأسعار بها:</h3>
+        <div class="currency-options">
+          <button class="curr-btn active" onclick="setCurrency('usd', this)">💵 بالدولار ($)</button>
+          <button class="curr-btn" onclick="setCurrency('libyana', this)">📶 رصيد ليبيانا</button>
+          <button class="curr-btn" onclick="setCurrency('madar', this)">📡 رصيد مدار</button>
+          <button class="curr-btn" onclick="setCurrency('bank', this)">🏦 تحويل مصرفي</button>
+        </div>
+        <div class="exchange-badge" id="rate-badge">سعر العرض: بالدولار ($)</div>
+      </div>
+
+      <!-- Search and Categories -->
+      <div class="filters-bar">
+        <input type="text" class="search-input" id="search-box" placeholder="🔍 ابحث عن خدمة..." oninput="handleSearch()">
+        <div class="categories-list" id="category-filters">
+          <button class="cat-btn active" onclick="filterCategory('الكل', this)">الكل</button>
+        </div>
+      </div>
+
+      <!-- Services Grid -->
+      <div class="services-grid" id="services-container">
+        <div style="text-align: center; grid-column: 1/-1; padding: 30px; color: #94a3b8;">جاري تحميل الخدمات...</div>
+      </div>
+
+      <footer style="text-align: center; margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem;">
+        <p>© متجر أنس - Anas Store. المنصة المعتمدة.</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <!-- Order Modal -->
   <div class="modal" id="order-modal">
     <div class="modal-content">
       <h3>تأكيد طلب الخدمة 🚀</h3>
       <div id="modal-summary" style="background:#0b0f19; padding:10px; border-radius:8px; font-size:0.85rem; line-height:1.5; border:1px solid var(--border); margin-bottom:10px;"></div>
 
-      <!-- Specific Service Charging Instructions -->
       <div id="modal-service-instructions" style="background:rgba(56, 189, 248, 0.08); border-right:3px solid #38bdf8; padding:8px 10px; border-radius:6px; font-size:0.8rem; color:#bae6fd; margin-bottom:10px;"></div>
 
       <div style="display:flex; gap:6px; margin-bottom: 10px;">
@@ -667,12 +775,12 @@
       </div>
       <div id="coupon-msg" style="font-size:0.75rem; margin-bottom:8px;"></div>
 
-      <div class="form-group">
+      <div class="form-group" id="order-target-group">
         <label id="order-target-label">بيانات الحساب / المعرف المطلوب شحنه:</label>
         <input type="text" id="order-target" placeholder="اكتب المطلوب هنا بدقة...">
       </div>
 
-      <div class="form-group">
+      <div class="form-group" id="order-notes-group">
         <label>ملاحظة إضافية (اختياري):</label>
         <textarea id="order-notes" rows="2" placeholder="أي تفاصيل أخرى تحتاج إضافتها"></textarea>
       </div>
@@ -734,6 +842,23 @@
     </div>
   </div>
 
+  <!-- Affiliate Modal -->
+  <div class="modal" id="affiliate-modal">
+    <div class="modal-content">
+      <h3>🤝 برنامج الإحالة والتسويق بالعمولة</h3>
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px;">
+        شارك رابط الإحالة الخاص بك مع أصدقائك، واحصل على عمولة بنسبة <strong style="color:var(--accent);" id="aff-rate-text">1%</strong> تضاف تلقائياً إلى رصيد محفظتك عن كل عملية شحن يقومون بها!
+      </p>
+
+      <div class="form-group">
+        <label>رابط الإحالة الخاص بك:</label>
+        <input type="text" id="my-affiliate-link" readonly style="color:#38bdf8; font-weight:bold;">
+      </div>
+      <button class="btn-submit" onclick="copyAffiliateLink()">📋 نسخ الرابط ومشاركته</button>
+      <button class="close-btn" onclick="closeModals()">إغلاق</button>
+    </div>
+  </div>
+
   <!-- Tickets Modal -->
   <div class="modal" id="tickets-modal">
     <div class="modal-content">
@@ -771,6 +896,7 @@
     let currentUser = null;
     let currentUserProfile = null;
     let isRegisterMode = false;
+    let isDataInitialized = false;
 
     let services = [];
     let coupons = [];
@@ -789,6 +915,15 @@
       binanceIds: [],
       waPhone: "218910000000",
       tgUser: "AnasStore",
+      tgBotToken: "",
+      tgChatId: "",
+      vipSilverMin: 50,
+      vipSilverDisc: 1.5,
+      vipGoldMin: 150,
+      vipGoldDisc: 2.5,
+      vipDiamondMin: 400,
+      vipDiamondDisc: 4.0,
+      affiliatePercent: 1.0,
       logoUrl: "",
       noticeText: ""
     };
@@ -802,7 +937,22 @@
     let selectedDepositMethod = 'bank';
     let receiptImageBase64 = "";
 
-    // In-App Toast Helper (Replaces Default Browser Alert)
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get('ref');
+
+    // Initial Logo Preload for Gate Screen
+    db.collection("settings").doc("main").get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        if (data.logoUrl) {
+          const gateLogo = document.getElementById('gate-store-logo');
+          gateLogo.src = data.logoUrl;
+          gateLogo.style.display = 'block';
+          document.getElementById('gate-logo-fallback').style.display = 'none';
+        }
+      }
+    });
+
     function showToast(msg, isError = false) {
       const toast = document.getElementById('app-toast');
       toast.innerText = msg;
@@ -811,12 +961,33 @@
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
+    function sendTelegramNotification(text) {
+      if (!settings.tgBotToken || !settings.tgChatId) return;
+      fetch(`https://api.telegram.org/bot${settings.tgBotToken}/sendMessage?chat_id=${settings.tgChatId}&text=${encodeURIComponent(text)}&parse_mode=Markdown`)
+        .catch(err => console.log('Telegram Alert Error:', err));
+    }
+
+    function calculateVipInfo(totalSpent) {
+      const spent = parseFloat(totalSpent) || 0;
+      if (spent >= (settings.vipDiamondMin || 400)) {
+        return { name: 'ماسي 💎', discount: settings.vipDiamondDisc || 4.0 };
+      } else if (spent >= (settings.vipGoldMin || 150)) {
+        return { name: 'ذهبي 🥇', discount: settings.vipGoldDisc || 2.5 };
+      } else if (spent >= (settings.vipSilverMin || 50)) {
+        return { name: 'فضي 🥈', discount: settings.vipSilverDisc || 1.5 };
+      }
+      return { name: 'برونزي 🥉', discount: 0 };
+    }
+
+    // Auth State Monitor: Lock / Unlock Screen
     auth.onAuthStateChanged(async (user) => {
       currentUser = user;
+      const gate = document.getElementById('auth-gate');
+      const app = document.getElementById('main-app');
+
       if (user) {
-        document.getElementById('auth-btn').style.display = 'none';
-        document.getElementById('menu-btn').style.display = 'flex';
-        document.getElementById('user-stats-card').style.display = 'block';
+        gate.style.display = 'none';
+        app.style.display = 'block';
 
         db.collection("users").doc(user.uid).onSnapshot(doc => {
           if (doc.exists) {
@@ -826,11 +997,15 @@
             createUserProfile(user);
           }
         });
+
+        if (!isDataInitialized) {
+          initData();
+          isDataInitialized = true;
+        }
       } else {
         currentUserProfile = null;
-        document.getElementById('auth-btn').style.display = 'block';
-        document.getElementById('menu-btn').style.display = 'none';
-        document.getElementById('user-stats-card').style.display = 'none';
+        gate.style.display = 'flex';
+        app.style.display = 'none';
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').style.display = 'none';
       }
@@ -843,6 +1018,12 @@
       }
       username = username.toLowerCase().replace(/[^a-z0-9_]/g, '');
 
+      let referredByUid = null;
+      if (referralCode) {
+        const uCheck = await db.collection("usernames").doc(referralCode.toLowerCase()).get();
+        if (uCheck.exists) referredByUid = uCheck.data().uid;
+      }
+
       const userDoc = {
         uid: user.uid,
         username: username,
@@ -850,7 +1031,7 @@
         balance: 0.0,
         totalSpent: 0.0,
         ordersCount: 0,
-        vipLevel: 'برونزي',
+        referredBy: referredByUid,
         createdAt: Date.now()
       };
 
@@ -860,23 +1041,28 @@
 
     function updateUserUI() {
       if (!currentUserProfile) return;
+      const vip = calculateVipInfo(currentUserProfile.totalSpent);
+
       document.getElementById('card-username').innerText = `@${currentUserProfile.username || 'مستخدم'}`;
       document.getElementById('card-balance').innerText = `$${(currentUserProfile.balance || 0).toFixed(2)}`;
       document.getElementById('card-spent').innerText = `$${(currentUserProfile.totalSpent || 0).toFixed(2)}`;
       document.getElementById('card-orders').innerText = currentUserProfile.ordersCount || 0;
-      document.getElementById('card-vip').innerText = (currentUserProfile.vipLevel || 'برونزي') + ' 👑';
+      document.getElementById('card-vip').innerText = `${vip.name} (خصم ${vip.discount}%)`;
 
       document.getElementById('side-username').innerText = `@${currentUserProfile.username || 'مستخدم'}`;
       document.getElementById('side-email').innerText = currentUserProfile.email || '';
-    }
 
-    function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
+      const affLink = `${window.location.origin}${window.location.pathname}?ref=${currentUserProfile.username}`;
+      document.getElementById('my-affiliate-link').value = affLink;
+      document.getElementById('aff-rate-text').innerText = `${settings.affiliatePercent || 1.0}%`;
+    }
 
     function toggleAuthMode() {
       isRegisterMode = !isRegisterMode;
-      document.getElementById('auth-title').innerText = isRegisterMode ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
-      document.getElementById('auth-submit-btn').innerText = isRegisterMode ? 'إنشاء الحساب' : 'دخول';
-      document.getElementById('auth-toggle-text').innerText = isRegisterMode ? 'لديك حساب بالفعل؟ سجل دخول' : 'ليس لديك حساب؟ إنشاء حساب جديد';
+      document.getElementById('auth-title').innerText = isRegisterMode ? 'إنشاء حساب جديد' : 'متجر أنس | Anas Store';
+      document.getElementById('auth-desc').innerText = isRegisterMode ? 'قم بإنشاء حسابك للانضمام للمتجر' : 'المنصة الرقمية الأولى لشحن الحسابات والبطاقات';
+      document.getElementById('auth-submit-btn').innerText = isRegisterMode ? 'إنشاء الحساب والدخول' : 'تسجيل الدخول';
+      document.getElementById('auth-toggle-text').innerText = isRegisterMode ? 'لديك حساب بالفعل؟ سجل دخول' : 'ليس لديك حساب؟ اضغط هنا لإنشاء حساب جديد';
       document.getElementById('username-group').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('auth-error').innerText = '';
     }
@@ -888,25 +1074,23 @@
       const errBox = document.getElementById('auth-error');
       errBox.innerText = '';
 
-      if (!email || !pass) { errBox.innerText = 'يرجى كتابة الإيميل وكلمة السر'; return; }
+      if (!email || !pass) { errBox.innerText = 'يرجى كتابة البريد وكلمة المرور'; return; }
 
       if (isRegisterMode) {
-        if (!username || username.length < 3) { errBox.innerText = 'اسم مستخدم غير صالح (3 حروف على الأقل)'; return; }
+        if (!username || username.length < 3) { errBox.innerText = 'اسم المستخدم يجب أن يكون 3 حروف على الأقل'; return; }
         const uDoc = await db.collection("usernames").doc(username).get();
         if (uDoc.exists) { errBox.innerText = 'اسم المستخدم مأخوذ بالفعل!'; return; }
 
         try {
           const res = await auth.createUserWithEmailAndPassword(email, pass);
           await createUserProfile(res.user, username);
-          closeModals();
-          showToast('🎉 تم إنشاء حسابك بنجاح!');
+          showToast('🎉 أهلاً بك في متجر أنس!');
         } catch (e) { errBox.innerText = e.message; }
       } else {
         try {
           await auth.signInWithEmailAndPassword(email, pass);
-          closeModals();
-          showToast('✅ تم تسجيل الدخول بنجاح!');
-        } catch (e) { errBox.innerText = 'البيانات غير صحيحة!'; }
+          showToast('✅ مرحباً بك مجدداً!');
+        } catch (e) { errBox.innerText = 'البريد أو كلمة المرور غير صحيحة!'; }
       }
     }
 
@@ -916,16 +1100,36 @@
         const res = await auth.signInWithPopup(provider);
         const doc = await db.collection("users").doc(res.user.uid).get();
         if (!doc.exists) await createUserProfile(res.user);
-        closeModals();
         showToast('✅ تم الدخول بحساب Google بنجاح!');
       } catch (e) {
         document.getElementById('auth-error').innerText = e.message;
       }
     }
 
+    async function handleForgotPassword() {
+      const email = document.getElementById('auth-email').value.trim();
+      const errBox = document.getElementById('auth-error');
+      errBox.innerText = '';
+
+      if (!email) {
+        showToast('اكتب بريدك الإلكتروني في الخانة أولاً، ثم اضغط على "نسيت كلمة السر"', true);
+        return;
+      }
+
+      try {
+        await auth.sendPasswordResetEmail(email);
+        showToast('📧 تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني!');
+      } catch (err) {
+        let msg = err.message;
+        if (err.code === 'auth/user-not-found') msg = 'هذا البريد غير مسجل لدينا في المتجر!';
+        else if (err.code === 'auth/invalid-email') msg = 'صيغة البريد الإلكتروني غير صحيحة!';
+        showToast(msg, true);
+      }
+    }
+
     function logoutUser() { 
       auth.signOut();
-      showToast('تم تسجيل الخروج بنجاح.');
+      showToast('تم تسجيل الخروج وقفل المتجر.');
     }
 
     function toggleSidebar() {
@@ -956,13 +1160,21 @@
             binanceIds: Array.isArray(data.binanceIds) ? data.binanceIds : (data.binanceIds ? [data.binanceIds] : []),
             waPhone: data.waPhone || "218910000000",
             tgUser: data.tgUser || "AnasStore",
+            tgBotToken: data.tgBotToken || "",
+            tgChatId: data.tgChatId || "",
+            vipSilverMin: data.vipSilverMin || 50,
+            vipSilverDisc: data.vipSilverDisc || 1.5,
+            vipGoldMin: data.vipGoldMin || 150,
+            vipGoldDisc: data.vipGoldDisc || 2.5,
+            vipDiamondMin: data.vipDiamondMin || 400,
+            vipDiamondDisc: data.vipDiamondDisc || 4.0,
+            affiliatePercent: data.affiliatePercent || 1.0,
             logoUrl: data.logoUrl || "",
             noticeText: data.noticeText || ""
           };
 
           updateRateBadge();
 
-          // Sidebar Direct Support Links
           document.getElementById('side-wa-link').href = `https://wa.me/${settings.waPhone}`;
           document.getElementById('side-tg-link').href = `https://t.me/${settings.tgUser}`;
 
@@ -970,6 +1182,11 @@
             const logoEl = document.getElementById('store-logo');
             logoEl.src = settings.logoUrl;
             logoEl.style.display = 'block';
+
+            const gateLogo = document.getElementById('gate-store-logo');
+            gateLogo.src = settings.logoUrl;
+            gateLogo.style.display = 'block';
+            document.getElementById('gate-logo-fallback').style.display = 'none';
           }
 
           const noticeEl = document.getElementById('announcement-bar');
@@ -980,6 +1197,7 @@
             noticeEl.style.display = 'none';
           }
 
+          if (currentUserProfile) updateUserUI();
           renderServices();
         }
       });
@@ -1015,7 +1233,16 @@
 
     function formatPrice(usd) {
       let finalUsd = usd;
-      if (appliedDiscount > 0) finalUsd = usd - (usd * (appliedDiscount / 100));
+      let totalDiscountPercent = appliedDiscount;
+
+      if (currentUserProfile) {
+        const vip = calculateVipInfo(currentUserProfile.totalSpent);
+        totalDiscountPercent += vip.discount;
+      }
+
+      if (totalDiscountPercent > 0) {
+        finalUsd = usd - (usd * (totalDiscountPercent / 100));
+      }
 
       if (currentCurrency === 'usd') return { val: finalUsd.toFixed(2), symbol: '$', rawUsd: finalUsd };
       if (currentCurrency === 'libyana') return { val: (finalUsd * settings.rateLibyana).toFixed(1), symbol: 'د.ل ليبيانا', rawUsd: finalUsd };
@@ -1100,9 +1327,10 @@
           item.packages.forEach((pkg, idx) => {
             const p = formatPrice(pkg.priceUsd);
             const isSel = idx === currentPkgIndex ? 'selected' : '';
+            const autoBadge = pkg.isAutoDelivery ? ' ⚡' : '';
             packagesHtml += `
               <div class="pkg-chip ${isSel}" onclick="${isAvailable ? `selectPkg('${item.id}',${idx})` : ''}">
-                <span class="pkg-chip-name">${pkg.name}</span>
+                <span class="pkg-chip-name">${pkg.name}${autoBadge}</span>
                 <span class="pkg-chip-price">${p.val} <small style="font-size:0.75rem;">${p.symbol}</small></span>
               </div>
             `;
@@ -1122,7 +1350,7 @@
             <div class="service-body">
               <div class="service-header">
                 <span class="service-category">${item.category || 'خدمة'}</span>
-                ${item.deliveryTime ? `<span class="delivery-time-badge">⚡ ${item.deliveryTime}</span>` : ''}
+                ${selPkg.isAutoDelivery ? `<span class="delivery-time-badge" style="color:#10b981; background:rgba(16,185,129,0.1);">⚡ تسليم فوري للأكواد</span>` : (item.deliveryTime ? `<span class="delivery-time-badge">⚡ ${item.deliveryTime}</span>` : '')}
               </div>
               <h2 class="service-title">${item.title}</h2>
 
@@ -1158,7 +1386,6 @@
     }
 
     function triggerOrder(serviceId) {
-      if (!currentUser) { openAuthModal(); return; }
       pendingOrderServiceId = serviceId;
       appliedDiscount = 0;
       appliedCouponCode = "";
@@ -1174,20 +1401,31 @@
       const selectedPkg = service.packages[pkgIndex];
       const p = formatPrice(selectedPkg.priceUsd);
 
+      const vip = calculateVipInfo(currentUserProfile ? currentUserProfile.totalSpent : 0);
+
       document.getElementById('modal-summary').innerHTML = `
         <strong>الخدمة:</strong> ${service.title}<br>
-        <strong>الباقة:</strong> ${selectedPkg.name}<br>
-        <strong>القيمة:</strong> <span style="color:#10b981; font-weight:bold;">$${p.rawUsd.toFixed(2)}</span> (${p.val} ${p.symbol})<br>
+        <strong>الباقة:</strong> ${selectedPkg.name} ${selectedPkg.isAutoDelivery ? '<span style="color:#10b981;">(⚡ تسليم فوري للأكواد)</span>' : ''}<br>
+        <strong>القيمة المخصومة:</strong> <span style="color:#10b981; font-weight:bold;">$${p.rawUsd.toFixed(2)}</span> (${p.val} ${p.symbol})<br>
         <strong>رصيد محفظتك:</strong> <span style="color:#38bdf8; font-weight:bold;">$${(currentUserProfile.balance || 0).toFixed(2)}</span>
+        ${vip.discount > 0 ? `<div style="color:var(--gold); font-size:0.78rem;">🎉 تم تطبيق خصم رتبة ${vip.name} (${vip.discount}%)</div>` : ''}
       `;
 
-      // Specific Service Charging Instructions
       const instBox = document.getElementById('modal-service-instructions');
-      instBox.innerHTML = `<strong>📌 شروط وطريقة شحن (${service.title}):</strong><br>${service.notes || 'يرجى تزويدنا بالمعرف المطلوب للشحن بدقة.'}`;
+      const targetGroup = document.getElementById('order-target-group');
+      const notesGroup = document.getElementById('order-notes-group');
 
-      const targetInput = document.getElementById('order-target');
-      targetInput.value = '';
-      targetInput.placeholder = `أدخل المطلوب لشحن ${service.title}...`;
+      if (selectedPkg.isAutoDelivery) {
+        instBox.innerHTML = `<strong>⚡ تسليم فوري تلقائي:</strong><br>هذه الباقة مدعومة بالتسليم الآلي، سيتم خصم الرصيد وعرض الكود فوراً على شاشتك وفي سجل طلباتك!`;
+        targetGroup.style.display = 'none';
+        notesGroup.style.display = 'none';
+      } else {
+        instBox.innerHTML = `<strong>📌 شروط وطريقة شحن (${service.title}):</strong><br>${service.notes || 'يرجى تزويدنا بالمعرف المطلوب للشحن بدقة.'}`;
+        targetGroup.style.display = 'block';
+        notesGroup.style.display = 'block';
+        document.getElementById('order-target').value = '';
+        document.getElementById('order-target').placeholder = `أدخل المطلوب لشحن ${service.title}...`;
+      }
     }
 
     function applyCoupon() {
@@ -1204,30 +1442,59 @@
     }
 
     async function executeOrder() {
-      const target = document.getElementById('order-target').value.trim();
-      const notes = document.getElementById('order-notes').value.trim();
-
-      if (!target) { showToast('يرجى كتابة المعرف أو الحساب المطلوب شحنه', true); return; }
-
       const service = services.find(s => s.id == pendingOrderServiceId);
       const pkgIndex = selectedPackages[pendingOrderServiceId] || 0;
       const selectedPkg = service.packages[pkgIndex];
       const p = formatPrice(selectedPkg.priceUsd);
       const costUsd = p.rawUsd;
 
+      let target = document.getElementById('order-target').value.trim();
+      const notes = document.getElementById('order-notes').value.trim();
+
+      if (!selectedPkg.isAutoDelivery && !target) {
+        showToast('يرجى كتابة المعرف أو الحساب المطلوب شحنه', true);
+        return;
+      }
+
+      if (selectedPkg.isAutoDelivery) {
+        target = "تسليم تلقائي فوري";
+      }
+
       const confirmBtn = document.getElementById('confirm-order-btn');
       confirmBtn.disabled = true;
       confirmBtn.innerText = 'جاري المعالجة...';
 
       const userRef = db.collection("users").doc(currentUser.uid);
+      const serviceRef = db.collection("services").doc(service.id);
 
       try {
+        let deliveredCodeResult = "";
+
         await db.runTransaction(async (transaction) => {
           const userDoc = await transaction.get(userRef);
           if (!userDoc.exists) throw "الحساب غير موجود";
 
           const currentBal = userDoc.data().balance || 0;
           if (currentBal < costUsd) throw "رصيد محفظتك لا يكفي! يرجى شحن الرصيد أولاً.";
+
+          let finalStatus = 'pending';
+
+          if (selectedPkg.isAutoDelivery) {
+            const sDoc = await transaction.get(serviceRef);
+            if (!sDoc.exists) throw "الخدمة غير موجودة";
+            
+            const currentPkgs = sDoc.data().packages || [];
+            const targetPkg = currentPkgs[pkgIndex];
+
+            if (!targetPkg || !targetPkg.stockCodes || targetPkg.stockCodes.length === 0) {
+              throw "عذراً، نفدت كمية الأكواد الفورية لهذه الباقة حالياً!";
+            }
+
+            deliveredCodeResult = targetPkg.stockCodes.shift();
+            finalStatus = 'completed';
+
+            transaction.update(serviceRef, { packages: currentPkgs });
+          }
 
           transaction.update(userRef, {
             balance: firebase.firestore.FieldValue.increment(-costUsd),
@@ -1247,16 +1514,23 @@
             costUsd: costUsd,
             targetInfo: target,
             clientNotes: notes,
-            status: 'pending',
-            deliveredCode: '',
+            status: finalStatus,
+            deliveredCode: deliveredCodeResult,
             createdAt: Date.now()
           });
         });
 
         closeModals();
-        showToast('🎉 تم تأكيد طلبك وخصمه من المحفظة بنجاح!');
+
+        if (selectedPkg.isAutoDelivery && deliveredCodeResult) {
+          showToast(`🎉 مبروك! كودك هو: ${deliveredCodeResult}`);
+          setTimeout(() => openOrdersModal(), 1200);
+        } else {
+          showToast('🎉 تم تأكيد طلبك وخصمه من المحفظة بنجاح!');
+          sendTelegramNotification(`📦 *طلب خدمة جديد!*\n👤 الزبون: @${currentUserProfile.username}\n📌 الخدمة: ${service.title} (${selectedPkg.name})\n🎯 المعرف: ${target}\n💰 القيمة: $${costUsd.toFixed(2)}`);
+        }
       } catch (err) {
-        showToast('خطأ: ' + err, true);
+        showToast('خطأ: ' + (err.message || err), true);
       } finally {
         confirmBtn.disabled = false;
         confirmBtn.innerText = 'خصم من المحفظة وتأكيد الطلب 💳';
@@ -1265,7 +1539,6 @@
 
     // --- Deposit Functions ---
     function openDepositModal() {
-      if (!currentUser) { openAuthModal(); return; }
       receiptImageBase64 = "";
       document.getElementById('deposit-receipt-file').value = "";
       document.getElementById('receipt-preview').style.display = "none";
@@ -1400,6 +1673,8 @@
 
         closeModals();
         showToast('✅ تم إرسال طلب الشحن بنجاح! سيتم اعتماده قريباً.');
+
+        sendTelegramNotification(`💰 *طلب إيداع محفظة جديد!*\n👤 الزبون: @${currentUserProfile.username}\n💵 القيمة: $${usd}\n💳 الطريقة: ${selectedDepositMethod}\n📲 المحول منه: ${source}\nراجع لوحة التحكم لاعتماد الرصيد.`);
       } catch (err) {
         showToast('حدث خطأ: ' + err.message, true);
       } finally {
@@ -1410,7 +1685,6 @@
 
     // --- Orders History ---
     function openOrdersModal() {
-      if (!currentUser) { openAuthModal(); return; }
       document.getElementById('orders-modal').style.display = 'flex';
       toggleSidebar();
 
@@ -1440,9 +1714,9 @@
               </div>
               <div style="color:var(--text-muted); margin:4px 0;">القيمة: $${ord.costUsd.toFixed(2)} | الحساب: ${ord.targetInfo}</div>
               ${ord.deliveredCode ? `
-                <div style="background:#0b0f19; padding:5px 8px; border-radius:6px; margin-top:5px; border:1px dashed #10b981;">
-                  <span style="color:#10b981; font-weight:bold;">📦 الكود:</span> 
-                  <strong style="color:#fff;">${ord.deliveredCode}</strong>
+                <div style="background:#0b0f19; padding:6px 10px; border-radius:6px; margin-top:5px; border:1px dashed #10b981;">
+                  <span style="color:#10b981; font-weight:bold;">📦 الكود المسلم:</span> 
+                  <strong style="color:#fff; user-select:all;">${ord.deliveredCode}</strong>
                   <span class="copy-chip" onclick="copyText('${ord.deliveredCode}')">نسخ</span>
                 </div>
               ` : ''}
@@ -1454,8 +1728,21 @@
       });
     }
 
+    // --- Affiliate System ---
+    function openAffiliateModal() {
+      document.getElementById('affiliate-modal').style.display = 'flex';
+      toggleSidebar();
+    }
+
+    function copyAffiliateLink() {
+      const linkInput = document.getElementById('my-affiliate-link');
+      navigator.clipboard.writeText(linkInput.value).then(() => {
+        showToast('تم نسخ رابط الإحالة بنجاح!');
+      });
+    }
+
+    // --- Tickets Support ---
     function openTicketsModal() {
-      if (!currentUser) { openAuthModal(); return; }
       document.getElementById('tickets-modal').style.display = 'flex';
       toggleSidebar();
 
@@ -1505,6 +1792,7 @@
       document.getElementById('ticket-subject').value = '';
       document.getElementById('ticket-msg').value = '';
       showToast('✅ تم فتح التذكرة بنجاح');
+      sendTelegramNotification(`🎫 *تذكرة دعم فني جديدة!*\n👤 الزبون: @${currentUserProfile.username}\n📌 الموضوع: ${subject}`);
     }
 
     function copyText(val) {
@@ -1515,8 +1803,6 @@
     function closeModals() {
       document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     }
-
-    window.onload = initData;
   </script>
 </body>
 </html>
