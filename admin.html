@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
@@ -36,7 +37,6 @@
     .header h1 { font-size: 1.15rem; color: #38bdf8; font-weight: 800; }
     .status-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
 
-    /* Navigation Tabs */
     .tabs {
       display: flex;
       gap: 6px;
@@ -125,7 +125,6 @@
 
     .preview-box { width: 100%; height: 120px; border-radius: 8px; border: 1px solid var(--border); display: none; object-fit: cover; margin-top: 6px; }
 
-    /* Package Row Layout in Service Form */
     .pkg-editor-box {
       background: var(--card-inner);
       border: 1px solid var(--border);
@@ -153,10 +152,7 @@
       max-width: 90%;
       text-align: center;
     }
-    #app-toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
+    #app-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
     .image-modal {
       display: none;
@@ -169,12 +165,7 @@
       z-index: 10000;
       padding: 1rem;
     }
-    .image-modal img {
-      max-width: 95%;
-      max-height: 85vh;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
+    .image-modal img { max-width: 95%; max-height: 85vh; border-radius: 8px; border: 1px solid var(--border); }
   </style>
 </head>
 <body>
@@ -185,16 +176,34 @@
     <img id="modal-full-img" src="" alt="إيصال التحويل">
   </div>
 
-  <div id="login-box" style="max-width: 380px; margin: 6rem auto; text-align: center;" class="card">
-    <h2 style="border:none;">🔒 تسجيل دخول الإدارة</h2>
-    <input type="password" id="admin-pass" placeholder="أدخل رمز المرور السري" onkeydown="if(event.key === 'Enter') checkAuth()">
-    <button class="btn" onclick="checkAuth()">دخول إلى المنصة</button>
+  <!-- صندوق تسجيل الدخول السري بالأدمن -->
+  <div id="login-box" style="max-width: 400px; margin: 6rem auto; text-align: center;" class="card">
+    <h2 style="border:none; color:#38bdf8;">🔒 الدخول السحابي للإدارة</h2>
+    <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">سجل دخولك بحساب الأدمن المعتمد للمتجر</p>
+    
+    <div class="form-group" style="text-align:right;">
+      <label>بريد الأدمن:</label>
+      <input type="email" id="admin-email" placeholder="admin@example.com">
+    </div>
+
+    <div class="form-group" style="text-align:right;">
+      <label>كلمة المرور:</label>
+      <input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key === 'Enter') handleAdminLogin()">
+    </div>
+
+    <button class="btn" id="login-btn" onclick="handleAdminLogin()">تسجيل الدخول للوحة التحكم</button>
   </div>
 
   <div id="admin-panel" style="display: none;">
     <div class="header">
-      <h1>⚙️ إدارة متجر أنس السحابية</h1>
-      <span class="status-badge">متصل بالسيرفر المباشر</span>
+      <div>
+        <h1>⚙️ إدارة متجر أنس السحابية</h1>
+        <span id="current-admin-email" style="font-size:0.75rem; color:var(--muted);"></span>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="status-badge">متصل كمدير</span>
+        <button onclick="handleAdminLogout()" style="background:#ef4444; border:none; color:white; padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.75rem;">خروج</button>
+      </div>
     </div>
 
     <div class="tabs">
@@ -419,11 +428,6 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>رمز مرور لوحة الإدارة السري:</label>
-          <input type="text" id="setting-pass" placeholder="1234">
-        </div>
-
         <button class="btn" onclick="saveSettings()">💾 حفظ كل الإعدادات وطرق الدفع</button>
       </div>
     </div>
@@ -481,9 +485,10 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
 
-    let currentPass = "1234";
+    let currentAdminUser = null;
     let services = [];
     let coupons = [];
     let orders = [];
@@ -508,19 +513,48 @@
       btn.classList.add('active');
     }
 
-    function checkAuth() {
-      db.collection("settings").doc("main").get().then(doc => {
-        if (doc.exists && doc.data().adminPass) currentPass = doc.data().adminPass;
-        const entered = document.getElementById('admin-pass').value.trim();
-        if (entered === currentPass) {
-          document.getElementById('login-box').style.display = 'none';
-          document.getElementById('admin-panel').style.display = 'block';
-          initAdmin();
-        } else {
-          showToast('رمز المرور غير صحيح!', true);
-        }
-      }).catch(err => {
-        showToast('تعذر الاتصال بقاعدة البيانات: ' + err.message, true);
+    // مراقبة حالة تسجيل الدخول للأدمن
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentAdminUser = user;
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        document.getElementById('current-admin-email').innerText = user.email;
+        initAdmin();
+      } else {
+        currentAdminUser = null;
+        document.getElementById('login-box').style.display = 'block';
+        document.getElementById('admin-panel').style.display = 'none';
+      }
+    });
+
+    async function handleAdminLogin() {
+      const email = document.getElementById('admin-email').value.trim();
+      const pass = document.getElementById('admin-pass').value.trim();
+      const btn = document.getElementById('login-btn');
+
+      if (!email || !pass) {
+        showToast('يرجى إدخال البريد وكلمة المرور', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'جاري التحقق...';
+
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        showToast('✅ تم الدخول بنجاح كمدير!');
+      } catch (err) {
+        showToast('فشل الدخول: ' + (err.message || 'بيانات الدخول غير صحيحة'), true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'تسجيل الدخول للوحة التحكم';
+      }
+    }
+
+    function handleAdminLogout() {
+      auth.signOut().then(() => {
+        showToast('تم تسجيل الخروج من لوحة التحكم.');
       });
     }
 
@@ -536,7 +570,6 @@
           document.getElementById('setting-telegram').value = settings.tgUser || '';
           document.getElementById('setting-logo').value = settings.logoUrl || '';
           document.getElementById('setting-notice').value = settings.noticeText || '';
-          document.getElementById('setting-pass').value = settings.adminPass || '1234';
 
           document.getElementById('tg-bot-token').value = settings.tgBotToken || '';
           document.getElementById('tg-chat-id').value = settings.tgChatId || '';
@@ -556,7 +589,7 @@
           populateDynamicInputs('binance-container', settings.binanceIds);
         }
       }, err => {
-        showToast('خطأ صلاحيات الإعدادات: ' + err.message, true);
+        showToast('تنبيه: صلاحيات الإعدادات: ' + err.message, true);
       });
 
       // 2. Deposits
@@ -566,7 +599,7 @@
         deposits.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderDepositsList();
       }, err => {
-        document.getElementById('deposits-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الإيداعات: تأكد من نشر القواعد (Rules). (${err.message})</p>`;
+        document.getElementById('deposits-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الإيداعات: ${err.message}</p>`;
       });
 
       // 3. Orders
@@ -576,7 +609,7 @@
         orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderOrdersList();
       }, err => {
-        document.getElementById('orders-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الطلبات: (${err.message})</p>`;
+        document.getElementById('orders-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الطلبات: ${err.message}</p>`;
       });
 
       // 4. Services
@@ -585,7 +618,7 @@
         snap.forEach(d => services.push({ id: d.id, ...d.data() }));
         renderServicesList();
       }, err => {
-        document.getElementById('services-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الخدمات: (${err.message})</p>`;
+        document.getElementById('services-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الخدمات: ${err.message}</p>`;
       });
 
       // 5. Users
@@ -594,7 +627,7 @@
         snap.forEach(d => users.push({ id: d.id, ...d.data() }));
         renderUsersList();
       }, err => {
-        document.getElementById('users-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب المستخدمين: (${err.message})</p>`;
+        document.getElementById('users-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب المستخدمين: ${err.message}</p>`;
       });
 
       // 6. Tickets
@@ -604,7 +637,7 @@
         tickets.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderTicketsList();
       }, err => {
-        document.getElementById('tickets-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب التذاكر: (${err.message})</p>`;
+        document.getElementById('tickets-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب التذاكر: ${err.message}</p>`;
       });
 
       // 7. Coupons
@@ -613,7 +646,7 @@
         snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
         renderCouponsList();
       }, err => {
-        document.getElementById('coupons-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الكوبونات: (${err.message})</p>`;
+        document.getElementById('coupons-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الكوبونات: ${err.message}</p>`;
       });
 
       resetForm();
@@ -746,7 +779,6 @@
           t.update(userRef, { balance: firebase.firestore.FieldValue.increment(amount) });
           t.update(depRef, { status: 'approved' });
 
-          // Handle Affiliate Referral Bonus
           const uData = uDoc.data();
           if (uData.referredBy) {
             const bonus = amount * ((settings.affiliatePercent || 1.0) / 100);
@@ -781,7 +813,7 @@
       document.getElementById('image-modal').style.display = 'none';
     }
 
-    // --- Orders Management with Auto Prevention ---
+    // --- Orders Management ---
     function renderOrdersList() {
       const cont = document.getElementById('orders-list-container');
       cont.innerHTML = '';
@@ -980,8 +1012,7 @@
         waPhone: document.getElementById('setting-phone').value.trim() || '218910000000',
         tgUser: document.getElementById('setting-telegram').value.trim() || 'AnasStore',
         logoUrl: document.getElementById('setting-logo').value.trim(),
-        noticeText: document.getElementById('setting-notice').value.trim(),
-        adminPass: document.getElementById('setting-pass').value.trim() || '1234'
+        noticeText: document.getElementById('setting-notice').value.trim()
       };
 
       db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
