@@ -187,7 +187,7 @@
 
   <div id="login-box" style="max-width: 380px; margin: 6rem auto; text-align: center;" class="card">
     <h2 style="border:none;">🔒 تسجيل دخول الإدارة</h2>
-    <input type="password" id="admin-pass" placeholder="أدخل رمز المرور السري (1234)">
+    <input type="password" id="admin-pass" placeholder="أدخل رمز المرور السري" onkeydown="if(event.key === 'Enter') checkAuth()">
     <button class="btn" onclick="checkAuth()">دخول إلى المنصة</button>
   </div>
 
@@ -248,7 +248,7 @@
 
         <div class="form-group">
           <label>رابط الصورة أو اختيار صورة:</label>
-          <input type="file" id="img-file" accept="image/*" onchange="handleImageUpload(event)" style="margin-bottom:6px;">
+          <input type="file" id="img-file" accept="image/*" onchange="handleImageUpload(this)" style="margin-bottom:6px;">
           <input type="text" id="new-img" placeholder="أو الصق رابط صورة جاهز هنا...">
           <img id="img-preview" class="preview-box" alt="معاينة الصورة">
         </div>
@@ -519,6 +519,8 @@
         } else {
           showToast('رمز المرور غير صحيح!', true);
         }
+      }).catch(err => {
+        showToast('تعذر الاتصال بقاعدة البيانات: ' + err.message, true);
       });
     }
 
@@ -553,6 +555,8 @@
           populateDynamicInputs('usdt-container', settings.usdtWallets);
           populateDynamicInputs('binance-container', settings.binanceIds);
         }
+      }, err => {
+        showToast('خطأ صلاحيات الإعدادات: ' + err.message, true);
       });
 
       // 2. Deposits
@@ -561,6 +565,8 @@
         snap.forEach(d => deposits.push({ id: d.id, ...d.data() }));
         deposits.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderDepositsList();
+      }, err => {
+        document.getElementById('deposits-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الإيداعات: تأكد من نشر القواعد (Rules). (${err.message})</p>`;
       });
 
       // 3. Orders
@@ -569,6 +575,8 @@
         snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
         orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderOrdersList();
+      }, err => {
+        document.getElementById('orders-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الطلبات: (${err.message})</p>`;
       });
 
       // 4. Services
@@ -576,6 +584,8 @@
         services = [];
         snap.forEach(d => services.push({ id: d.id, ...d.data() }));
         renderServicesList();
+      }, err => {
+        document.getElementById('services-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الخدمات: (${err.message})</p>`;
       });
 
       // 5. Users
@@ -583,6 +593,8 @@
         users = [];
         snap.forEach(d => users.push({ id: d.id, ...d.data() }));
         renderUsersList();
+      }, err => {
+        document.getElementById('users-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب المستخدمين: (${err.message})</p>`;
       });
 
       // 6. Tickets
@@ -591,6 +603,8 @@
         snap.forEach(d => tickets.push({ id: d.id, ...d.data() }));
         tickets.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderTicketsList();
+      }, err => {
+        document.getElementById('tickets-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب التذاكر: (${err.message})</p>`;
       });
 
       // 7. Coupons
@@ -598,6 +612,8 @@
         coupons = [];
         snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
         renderCouponsList();
+      }, err => {
+        document.getElementById('coupons-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الكوبونات: (${err.message})</p>`;
       });
 
       resetForm();
@@ -725,7 +741,7 @@
       try {
         await db.runTransaction(async (t) => {
           const uDoc = await t.get(userRef);
-          if (!uDoc.exists) throw "المستخدم غير موجود!";
+          if (!uDoc.exists) throw new Error("المستخدم غير موجود!");
 
           t.update(userRef, { balance: firebase.firestore.FieldValue.increment(amount) });
           t.update(depRef, { status: 'approved' });
@@ -845,9 +861,9 @@
       try {
         await db.runTransaction(async (t) => {
           const currentOrderDoc = await t.get(orderRef);
-          if (!currentOrderDoc.exists) throw "الطلب غير موجود!";
+          if (!currentOrderDoc.exists) throw new Error("الطلب غير موجود!");
           if (currentOrderDoc.data().status === 'cancelled') {
-            throw "تم إلغاء هذا الطلب واسترجاع رصيده مسبقاً!";
+            throw new Error("تم إلغاء هذا الطلب واسترجاع رصيده مسبقاً!");
           }
 
           t.update(userRef, {
@@ -1020,8 +1036,8 @@
     }
 
     // --- Services Management ---
-    function handleImageUpload(e) {
-      const file = e.target.files[0];
+    function handleImageUpload(inputEl) {
+      const file = inputEl.files ? inputEl.files[0] : null;
       if (!file) return;
 
       const reader = new FileReader();
@@ -1248,4 +1264,3 @@
   </script>
 </body>
 </html>
-
