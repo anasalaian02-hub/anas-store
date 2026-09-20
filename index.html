@@ -1002,13 +1002,28 @@
       return { name: 'برونزي 🥉', discount: 0 };
     }
 
-    // Auth State Monitor: Lock / Unlock Screen
+    // Auth State Monitor: قفل وفتح الواجهة مع التحقق الإلزامي من تفعيل البريد
     auth.onAuthStateChanged(async (authUser) => {
-      currentUser = authUser;
       const gate = document.getElementById('auth-gate');
       const app = document.getElementById('main-app');
 
       if (authUser) {
+        // التحقق مما إذا كان البريد مؤكداً أو الدخول بحساب جوجل الموثق ذاتياً
+        const isGoogleUser = authUser.providerData.some(p => p.providerId === 'google.com');
+        if (!authUser.emailVerified && !isGoogleUser) {
+          currentUser = null;
+          currentUserProfile = null;
+          gate.style.display = 'flex';
+          app.style.display = 'none';
+          document.getElementById('auth-error').innerHTML = `
+            ⚠️ بريدك الإلكتروني غير مفعّل بعد!<br>
+            تفقد صندوق الوارد أو البريد غير الهام (Spam) واضغط رابط التأكيد.<br>
+            <button type="button" onclick="resendVerificationLink()" style="background:none; border:none; color:#38bdf8; text-decoration:underline; cursor:pointer; font-weight:bold; margin-top:5px; font-size:0.8rem;">إعادة إرسال رابط التفعيل</button>
+          `;
+          return;
+        }
+
+        currentUser = authUser;
         gate.style.display = 'none';
         app.style.display = 'block';
 
@@ -1026,6 +1041,7 @@
           isDataInitialized = true;
         }
       } else {
+        currentUser = null;
         currentUserProfile = null;
         gate.style.display = 'flex';
         app.style.display = 'none';
@@ -1090,6 +1106,7 @@
       document.getElementById('auth-error').innerText = '';
     }
 
+    // إدارة التسجيل مع تفعيل رابط التحقق من البريد
     async function handleEmailAuth() {
       const email = document.getElementById('auth-email').value.trim();
       const pass = document.getElementById('auth-pass').value.trim();
@@ -1107,13 +1124,41 @@
         try {
           const res = await auth.createUserWithEmailAndPassword(email, pass);
           await createUserProfile(res.user, username);
-          showToast('🎉 أهلاً بك في متجر أنس!');
-        } catch (e) { errBox.innerText = e.message; }
+          await res.user.sendEmailVerification();
+          await auth.signOut();
+          showToast('📧 تم إرسال رابط تأكيد إلى بريدك! يرجى تأكيده أولاً.');
+          errBox.innerHTML = '<span style="color:#10b981;">✅ تم إنشاء الحساب! أرسلنا رابط تفعيل إلى بريدك الإلكتروني. افتح الرسالة واضغط على الرابط ثم سجل دخولك.</span>';
+          toggleAuthMode();
+        } catch (e) { 
+          errBox.innerText = e.message; 
+        }
       } else {
         try {
-          await auth.signInWithEmailAndPassword(email, pass);
+          const res = await auth.signInWithEmailAndPassword(email, pass);
+          if (!res.user.emailVerified) {
+            await auth.signOut();
+            errBox.innerHTML = `
+              ⚠️ هذا الحساب غير مفعّل بعد!<br>
+              يرجى فتح بريدك الإلكتروني والضغط على رابط التفعيل.<br>
+              <button type="button" onclick="resendVerificationLinkForEmail('${email}', '${pass}')" style="background:none; border:none; color:#38bdf8; text-decoration:underline; cursor:pointer; font-weight:bold; margin-top:5px; font-size:0.8rem;">إعادة إرسال رابط التفعيل لهذا البريد</button>
+            `;
+            return;
+          }
           showToast('✅ مرحباً بك مجدداً!');
-        } catch (e) { errBox.innerText = 'البريد أو كلمة المرور غير صحيحة!'; }
+        } catch (e) { 
+          errBox.innerText = 'البريد أو كلمة المرور غير صحيحة!'; 
+        }
+      }
+    }
+
+    async function resendVerificationLinkForEmail(email, pass) {
+      try {
+        const res = await auth.signInWithEmailAndPassword(email, pass);
+        await res.user.sendEmailVerification();
+        await auth.signOut();
+        showToast('📧 تم إعادة إرسال رابط التفعيل لبريدك بنجاح!');
+      } catch (err) {
+        showToast('تعذر الإرسال: ' + err.message, true);
       }
     }
 
