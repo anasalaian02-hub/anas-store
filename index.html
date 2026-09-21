@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>متجر أنس | Anas Store للخدمات الرقمية</title>
+
+  <!-- كلمات مفتاحية ووصف لمحركات البحث (SEO) -->
+  <meta name="description" content="متجر أنس (Anas Store) - المنصة الرقمية الأولى لشحن الألعاب، الاشتراكات، والبطاقات الرقمية مع التسليم الفوري في ليبيا. شحن ببجي، تليجرام، وبطاقات الدفع.">
+  <meta name="keywords" content="متجر أنس, Anas Store, شحن ألعاب ليبيا, شدات ببجي, اشتراكات رقمية, ليبيانا, مدار, سداد, لي باي, بطاقات ألعاب">
+  <meta name="author" content="Anas Store">
+  <meta name="robots" content="index, follow">
+
+  <!-- إعدادات المشاركة على السوشيال ميديا (Open Graph) -->
+  <meta property="og:title" content="متجر أنس | Anas Store للخدمات الرقمية">
+  <meta property="og:description" content="اشحن ألعابك واشتراكاتك الرقمية فوراً وبأفضل الأسعار عبر وسائل الدفع المحلية في ليبيا.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500">
+  <meta property="og:url" content="https://anasstore1.netlify.app">
+  <meta property="og:type" content="website">
+
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -1008,7 +1022,6 @@
       const app = document.getElementById('main-app');
 
       if (authUser) {
-        // التحقق مما إذا كان البريد مؤكداً أو الدخول بحساب جوجل الموثق ذاتياً
         const isGoogleUser = authUser.providerData.some(p => p.providerId === 'google.com');
         if (!authUser.emailVerified && !isGoogleUser) {
           currentUser = null;
@@ -1597,7 +1610,6 @@
           showToast('🎉 تم تأكيد طلبك وخصمه من المحفظة بنجاح!');
         }
 
-        // Send Telegram Notification for all orders
         const orderType = selectedPkg.isAutoDelivery ? '⚡ تسليم كود فوري' : '✋ طلب شحن يدوي';
         sendTelegramNotification(
           `📦 طلب جديد في المتجر!\n` +
