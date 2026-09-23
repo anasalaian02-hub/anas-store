@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>لوحة الإدارة السحابية المتقدمة | متجر أنس</title>
+  <title>بوابة إدارة متجر أنس المستقلة</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs (Firestore فقط لقاعدة البيانات) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
@@ -176,62 +175,83 @@
     <img id="modal-full-img" src="" alt="إيصال التحويل">
   </div>
 
-  <!-- صندوق تسجيل الدخول السري بالأدمن -->
-  <div id="login-box" style="max-width: 400px; margin: 6rem auto; text-align: center;" class="card">
-    <h2 style="border:none; color:#38bdf8;">🔒 الدخول السحابي للإدارة</h2>
-    <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">سجل دخولك بحساب الأدمن المعتمد للمتجر</p>
+  <!-- بوابة تسجيل الدخول الخاصة بالإدارة فقط -->
+  <div id="login-box" style="max-width: 420px; margin: 6rem auto; text-align: center;" class="card">
+    <div style="font-size: 2.3rem; margin-bottom: 6px;">🔐</div>
+    <h2 style="border:none; color:#38bdf8; margin-bottom: 4px;">بوابة الإدارة المستقلة</h2>
+    <p style="font-size:0.8rem; color:var(--muted); margin-bottom:14px;">نظام دخول خاص بطاقم ومشرفي متجر أنس</p>
     
     <div class="form-group" style="text-align:right;">
-      <label>بريد الأدمن:</label>
-      <input type="email" id="admin-email" placeholder="admin@example.com">
+      <label>اسم المستخدم الإداري:</label>
+      <input type="text" id="admin-user-input" placeholder="مثال: anas">
     </div>
 
     <div class="form-group" style="text-align:right;">
-      <label>كلمة المرور:</label>
-      <input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key === 'Enter') handleAdminLogin()">
+      <label>كلمة المرور الخاصة بالإدارة:</label>
+      <input type="password" id="admin-pass-input" placeholder="••••••••" onkeydown="if(event.key === 'Enter') handleStaffLogin()">
     </div>
 
-    <button class="btn" id="login-btn" onclick="handleAdminLogin()">تسجيل الدخول للوحة التحكم</button>
+    <button class="btn" id="login-btn" onclick="handleStaffLogin()">تسجيل الدخول للنظام 🚀</button>
   </div>
 
+  <!-- الواجهة الإدارية بعد فتح القفل -->
   <div id="admin-panel" style="display: none;">
     <div class="header">
       <div>
-        <h1>⚙️ إدارة متجر أنس السحابية</h1>
-        <span id="current-admin-email" style="font-size:0.75rem; color:var(--muted);"></span>
+        <h1>⚙️ نظام إدارة متجر أنس السحابي</h1>
+        <span id="current-staff-display" style="font-size:0.75rem; color:#38bdf8;"></span>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <span class="status-badge">متصل كمدير</span>
-        <button onclick="handleAdminLogout()" style="background:#ef4444; border:none; color:white; padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.75rem;">خروج</button>
+        <span class="status-badge">جلسة إدارية نشطة ✅</span>
+        <button onclick="handleStaffLogout()" style="background:#ef4444; border:none; color:white; padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.75rem;">قفل وخروج</button>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('deposits-tab', this)">💰 إيداعات المحفظة</button>
-      <button class="tab-btn" onclick="switchTab('orders-tab', this)">📥 الطلبات والتسليم</button>
+      <button class="tab-btn active" onclick="switchTab('orders-tab', this)">📥 الطلبات والتسليم</button>
       <button class="tab-btn" onclick="switchTab('services-tab', this)">📦 الخدمات والأكواد</button>
-      <button class="tab-btn" onclick="switchTab('vip-tab', this)">👑 مستويات العضوية (VIP)</button>
+      <button class="tab-btn" onclick="switchTab('rates-tab', this)">💳 طرق الدفع والأسعار</button>
+      <button class="tab-btn" onclick="switchTab('staff-tab', this)">👥 طاقم الإدارة والمسؤولين</button>
       <button class="tab-btn" onclick="switchTab('telegram-tab', this)">🔔 إشعارات التيليجرام</button>
-      <button class="tab-btn" onclick="switchTab('rates-tab', this)">💳 طرق الدفع والصرف</button>
-      <button class="tab-btn" onclick="switchTab('users-tab', this)">👥 المستخدمين والمحافظ</button>
+      <button class="tab-btn" onclick="switchTab('vip-tab', this)">👑 مستويات VIP</button>
+      <button class="tab-btn" onclick="switchTab('deposits-tab', this)">💰 إيداعات المحفظة</button>
+      <button class="tab-btn" onclick="switchTab('users-tab', this)">👤 زبائن المتجر</button>
       <button class="tab-btn" onclick="switchTab('tickets-tab', this)">🎫 التذاكر والدعم</button>
       <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات</button>
     </div>
 
-    <!-- 1. Deposits Management -->
-    <div id="deposits-tab" class="tab-content active">
+    <!-- 1. Staff Management (إدارة حسابات المسؤولين المستقلة) -->
+    <div id="staff-tab" class="tab-content">
       <div class="card">
-        <h2>💰 مراجعة طلبات شحن المحفظة (الإيصالات)</h2>
-        <div id="deposits-list-container">
-          <p style="text-align:center; color:var(--muted);">جاري تحميل الإيداعات...</p>
+        <h2>👥 إضافة مسؤول جديد للإدارة</h2>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">أنشئ اسم مستخدم وكلمة مرور لأي شريك أو مشرف معك في الإدارة دون الحاجة لتسجيله في المتجر.</p>
+        <div class="grid-3">
+          <div class="form-group">
+            <label>اسم المستخدم (بدون مسافات):</label>
+            <input type="text" id="new-staff-user" placeholder="مثال: ahmed_mod">
+          </div>
+          <div class="form-group">
+            <label>كلمة المرور:</label>
+            <input type="text" id="new-staff-pass" placeholder="اختر كلمة سر للمشرف">
+          </div>
+          <div class="form-group">
+            <label>الاسم أو المسمى:</label>
+            <input type="text" id="new-staff-title" placeholder="مشرف مبيعات / دعم">
+          </div>
         </div>
+        <button class="btn btn-success" onclick="addNewStaffAccount()">+ حفظ وحساب المسؤول</button>
+      </div>
+
+      <div class="card">
+        <h2>🛡️ حسابات المسؤولين الحالية المعتمدة</h2>
+        <div id="staff-list-container"></div>
       </div>
     </div>
 
     <!-- 2. Orders Management -->
-    <div id="orders-tab" class="tab-content">
+    <div id="orders-tab" class="tab-content active">
       <div class="card">
-        <h2>📥 إدارة طلبات الخدمات المباشرة</h2>
+        <h2>📥 إدارة طلبات الخدمات الواردة</h2>
         <div id="orders-list-container">
           <p style="text-align:center; color:var(--muted);">جاري تحميل الطلبات...</p>
         </div>
@@ -288,82 +308,7 @@
       </div>
     </div>
 
-    <!-- 4. VIP Tiers Control -->
-    <div id="vip-tab" class="tab-content">
-      <div class="card">
-        <h2>👑 التحكم في مستويات العضوية والخصومات التلقائية</h2>
-        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">المستوى البرونزي يكون تلقائياً لأي عميل إنفاقه أقل من المستوى الفضي (بدون خصم).</p>
-
-        <h3 style="color:#cbd5e1; font-size:0.9rem; margin-bottom:8px;">🥈 المستوى الفضي:</h3>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>الحد الأدنى للإنفاق ($):</label>
-            <input type="number" step="1" id="vip-silver-min" placeholder="50">
-          </div>
-          <div class="form-group">
-            <label>نسبة الخصم التلقائي (%):</label>
-            <input type="number" step="0.5" id="vip-silver-disc" placeholder="1.5">
-          </div>
-        </div>
-
-        <h3 style="color:#f59e0b; font-size:0.9rem; margin:10px 0 8px;">🥇 المستوى الذهبي:</h3>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>الحد الأدنى للإنفاق ($):</label>
-            <input type="number" step="1" id="vip-gold-min" placeholder="150">
-          </div>
-          <div class="form-group">
-            <label>نسبة الخصم التلقائي (%):</label>
-            <input type="number" step="0.5" id="vip-gold-disc" placeholder="2.5">
-          </div>
-        </div>
-
-        <h3 style="color:#38bdf8; font-size:0.9rem; margin:10px 0 8px;">💎 المستوى الماسي (VIP):</h3>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>الحد الأدنى للإنفاق ($):</label>
-            <input type="number" step="1" id="vip-diamond-min" placeholder="400">
-          </div>
-          <div class="form-group">
-            <label>نسبة الخصم التلقائي (%):</label>
-            <input type="number" step="0.5" id="vip-diamond-disc" placeholder="4">
-          </div>
-        </div>
-
-        <h3 style="color:var(--accent); font-size:0.9rem; margin:10px 0 8px;">🤝 برنامج الإحالة والتسويق بالعمولة (Affiliate):</h3>
-        <div class="form-group">
-          <label>نسبة العمولة التي يحصل عليها العميل من شحنات أصدقائه (%):</label>
-          <input type="number" step="0.5" id="affiliate-percent" placeholder="1">
-        </div>
-
-        <button class="btn" onclick="saveVipSettings()">💾 حفظ إعدادات العضويات والعمولة</button>
-      </div>
-    </div>
-
-    <!-- 5. Telegram Notifications Settings -->
-    <div id="telegram-tab" class="tab-content">
-      <div class="card">
-        <h2>🔔 إشعارات التيليجرام الفورية لطلبات المتجر</h2>
-        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">تصلك رسالة فورية على التيليجرام أول ما يقوم عميل بشحن المحفظة أو شراء خدمة يدوية.</p>
-
-        <div class="form-group">
-          <label>توكن بوت التيليجرام (Telegram Bot Token):</label>
-          <input type="text" id="tg-bot-token" placeholder="مثال: 1234567890:ABCdefGhIJKlmNoPQR">
-        </div>
-
-        <div class="form-group">
-          <label>معرف الشات الخاص بك (Admin Chat ID):</label>
-          <input type="text" id="tg-chat-id" placeholder="مثال: 987654321">
-        </div>
-
-        <div class="grid-2">
-          <button class="btn" onclick="saveTelegramSettings()">💾 حفظ إعدادات التنبيهات</button>
-          <button class="btn btn-edit" onclick="testTelegramAlert()">📲 إرسال رسالة تجريبية لتأكيد الربط</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6. Payment Accounts & Exchange Rates -->
+    <!-- 4. Payment Accounts & Exchange Rates -->
     <div id="rates-tab" class="tab-content">
       <div class="card">
         <h2>💵 أسعار الصرف الرسمية مقابل 1$</h2>
@@ -432,16 +377,101 @@
       </div>
     </div>
 
-    <!-- 7. Users & Wallets -->
+    <!-- 5. VIP Tiers Control -->
+    <div id="vip-tab" class="tab-content">
+      <div class="card">
+        <h2>👑 التحكم في مستويات العضوية والخصومات التلقائية</h2>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">المستوى البرونزي يكون تلقائياً لأي عميل إنفاقه أقل من المستوى الفضي (بدون خصم).</p>
+
+        <h3 style="color:#cbd5e1; font-size:0.9rem; margin-bottom:8px;">🥈 المستوى الفضي:</h3>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>الحد الأدنى للإنفاق ($):</label>
+            <input type="number" step="1" id="vip-silver-min" placeholder="50">
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم التلقائي (%):</label>
+            <input type="number" step="0.5" id="vip-silver-disc" placeholder="1.5">
+          </div>
+        </div>
+
+        <h3 style="color:#f59e0b; font-size:0.9rem; margin:10px 0 8px;">🥇 المستوى الذهبي:</h3>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>الحد الأدنى للإنفاق ($):</label>
+            <input type="number" step="1" id="vip-gold-min" placeholder="150">
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم التلقائي (%):</label>
+            <input type="number" step="0.5" id="vip-gold-disc" placeholder="2.5">
+          </div>
+        </div>
+
+        <h3 style="color:#38bdf8; font-size:0.9rem; margin:10px 0 8px;">💎 المستوى الماسي (VIP):</h3>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>الحد الأدنى للإنفاق ($):</label>
+            <input type="number" step="1" id="vip-diamond-min" placeholder="400">
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم التلقائي (%):</label>
+            <input type="number" step="0.5" id="vip-diamond-disc" placeholder="4">
+          </div>
+        </div>
+
+        <h3 style="color:var(--accent); font-size:0.9rem; margin:10px 0 8px;">🤝 برنامج الإحالة والتسويق بالعمولة (Affiliate):</h3>
+        <div class="form-group">
+          <label>نسبة العمولة التي يحصل عليها العميل من شحنات أصدقائه (%):</label>
+          <input type="number" step="0.5" id="affiliate-percent" placeholder="1">
+        </div>
+
+        <button class="btn" onclick="saveVipSettings()">💾 حفظ إعدادات العضويات والعمولة</button>
+      </div>
+    </div>
+
+    <!-- 6. Telegram Notifications Settings -->
+    <div id="telegram-tab" class="tab-content">
+      <div class="card">
+        <h2>🔔 إشعارات التيليجرام الفورية لطلبات المتجر</h2>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">تصلك رسالة فورية على التيليجرام أول ما يقوم عميل بطلب خدمة من الموقع.</p>
+
+        <div class="form-group">
+          <label>توكن بوت التيليجرام (Telegram Bot Token):</label>
+          <input type="text" id="tg-bot-token" placeholder="مثال: 1234567890:ABCdefGhIJKlmNoPQR">
+        </div>
+
+        <div class="form-group">
+          <label>معرف الشات الخاص بك (Admin Chat ID):</label>
+          <input type="text" id="tg-chat-id" placeholder="مثال: 987654321">
+        </div>
+
+        <div class="grid-2">
+          <button class="btn" onclick="saveTelegramSettings()">💾 حفظ إعدادات التنبيهات</button>
+          <button class="btn btn-edit" onclick="testTelegramAlert()">📲 إرسال رسالة تجريبية لتأكيد الربط</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Deposits Management -->
+    <div id="deposits-tab" class="tab-content">
+      <div class="card">
+        <h2>💰 مراجعة طلبات شحن المحفظة (الإيصالات)</h2>
+        <div id="deposits-list-container">
+          <p style="text-align:center; color:var(--muted);">لا توجد إيداعات.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Users & Wallets -->
     <div id="users-tab" class="tab-content">
       <div class="card">
-        <h2>👥 تصفح وتعديل أرصدة ورتب المستخدمين</h2>
+        <h2>👤 زبائن ومستخدمو المتجر</h2>
         <input type="text" id="search-user" placeholder="🔍 ابحث عن يوزر نيم أو بريد..." oninput="renderUsersList()" style="margin-bottom:12px;">
         <div id="users-list-container"></div>
       </div>
     </div>
 
-    <!-- 8. Support Tickets -->
+    <!-- 9. Support Tickets -->
     <div id="tickets-tab" class="tab-content">
       <div class="card">
         <h2>🎫 تذاكر الدعم الفني والاستفسارات</h2>
@@ -449,7 +479,7 @@
       </div>
     </div>
 
-    <!-- 9. Coupons -->
+    <!-- 10. Coupons -->
     <div id="coupons-tab" class="tab-content">
       <div class="card">
         <h2>🎟️ إضافة كوبون خصم جديد</h2>
@@ -485,10 +515,10 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.firestore();
 
-    let currentAdminUser = null;
+    let currentStaff = null;
+    let staffAccounts = [];
     let services = [];
     let coupons = [];
     let orders = [];
@@ -513,53 +543,102 @@
       btn.classList.add('active');
     }
 
-    // مراقبة حالة تسجيل الدخول للأدمن
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentAdminUser = user;
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('admin-panel').style.display = 'block';
-        document.getElementById('current-admin-email').innerText = user.email;
-        initAdmin();
-      } else {
-        currentAdminUser = null;
-        document.getElementById('login-box').style.display = 'block';
-        document.getElementById('admin-panel').style.display = 'none';
+    // استعادة الجلسة عند إعادة التحميل
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedStaff = sessionStorage.getItem('anas_staff_session');
+      if (savedStaff) {
+        try {
+          currentStaff = JSON.parse(savedStaff);
+          unlockDashboard();
+        } catch (e) {
+          sessionStorage.removeItem('anas_staff_session');
+        }
       }
     });
 
-    async function handleAdminLogin() {
-      const email = document.getElementById('admin-email').value.trim();
-      const pass = document.getElementById('admin-pass').value.trim();
+    // تسجيل الدخول الإداري المستقل عبر Firestore collection ("admin_staff")
+    async function handleStaffLogin() {
+      const user = document.getElementById('admin-user-input').value.trim().toLowerCase();
+      const pass = document.getElementById('admin-pass-input').value.trim();
       const btn = document.getElementById('login-btn');
 
-      if (!email || !pass) {
-        showToast('يرجى إدخال البريد وكلمة المرور', true);
+      if (!user || !pass) {
+        showToast('يرجى كتابة اسم المستخدم وكلمة المرور', true);
         return;
       }
 
       btn.disabled = true;
-      btn.innerText = 'جاري التحقق...';
+      btn.innerText = 'جاري التحقق الإداري...';
 
       try {
-        await auth.signInWithEmailAndPassword(email, pass);
-        showToast('✅ تم الدخول بنجاح كمدير!');
+        const staffRef = db.collection("admin_staff").doc(user);
+        const doc = await staffRef.get();
+
+        // التهيئة التلقائية لأول مرة في حال كان الجدول فارغاً
+        if (!doc.exists) {
+          const checkEmpty = await db.collection("admin_staff").limit(1).get();
+          if (checkEmpty.empty && user === "anas" && pass === "anas2026") {
+            const masterAcc = {
+              username: "anas",
+              password: "anas2026",
+              title: "المدير العام والمالك 👑",
+              createdAt: Date.now()
+            };
+            await staffRef.set(masterAcc);
+            currentStaff = masterAcc;
+            sessionStorage.setItem('anas_staff_session', JSON.stringify(masterAcc));
+            showToast('👑 تم إنشاء وتثبيت حساب المدير العام بنجاح!');
+            unlockDashboard();
+            return;
+          } else {
+            showToast('⛔ بيانات الإدارة غير صحيحة!', true);
+            return;
+          }
+        }
+
+        const staffData = doc.data();
+        if (staffData.password === pass) {
+          currentStaff = staffData;
+          sessionStorage.setItem('anas_staff_session', JSON.stringify(staffData));
+          showToast(`✅ مرحباً بك: ${staffData.title || staffData.username}`);
+          unlockDashboard();
+        } else {
+          showToast('⛔ كلمة المرور غير صحيحة!', true);
+        }
       } catch (err) {
-        showToast('فشل الدخول: ' + (err.message || 'بيانات الدخول غير صحيحة'), true);
+        showToast('خطأ اتصال: ' + err.message, true);
       } finally {
         btn.disabled = false;
-        btn.innerText = 'تسجيل الدخول للوحة التحكم';
+        btn.innerText = 'تسجيل الدخول للنظام 🚀';
       }
     }
 
-    function handleAdminLogout() {
-      auth.signOut().then(() => {
-        showToast('تم تسجيل الخروج من لوحة التحكم.');
-      });
+    function unlockDashboard() {
+      document.getElementById('login-box').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      document.getElementById('current-staff-display').innerText = `👤 المشرف المتصل: ${currentStaff.title || currentStaff.username}`;
+      initAdmin();
+    }
+
+    function handleStaffLogout() {
+      sessionStorage.removeItem('anas_staff_session');
+      currentStaff = null;
+      document.getElementById('admin-panel').style.display = 'none';
+      document.getElementById('login-box').style.display = 'block';
+      document.getElementById('admin-user-input').value = '';
+      document.getElementById('admin-pass-input').value = '';
+      showToast('تم إغلاق الجلسة بنجاح.');
     }
 
     function initAdmin() {
-      // 1. Main Settings
+      // 1. مراقبة حسابات المشرفين
+      db.collection("admin_staff").onSnapshot(snap => {
+        staffAccounts = [];
+        snap.forEach(d => staffAccounts.push({ id: d.id, ...d.data() }));
+        renderStaffList();
+      });
+
+      // 2. إعدادات المتجر
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
           settings = doc.data();
@@ -588,68 +667,121 @@
           populateDynamicInputs('usdt-container', settings.usdtWallets);
           populateDynamicInputs('binance-container', settings.binanceIds);
         }
-      }, err => {
-        showToast('تنبيه: صلاحيات الإعدادات: ' + err.message, true);
       });
 
-      // 2. Deposits
-      db.collection("deposits").onSnapshot(snap => {
-        deposits = [];
-        snap.forEach(d => deposits.push({ id: d.id, ...d.data() }));
-        deposits.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        renderDepositsList();
-      }, err => {
-        document.getElementById('deposits-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الإيداعات: ${err.message}</p>`;
-      });
-
-      // 3. Orders
+      // 3. الطلبات
       db.collection("orders").onSnapshot(snap => {
         orders = [];
         snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
         orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderOrdersList();
-      }, err => {
-        document.getElementById('orders-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الطلبات: ${err.message}</p>`;
       });
 
-      // 4. Services
+      // 4. الخدمات
       db.collection("services").onSnapshot(snap => {
         services = [];
         snap.forEach(d => services.push({ id: d.id, ...d.data() }));
         renderServicesList();
-      }, err => {
-        document.getElementById('services-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الخدمات: ${err.message}</p>`;
       });
 
-      // 5. Users
+      // 5. المستخدمين
       db.collection("users").onSnapshot(snap => {
         users = [];
         snap.forEach(d => users.push({ id: d.id, ...d.data() }));
         renderUsersList();
-      }, err => {
-        document.getElementById('users-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب المستخدمين: ${err.message}</p>`;
       });
 
-      // 6. Tickets
+      // 6. التذاكر
       db.collection("tickets").onSnapshot(snap => {
         tickets = [];
         snap.forEach(d => tickets.push({ id: d.id, ...d.data() }));
         tickets.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         renderTicketsList();
-      }, err => {
-        document.getElementById('tickets-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب التذاكر: ${err.message}</p>`;
       });
 
-      // 7. Coupons
+      // 7. الكوبونات
       db.collection("coupons").onSnapshot(snap => {
         coupons = [];
         snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
         renderCouponsList();
-      }, err => {
-        document.getElementById('coupons-list-container').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر جلب الكوبونات: ${err.message}</p>`;
       });
 
       resetForm();
+    }
+
+    // --- إدارة طاقم الإدارة ---
+    async function addNewStaffAccount() {
+      const u = document.getElementById('new-staff-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const p = document.getElementById('new-staff-pass').value.trim();
+      const t = document.getElementById('new-staff-title').value.trim() || 'مشرف';
+
+      if (!u || !p) {
+        showToast('يرجى تحديد اسم المستخدم وكلمة المرور', true);
+        return;
+      }
+
+      try {
+        await db.collection("admin_staff").doc(u).set({
+          username: u,
+          password: p,
+          title: t,
+          addedBy: currentStaff.username,
+          createdAt: Date.now()
+        });
+        showToast(`✅ تم إنشاء حساب المشرف (${u}) بنجاح!`);
+        document.getElementById('new-staff-user').value = '';
+        document.getElementById('new-staff-pass').value = '';
+        document.getElementById('new-staff-title').value = '';
+      } catch (err) {
+        showToast('خطأ: ' + err.message, true);
+      }
+    }
+
+    async function editStaffPass(username, oldPass) {
+      const newP = prompt(`أدخل كلمة المرور الجديدة للمشرف (${username}):`, oldPass);
+      if (newP && newP.trim().length > 0) {
+        await db.collection("admin_staff").doc(username).update({ password: newP.trim() });
+        showToast('تم تعديل كلمة المرور بنجاح!');
+      }
+    }
+
+    async function deleteStaffAccount(username) {
+      if (username === currentStaff.username) {
+        showToast('لا يمكنك حذف الحساب الذي تستخدمه حالياً!', true);
+        return;
+      }
+      if (!confirm(`هل أنت متأكد من حذف حساب المشرف (${username}) نهائياً؟`)) return;
+
+      await db.collection("admin_staff").doc(username).delete();
+      showToast('تم حذف حساب المشرف.');
+    }
+
+    function renderStaffList() {
+      const cont = document.getElementById('staff-list-container');
+      cont.innerHTML = '';
+
+      if (staffAccounts.length === 0) {
+        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد حسابات مضافة.</p>';
+        return;
+      }
+
+      staffAccounts.forEach(acc => {
+        const isMe = (acc.username === currentStaff.username);
+        cont.innerHTML += `
+          <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+            <div>
+              <strong style="color:#38bdf8;">${acc.title || acc.username}</strong>
+              <div style="color:var(--muted); font-size:0.8rem;">اسم المستخدم: <strong style="color:#fff;">${acc.username}</strong> | كلمة المرور: <span style="font-family:monospace; color:var(--gold);">${acc.password}</span></div>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <button class="btn-edit" style="padding:5px 10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="editStaffPass('${acc.username}', '${acc.password}')">تغيير كلمة السر</button>
+              ${isMe ? '<span style="color:var(--gold); font-size:0.8rem; align-self:center;">(أنت)</span>' : `
+                <button class="btn-del-row" style="padding:5px 10px;" onclick="deleteStaffAccount('${acc.username}')">حذف</button>
+              `}
+            </div>
+          </div>
+        `;
+      });
     }
 
     // --- Dynamic Multi-Account Inputs ---
@@ -722,97 +854,6 @@
       document.getElementById(`codes_box_${rowId}`).style.display = isChecked ? 'block' : 'none';
     }
 
-    // --- Deposits Management ---
-    function renderDepositsList() {
-      const cont = document.getElementById('deposits-list-container');
-      cont.innerHTML = '';
-
-      if (deposits.length === 0) {
-        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد طلبات إيداع حالياً.</p>';
-        return;
-      }
-
-      deposits.forEach(d => {
-        let isPending = d.status === 'pending';
-        cont.innerHTML += `
-          <div class="data-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="color:var(--accent); font-size:0.95rem;">طلب شحن: $${d.amountUsd}</strong>
-              <span style="color:${isPending ? '#f59e0b' : (d.status === 'approved' ? '#10b981' : '#ef4444')}; font-weight:bold;">
-                ${isPending ? '⏳ قيد المراجعة' : (d.status === 'approved' ? '✅ مقبول' : '❌ مرفوض')}
-              </span>
-            </div>
-            <div>👤 <strong>المرسل:</strong> @${d.username} (${d.userEmail}) | 💳 <strong>طريقة الدفع:</strong> ${d.paymentMethod}</div>
-            <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">
-              📲 <strong>المحول منه:</strong> <span style="color:#38bdf8; font-weight:bold;">${d.sourceAccount || d.referenceText || 'غير محدد'}</span>
-            </div>
-            ${d.receiptImg ? `
-              <div style="margin: 6px 0;">
-                <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">🖼️ صورة الإيصال (اضغط للمعاينة الكاملة):</div>
-                <img src="${d.receiptImg}" style="max-width:140px; height:80px; border-radius:6px; object-fit:cover; border:1px solid var(--border); cursor:pointer;" onclick="openImageModal('${d.receiptImg}')">
-              </div>
-            ` : '<div style="color:var(--muted); font-size:0.78rem;">لا توجد صورة إيصال مرفقة</div>'}
-            ${isPending ? `
-              <div class="actions-bar" id="dep_actions_${d.id}">
-                <button class="btn-success" onclick="approveDeposit('${d.id}', '${d.uid}', ${d.amountUsd}, this)">✅ اعتماد وإضافة $${d.amountUsd}</button>
-                <button class="btn-danger" onclick="rejectDeposit('${d.id}', this)">❌ رفض الإيداع</button>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      });
-    }
-
-    async function approveDeposit(depId, uid, amount, btn) {
-      if (btn) btn.disabled = true;
-      const actionsDiv = document.getElementById(`dep_actions_${depId}`);
-      if (actionsDiv) actionsDiv.style.display = 'none';
-
-      const userRef = db.collection("users").doc(uid);
-      const depRef = db.collection("deposits").doc(depId);
-
-      try {
-        await db.runTransaction(async (t) => {
-          const uDoc = await t.get(userRef);
-          if (!uDoc.exists) throw new Error("المستخدم غير موجود!");
-
-          t.update(userRef, { balance: firebase.firestore.FieldValue.increment(amount) });
-          t.update(depRef, { status: 'approved' });
-
-          const uData = uDoc.data();
-          if (uData.referredBy) {
-            const bonus = amount * ((settings.affiliatePercent || 1.0) / 100);
-            if (bonus > 0) {
-              const referrerRef = db.collection("users").doc(uData.referredBy);
-              t.update(referrerRef, { balance: firebase.firestore.FieldValue.increment(bonus) });
-            }
-          }
-        });
-
-        showToast(`🎉 تم اعتماد الإيداع وإضافة $${amount} للمحفظة بنجاح!`);
-      } catch (e) {
-        if (actionsDiv) actionsDiv.style.display = 'flex';
-        if (btn) btn.disabled = false;
-        showToast('خطأ: ' + e.message, true);
-      }
-    }
-
-    function rejectDeposit(depId, btn) {
-      if (btn) btn.disabled = true;
-      db.collection("deposits").doc(depId).update({ status: 'rejected' }).then(() => {
-        showToast('تم رفض طلب الإيداع.');
-      });
-    }
-
-    function openImageModal(src) {
-      document.getElementById('modal-full-img').src = src;
-      document.getElementById('image-modal').style.display = 'flex';
-    }
-
-    function closeImageModal() {
-      document.getElementById('image-modal').style.display = 'none';
-    }
-
     // --- Orders Management ---
     function renderOrdersList() {
       const cont = document.getElementById('orders-list-container');
@@ -825,10 +866,10 @@
 
       orders.forEach(o => {
         let badgeColor = '#f59e0b';
-        let badgeText = '⏳ قيد الانتظار';
+        let badgeText = '⏳ قيد المراجعة';
         if (o.status === 'in_progress') { badgeColor = '#38bdf8'; badgeText = '⚙️ قيد التنفيذ'; }
         if (o.status === 'completed') { badgeColor = '#10b981'; badgeText = '✅ مكتمل'; }
-        if (o.status === 'cancelled') { badgeColor = '#ef4444'; badgeText = '❌ ملغي ومسترجع'; }
+        if (o.status === 'cancelled') { badgeColor = '#ef4444'; badgeText = '❌ ملغي'; }
 
         const canAction = (o.status === 'pending' || o.status === 'in_progress');
 
@@ -849,7 +890,7 @@
               <div class="actions-bar" id="actions-${o.id}">
                 ${o.status === 'pending' ? `<button style="background:#38bdf8; color:#000;" onclick="updateOrderStatus('${o.id}', 'in_progress', this)">قيد التنفيذ</button>` : ''}
                 <button class="btn-success" onclick="completeOrderPrompt('${o.id}', this)">إكمال وتسليم كود</button>
-                <button class="btn-danger" onclick="cancelAndRefundOrder('${o.id}', '${o.uid}',${o.costUsd}, this)">إلغاء واسترجاع الرصيد</button>
+                <button class="btn-danger" onclick="cancelOrder('${o.id}', this)">إلغاء الطلب</button>
               </div>
             ` : ''}
           </div>
@@ -860,7 +901,7 @@
     function updateOrderStatus(orderId, status, btn) {
       if (btn) btn.disabled = true;
       db.collection("orders").doc(orderId).update({ status }).then(() => {
-        showToast('تم تحديث حالة الطلب إلى قيد التنفيذ.');
+        showToast('تم تحديث حالة الطلب بنجاح.');
       });
     }
 
@@ -868,9 +909,6 @@
       const code = prompt('أدخل كود الشحن أو رسالة التسليم (ستظهر في سجل طلبات العميل):', '');
       if (code !== null) {
         if (btn) btn.disabled = true;
-        const actionsDiv = document.getElementById(`actions-${orderId}`);
-        if (actionsDiv) actionsDiv.style.display = 'none';
-
         db.collection("orders").doc(orderId).update({
           status: 'completed',
           deliveredCode: code
@@ -880,190 +918,12 @@
       }
     }
 
-    async function cancelAndRefundOrder(orderId, uid, amount, btn) {
-      if (!confirm(`هل أنت متأكد من إلغاء هذا الطلب وإرجاع مبلغ $${amount} للمحفظة؟`)) return;
-
+    function cancelOrder(orderId, btn) {
+      if (!confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) return;
       if (btn) btn.disabled = true;
-      const actionsDiv = document.getElementById(`actions-${orderId}`);
-      if (actionsDiv) actionsDiv.style.display = 'none';
-
-      const userRef = db.collection("users").doc(uid);
-      const orderRef = db.collection("orders").doc(orderId);
-
-      try {
-        await db.runTransaction(async (t) => {
-          const currentOrderDoc = await t.get(orderRef);
-          if (!currentOrderDoc.exists) throw new Error("الطلب غير موجود!");
-          if (currentOrderDoc.data().status === 'cancelled') {
-            throw new Error("تم إلغاء هذا الطلب واسترجاع رصيده مسبقاً!");
-          }
-
-          t.update(userRef, {
-            balance: firebase.firestore.FieldValue.increment(amount),
-            totalSpent: firebase.firestore.FieldValue.increment(-amount)
-          });
-          t.update(orderRef, { status: 'cancelled' });
-        });
-        showToast('✅ تم إلغاء الطلب واسترجاع الرصيد لمحفظة الزبون بنجاح!');
-      } catch (e) {
-        if (actionsDiv) actionsDiv.style.display = 'flex';
-        if (btn) btn.disabled = false;
-        showToast('خطأ: ' + (e.message || e), true);
-      }
-    }
-
-    // --- Users & Wallets Management ---
-    function renderUsersList() {
-      const q = (document.getElementById('search-user').value || '').trim().toLowerCase();
-      const cont = document.getElementById('users-list-container');
-      cont.innerHTML = '';
-
-      const filtered = users.filter(u => 
-        (u.username && u.username.toLowerCase().includes(q)) || 
-        (u.email && u.email.toLowerCase().includes(q))
-      );
-
-      if (filtered.length === 0) {
-        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا يوجد مستخدمين مطابقين.</p>';
-        return;
-      }
-
-      filtered.forEach(u => {
-        cont.innerHTML += `
-          <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-            <div>
-              <strong style="color:#38bdf8;">@${u.username || 'مستخدم'}</strong> (${u.email})
-              <div style="color:var(--muted); font-size:0.78rem;">الرتبة: <span style="color:var(--gold); font-weight:bold;">${u.vipLevel || 'برونزي'}</span> | إجمالي الإنفاق: $${(u.totalSpent || 0).toFixed(2)}</div>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-weight:800; color:var(--accent); font-size:1rem;">$${(u.balance || 0).toFixed(2)}</span>
-              <button class="btn-edit" style="padding:6px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;" onclick="editUserBalance('${u.uid}', ${u.balance || 0})">تعديل الرصيد</button>
-            </div>
-          </div>
-        `;
+      db.collection("orders").doc(orderId).update({ status: 'cancelled' }).then(() => {
+        showToast('تم إلغاء الطلب.');
       });
-    }
-
-    function editUserBalance(uid, oldBal) {
-      const val = prompt('أدخل القيمة الجديدة للرصيد بالدولار ($):', oldBal);
-      if (val !== null && !isNaN(parseFloat(val))) {
-        db.collection("users").doc(uid).update({ balance: parseFloat(val) }).then(() => {
-          showToast('تم تحديث رصيد المستخدم بنجاح!');
-        });
-      }
-    }
-
-    // --- Tickets Support ---
-    function renderTicketsList() {
-      const cont = document.getElementById('tickets-list-container');
-      cont.innerHTML = '';
-
-      if (tickets.length === 0) {
-        cont.innerHTML = '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد تذاكر دعم حالياً.</p>';
-        return;
-      }
-
-      tickets.forEach(t => {
-        cont.innerHTML += `
-          <div class="data-card">
-            <div style="display:flex; justify-content:space-between;">
-              <strong>${t.subject}</strong>
-              <span style="color:${t.status === 'answered' ? '#10b981' : '#f59e0b'}; font-weight:bold;">
-                ${t.status === 'answered' ? 'تم الرد' : 'مفتوحة'}
-              </span>
-            </div>
-            <div>👤 <strong>من:</strong> @${t.username} (${t.userEmail})</div>
-            <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">${t.message}</div>
-            ${t.reply ? `<div style="color:#38bdf8;"><strong>ردك الحالي:</strong> ${t.reply}</div>` : ''}
-            <div class="actions-bar">
-              <button class="btn-success" onclick="replyTicketPrompt('${t.id}')">الرد على التذكرة 💬</button>
-              <button class="btn-danger" onclick="deleteTicket('${t.id}')">حذف</button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function replyTicketPrompt(tId) {
-      const reply = prompt('اكتب رد الإدارة على هذه التذكرة:');
-      if (reply) {
-        db.collection("tickets").doc(tId).update({
-          reply,
-          status: 'answered'
-        }).then(() => showToast('تم إرسال الرد للعميل بنجاح!'));
-      }
-    }
-
-    function deleteTicket(tId) {
-      db.collection("tickets").doc(tId).delete().then(() => showToast('تم حذف التذكرة.'));
-    }
-
-    // --- Settings Savers ---
-    function saveSettings() {
-      const data = {
-        rateBank: parseFloat(document.getElementById('rate-bank').value) || 7.2,
-        rateLibyana: parseFloat(document.getElementById('rate-libyana').value) || 8.5,
-        rateMadar: parseFloat(document.getElementById('rate-madar').value) || 8.7,
-        phoneLibyana: getDynamicValues('libyana-container'),
-        phoneMadar: getDynamicValues('madar-container'),
-        bankDetails: getDynamicValues('bank-container'),
-        usdtWallets: getDynamicValues('usdt-container'),
-        binanceIds: getDynamicValues('binance-container'),
-        waPhone: document.getElementById('setting-phone').value.trim() || '218910000000',
-        tgUser: document.getElementById('setting-telegram').value.trim() || 'AnasStore',
-        logoUrl: document.getElementById('setting-logo').value.trim(),
-        noticeText: document.getElementById('setting-notice').value.trim()
-      };
-
-      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        showToast('✅ تم حفظ جميع الإعدادات وطرق الدفع بنجاح!');
-      });
-    }
-
-    function saveVipSettings() {
-      const data = {
-        vipSilverMin: parseFloat(document.getElementById('vip-silver-min').value) || 50,
-        vipSilverDisc: parseFloat(document.getElementById('vip-silver-disc').value) || 1.5,
-        vipGoldMin: parseFloat(document.getElementById('vip-gold-min').value) || 150,
-        vipGoldDisc: parseFloat(document.getElementById('vip-gold-disc').value) || 2.5,
-        vipDiamondMin: parseFloat(document.getElementById('vip-diamond-min').value) || 400,
-        vipDiamondDisc: parseFloat(document.getElementById('vip-diamond-disc').value) || 4.0,
-        affiliatePercent: parseFloat(document.getElementById('affiliate-percent').value) || 1.0
-      };
-
-      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        showToast('✅ تم حفظ إعدادات رتب VIP ونسبة الإحالة بنجاح!');
-      });
-    }
-
-    function saveTelegramSettings() {
-      const data = {
-        tgBotToken: document.getElementById('tg-bot-token').value.trim(),
-        tgChatId: document.getElementById('tg-chat-id').value.trim()
-      };
-
-      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        showToast('✅ تم حفظ إعدادات توكن وشات التيليجرام!');
-      });
-    }
-
-    function testTelegramAlert() {
-      const token = document.getElementById('tg-bot-token').value.trim();
-      const chatId = document.getElementById('tg-chat-id').value.trim();
-
-      if (!token || !chatId) {
-        showToast('يرجى إدخال التوكن والشات آيدي أولاً', true);
-        return;
-      }
-
-      const msg = `🔔 *تجربة إشعارات متجر أنس - Anas Store*\nتم ربط لوحة التحكم بالبوت بنجاح! ستصلك تنبيهات الإيداعات والطلبات هنا.`;
-      fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.ok) showToast('🚀 تم إرسال رسالة التجربة إلى حسابك على التيليجرام بنجاح!');
-          else showToast('فشل الإرسال: تأكد من صحة التوكن والآيدي، وأنك ضغطت Start في البوت', true);
-        })
-        .catch(err => showToast('خطأ اتصال: ' + err.message, true));
     }
 
     // --- Services Management ---
@@ -1248,49 +1108,133 @@
       });
     }
 
-    // --- Coupons ---
-    function saveCoupon() {
-      const code = document.getElementById('cpn-code').value.trim().toUpperCase();
-      const discount = parseFloat(document.getElementById('cpn-discount').value);
+    // --- Settings Savers ---
+    function saveSettings() {
+      const data = {
+        rateBank: parseFloat(document.getElementById('rate-bank').value) || 7.2,
+        rateLibyana: parseFloat(document.getElementById('rate-libyana').value) || 8.5,
+        rateMadar: parseFloat(document.getElementById('rate-madar').value) || 8.7,
+        phoneLibyana: getDynamicValues('libyana-container'),
+        phoneMadar: getDynamicValues('madar-container'),
+        bankDetails: getDynamicValues('bank-container'),
+        usdtWallets: getDynamicValues('usdt-container'),
+        binanceIds: getDynamicValues('binance-container'),
+        waPhone: document.getElementById('setting-phone').value.trim() || '218910000000',
+        tgUser: document.getElementById('setting-telegram').value.trim() || 'AnasStore',
+        logoUrl: document.getElementById('setting-logo').value.trim(),
+        noticeText: document.getElementById('setting-notice').value.trim()
+      };
 
-      if (!code || isNaN(discount)) {
-        showToast('أدخل الكود ونسبة الخصم', true);
+      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
+        showToast('✅ تم حفظ جميع الإعدادات وطرق الدفع بنجاح!');
+      });
+    }
+
+    function saveVipSettings() {
+      const data = {
+        vipSilverMin: parseFloat(document.getElementById('vip-silver-min').value) || 50,
+        vipSilverDisc: parseFloat(document.getElementById('vip-silver-disc').value) || 1.5,
+        vipGoldMin: parseFloat(document.getElementById('vip-gold-min').value) || 150,
+        vipGoldDisc: parseFloat(document.getElementById('vip-gold-disc').value) || 2.5,
+        vipDiamondMin: parseFloat(document.getElementById('vip-diamond-min').value) || 400,
+        vipDiamondDisc: parseFloat(document.getElementById('vip-diamond-disc').value) || 4.0,
+        affiliatePercent: parseFloat(document.getElementById('affiliate-percent').value) || 1.0
+      };
+
+      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
+        showToast('✅ تم حفظ إعدادات رتب VIP ونسبة الإحالة بنجاح!');
+      });
+    }
+
+    function saveTelegramSettings() {
+      const data = {
+        tgBotToken: document.getElementById('tg-bot-token').value.trim(),
+        tgChatId: document.getElementById('tg-chat-id').value.trim()
+      };
+
+      db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
+        showToast('✅ تم حفظ إعدادات توكن وشات التيليجرام!');
+      });
+    }
+
+    function testTelegramAlert() {
+      const token = document.getElementById('tg-bot-token').value.trim();
+      const chatId = document.getElementById('tg-chat-id').value.trim();
+
+      if (!token || !chatId) {
+        showToast('يرجى إدخال التوكن والشات آيدي أولاً', true);
         return;
       }
 
-      db.collection("coupons").doc(code).set({
-        code,
-        discount,
-        createdAt: Date.now()
-      }).then(() => {
+      const msg = `🔔 *تجربة إشعارات متجر أنس - Anas Store*\nتم ربط لوحة التحكم بالبوت بنجاح! ستصلك تنبيهات الطلبات هنا.`;
+      fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) showToast('🚀 تم إرسال رسالة التجربة إلى حسابك على التيليجرام بنجاح!');
+          else showToast('فشل الإرسال: تأكد من صحة التوكن والآيدي، وأنك ضغطت Start في البوت', true);
+        })
+        .catch(err => showToast('خطأ اتصال: ' + err.message, true));
+    }
+
+    // --- Users & Tickets & Coupons Handlers ---
+    function renderUsersList() {
+      const q = (document.getElementById('search-user').value || '').trim().toLowerCase();
+      const cont = document.getElementById('users-list-container');
+      cont.innerHTML = '';
+      users.filter(u => (u.username && u.username.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q)))
+        .forEach(u => {
+          cont.innerHTML += `
+            <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
+              <div><strong style="color:#38bdf8;">@${u.username}</strong> (${u.email})</div>
+              <div>طلباته: ${u.ordersCount || 0}</div>
+            </div>
+          `;
+        });
+    }
+
+    function renderTicketsList() {
+      const cont = document.getElementById('tickets-list-container');
+      cont.innerHTML = tickets.length === 0 ? '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد تذاكر دعم حالياً.</p>' : '';
+      tickets.forEach(t => {
+        cont.innerHTML += `
+          <div class="data-card">
+            <strong>${t.subject}</strong>
+            <div>${t.message}</div>
+          </div>
+        `;
+      });
+    }
+
+    function saveCoupon() {
+      const code = document.getElementById('cpn-code').value.trim().toUpperCase();
+      const discount = parseFloat(document.getElementById('cpn-discount').value);
+      if (!code || isNaN(discount)) return;
+      db.collection("coupons").doc(code).set({ code, discount, createdAt: Date.now() }).then(() => {
         showToast('🎟️ تم نشر الكوبون!');
         document.getElementById('cpn-code').value = '';
         document.getElementById('cpn-discount').value = '';
       });
     }
 
-    function deleteCoupon(code) {
-      db.collection("coupons").doc(code).delete().then(() => showToast('تم حذف الكوبون.'));
-    }
-
     function renderCouponsList() {
       const cont = document.getElementById('coupons-list-container');
       cont.innerHTML = '';
-      if (coupons.length === 0) {
-        cont.innerHTML = '<p style="color:var(--muted); text-align:center; padding:15px;">لا توجد كوبونات مفعلة.</p>';
-        return;
-      }
       coupons.forEach(c => {
         cont.innerHTML += `
           <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
-            <div>
-              <strong style="color:#ec4899;">🎟️ ${c.code}</strong>
-              <div style="font-size:0.8rem; color:var(--muted);">خصم ${c.discount}% على كل الخدمات</div>
-            </div>
-            <button class="btn-del-row" onclick="deleteCoupon('${c.code}')">حذف</button>
+            <strong>${c.code} (${c.discount}%)</strong>
+            <button class="btn-del-row" onclick="db.collection('coupons').doc('${c.code}').delete()">حذف</button>
           </div>
         `;
       });
+    }
+
+    function openImageModal(src) {
+      document.getElementById('modal-full-img').src = src;
+      document.getElementById('image-modal').style.display = 'flex';
+    }
+    function closeImageModal() {
+      document.getElementById('image-modal').style.display = 'none';
     }
   </script>
 </body>
