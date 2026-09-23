@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>متجر أنس | Anas Store للخدمات الرقمية</title>
-<meta name="google-site-verification" content="FhzS2LS-A4SBuZXomMrlOnlcauK7-fhW4-2dI_U2-1w" />
+  <meta name="google-site-verification" content="FhzS2LS-A4SBuZXomMrlOnlcauK7-fhW4-2dI_U2-1w" />
   <!-- كلمات مفتاحية ووصف لمحركات البحث (SEO) -->
   <meta name="description" content="متجر أنس (Anas Store) - المنصة الرقمية الأولى لشحن الألعاب، الاشتراكات، والبطاقات الرقمية مع التسليم الفوري في ليبيا. شحن ببجي، تليجرام، وبطاقات الدفع.">
   <meta name="keywords" content="متجر أنس, Anas Store, شحن ألعاب ليبيا, شدات ببجي, اشتراكات رقمية, ليبيانا, مدار, سداد, لي باي, بطاقات ألعاب">
@@ -226,7 +226,7 @@
     }
     .stat-box span { display: block; font-size: 0.7rem; color: var(--text-muted); }
     .stat-box strong { font-size: 0.95rem; font-weight: 800; }
-    .stat-box.balance strong { color: var(--accent); }
+    .stat-box.balance strong { color: var(--gold); }
     .stat-box.spent strong { color: #f43f5e; }
     .stat-box.orders strong { color: #38bdf8; }
 
@@ -552,28 +552,13 @@
     .btn-submit.deposit { background: var(--accent); color: #022c15; }
     .close-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: #94a3b8; padding: 9px; border-radius: 8px; margin-top: 6px; cursor: pointer; font-size: 0.85rem; }
 
-    /* Custom Modern Payment Grid */
-    .methods-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .method-chip {
-      background: #0b0f19;
-      border: 1.5px solid var(--border);
-      color: #cbd5e1;
-      padding: 9px 8px;
-      border-radius: 10px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 0.78rem;
-      font-weight: 700;
-    }
-    .method-chip.active {
-      background: rgba(37, 99, 235, 0.18);
-      border-color: #38bdf8;
-      color: #fff;
+    .order-history-card, .ticket-card {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
     }
 
     .copy-chip {
@@ -586,15 +571,6 @@
       display: inline-block;
       margin-top: 4px;
       font-size: 0.8rem;
-    }
-
-    .order-history-card, .ticket-card {
-      background: var(--card-inner);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 8px;
-      font-size: 0.82rem;
     }
 
     /* Custom In-App Toast Notification */
@@ -700,7 +676,7 @@
       </div>
 
       <div class="sidebar-nav">
-        <button class="side-nav-btn" onclick="openDepositModal()">➕ شحن رصيد المحفظة</button>
+        <button class="side-nav-btn" onclick="openDepositModal()">⏳ شحن رصيد المحفظة (قريباً)</button>
         <button class="side-nav-btn" onclick="openOrdersModal()">📋 سجل طلباتي والأكواد</button>
         <button class="side-nav-btn" onclick="openAffiliateModal()">🤝 رابط الإحالة والعمولة</button>
         <button class="side-nav-btn" onclick="openTicketsModal()">🎫 التذاكر والدعم الفني</button>
@@ -728,13 +704,13 @@
           <span class="vip-badge-pill" id="card-vip">برونزي 👑</span>
         </div>
         <div class="stats-grid">
-          <div class="stat-box balance">
-            <span>رصيدي بالمحفظة</span>
-            <strong id="card-balance">$0.00</strong>
+          <div class="stat-box balance" style="cursor:pointer;" onclick="openDepositModal()">
+            <span>نظام المحفظة</span>
+            <strong id="card-balance" style="font-size:0.85rem;">قريباً ⏳</strong>
           </div>
           <div class="stat-box spent">
-            <span>إجمالي الإنفاق</span>
-            <strong id="card-spent">$0.00</strong>
+            <span>الطلب المباشر</span>
+            <strong id="card-spent" style="color:var(--accent); font-size:0.85rem;">واتس / تلجرام ✅</strong>
           </div>
           <div class="stat-box orders">
             <span>عدد طلباتي</span>
@@ -775,7 +751,7 @@
   </div>
 
   <!-- Modals -->
-  <!-- Order Modal -->
+  <!-- Order Modal (Modified for Direct WhatsApp & Telegram Ordering) -->
   <div class="modal" id="order-modal">
     <div class="modal-content">
       <h3>تأكيد طلب الخدمة 🚀</h3>
@@ -799,49 +775,28 @@
         <textarea id="order-notes" rows="2" placeholder="أي تفاصيل أخرى تحتاج إضافتها"></textarea>
       </div>
 
-      <button class="btn-submit" id="confirm-order-btn" onclick="executeOrder()">خصم من المحفظة وتأكيد الطلب 💳</button>
+      <!-- Action Buttons for Direct Ordering -->
+      <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn-submit" style="background: #16a34a; font-weight: 800;" onclick="submitOrderViaMessenger('whatsapp')">💬 إتمام الطلب عبر WhatsApp</button>
+        <button class="btn-submit" style="background: #0284c7; font-weight: 800;" onclick="submitOrderViaMessenger('telegram')">✈️ إتمام الطلب عبر Telegram</button>
+      </div>
       <button class="close-btn" onclick="closeModals()">إلغاء</button>
     </div>
   </div>
 
-  <!-- Deposit Modal -->
+  <!-- Deposit Modal Notice (Wallet Coming Soon) -->
   <div class="modal" id="deposit-modal">
-    <div class="modal-content">
-      <h3>➕ شحن رصيد المحفظة</h3>
-      <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">اختر طريقة الشحن:</label>
-      
-      <div class="methods-grid">
-        <div class="method-chip active" id="chip-bank" onclick="selectDepositMethod('bank')">🏦 تحويل مصرفي</div>
-        <div class="method-chip" id="chip-libyana" onclick="selectDepositMethod('libyana')">📶 رصيد ليبيانا</div>
-        <div class="method-chip" id="chip-madar" onclick="selectDepositMethod('madar')">📡 رصيد مدار</div>
-        <div class="method-chip" id="chip-usdt" onclick="selectDepositMethod('usdt')">🪙 USDT</div>
-        <div class="method-chip" id="chip-binance" onclick="selectDepositMethod('binance')" style="grid-column: span 2;">🟡 Binance Pay ID</div>
+    <div class="modal-content" style="text-align: center;">
+      <h3 style="color:var(--gold);">⏳ نظام شحن المحفظة قريباً</h3>
+      <p style="font-size:0.88rem; color:var(--text-muted); line-height: 1.6; margin: 14px 0;">
+        نظام الدفع والشحن المسبق للمحفظة قيد التجهيز وسيتم تفعيله رسمياً في التحديث القادم.<br><br>
+        حالياً يمكنك طلب جميع الخدمات والألعاب مباشرة مع إمكانية الدفع عبر <strong>(ليبيانا، مدار، تحويل مصرفي، أو USDT)</strong> بالتواصل الفوري مع الدعم عبر واتساب وتلجرام! 🚀
+      </p>
+      <div style="display:flex; flex-direction:column; gap:8px; margin: 14px 0;">
+        <a id="deposit-wa-quick" href="#" target="_blank" class="support-link-btn support-wa">💬 تواصل للدفع والشحن عبر واتساب</a>
+        <a id="deposit-tg-quick" href="#" target="_blank" class="support-link-btn support-tg">✈️ تواصل للدفع والشحن عبر تلجرام</a>
       </div>
-
-      <div class="form-group">
-        <label>المبلغ المراد شحنه بالدولار ($):</label>
-        <input type="number" id="deposit-amount-usd" step="1" min="1" placeholder="مثال: 10" oninput="calculateDepositEquiv()">
-      </div>
-
-      <div id="deposit-equiv-box" style="background:#0f1626; padding:8px; border-radius:8px; border:1px solid var(--border); font-size:0.82rem; margin-bottom:10px; color:var(--gold);">
-        المطلوب تحويله: <strong>$0.00</strong>
-      </div>
-
-      <div id="deposit-accounts-box" style="background:rgba(56,189,248,0.06); border:1px dashed #38bdf8; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.82rem;"></div>
-
-      <div class="form-group">
-        <label id="deposit-source-label">رقم الحساب أو الهاتف الذي قمت بالتحويل منه:</label>
-        <input type="text" id="deposit-source-val" placeholder="مثال: رقم حسابك المصرفي أو رقمك">
-      </div>
-
-      <div class="form-group">
-        <label>صورة إيصال التحويل (سكرين شوت أو كرت الشحن):</label>
-        <input type="file" id="deposit-receipt-file" accept="image/*" onchange="handleReceiptUpload(this)" style="padding: 6px; font-size:0.8rem;">
-        <img id="receipt-preview" style="width:100%; height:110px; border-radius:8px; border:1px solid var(--border); display:none; object-fit:cover; margin-top:6px;">
-      </div>
-
-      <button class="btn-submit deposit" id="deposit-submit-btn" onclick="submitDepositRequest()">إرسال طلب الشحن للمراجعة 🚀</button>
-      <button class="close-btn" onclick="closeModals()">إغلاق</button>
+      <button class="close-btn" onclick="closeModals()">فهمت ذلك</button>
     </div>
   </div>
 
@@ -947,9 +902,6 @@
     let currentCategory = 'الكل';
     let searchQuery = '';
     let pendingOrderServiceId = null;
-
-    let selectedDepositMethod = 'bank';
-    let receiptImageBase64 = "";
 
     const urlParams = new URLSearchParams(window.location.search);
     const referralCode = urlParams.get('ref');
@@ -1096,8 +1048,6 @@
       const vip = calculateVipInfo(currentUserProfile.totalSpent);
 
       document.getElementById('card-username').innerText = `@${currentUserProfile.username || 'مستخدم'}`;
-      document.getElementById('card-balance').innerText = `$${(currentUserProfile.balance || 0).toFixed(2)}`;
-      document.getElementById('card-spent').innerText = `$${(currentUserProfile.totalSpent || 0).toFixed(2)}`;
       document.getElementById('card-orders').innerText = currentUserProfile.ordersCount || 0;
       document.getElementById('card-vip').innerText = `${vip.name} (خصم ${vip.discount}%)`;
 
@@ -1119,7 +1069,6 @@
       document.getElementById('auth-error').innerText = '';
     }
 
-    // إدارة التسجيل مع تفعيل رابط التحقق من البريد
     async function handleEmailAuth() {
       const email = document.getElementById('auth-email').value.trim();
       const pass = document.getElementById('auth-pass').value.trim();
@@ -1258,6 +1207,8 @@
 
           document.getElementById('side-wa-link').href = `https://wa.me/${settings.waPhone}`;
           document.getElementById('side-tg-link').href = `https://t.me/${settings.tgUser}`;
+          document.getElementById('deposit-wa-quick').href = `https://wa.me/${settings.waPhone}`;
+          document.getElementById('deposit-tg-quick').href = `https://t.me/${settings.tgUser}`;
 
           if (settings.logoUrl) {
             const logoEl = document.getElementById('store-logo');
@@ -1458,7 +1409,7 @@
               </div>
 
               <button class="order-btn" onclick="triggerOrder('${item.id}')" ${!isAvailable ? 'disabled' : ''}>
-                ${isAvailable ? 'طلب الخدمة من المحفظة 🚀' : 'الخدمة متوقفة مؤقتاً'}
+                ${isAvailable ? 'طلب الخدمة الآن 🚀' : 'الخدمة متوقفة مؤقتاً'}
               </button>
             </div>
           </div>
@@ -1486,9 +1437,9 @@
 
       document.getElementById('modal-summary').innerHTML = `
         <strong>الخدمة:</strong> ${service.title}<br>
-        <strong>الباقة:</strong> ${selectedPkg.name} ${selectedPkg.isAutoDelivery ? '<span style="color:#10b981;">(⚡ تسليم فوري للأكواد)</span>' : ''}<br>
-        <strong>القيمة المخصومة:</strong> <span style="color:#10b981; font-weight:bold;">$${p.rawUsd.toFixed(2)}</span> (${p.val} ${p.symbol})<br>
-        <strong>رصيد محفظتك:</strong> <span style="color:#38bdf8; font-weight:bold;">$${(currentUserProfile.balance || 0).toFixed(2)}</span>
+        <strong>الباقة:</strong> ${selectedPkg.name}<br>
+        <strong>السعر المقدر:</strong> <span style="color:#10b981; font-weight:bold;">${p.val} ${p.symbol}</span> ($${p.rawUsd.toFixed(2)})<br>
+        <span style="font-size:0.75rem; color:#94a3b8;">طرق الدفع المتاحة: ليبيانا / مدار / تحويل مصرفي / USDT</span>
         ${vip.discount > 0 ? `<div style="color:var(--gold); font-size:0.78rem;">🎉 تم تطبيق خصم رتبة ${vip.name} (${vip.discount}%)</div>` : ''}
       `;
 
@@ -1496,17 +1447,10 @@
       const targetGroup = document.getElementById('order-target-group');
       const notesGroup = document.getElementById('order-notes-group');
 
-      if (selectedPkg.isAutoDelivery) {
-        instBox.innerHTML = `<strong>⚡ تسليم فوري تلقائي:</strong><br>هذه الباقة مدعومة بالتسليم الآلي، سيتم خصم الرصيد وعرض الكود فوراً على شاشتك وفي سجل طلباتك!`;
-        targetGroup.style.display = 'none';
-        notesGroup.style.display = 'none';
-      } else {
-        instBox.innerHTML = `<strong>📌 شروط وطريقة شحن (${service.title}):</strong><br>${service.notes || 'يرجى تزويدنا بالمعرف المطلوب للشحن بدقة.'}`;
-        targetGroup.style.display = 'block';
-        notesGroup.style.display = 'block';
-        document.getElementById('order-target').value = '';
-        document.getElementById('order-target').placeholder = `أدخل المطلوب لشحن ${service.title}...`;
-      }
+      instBox.innerHTML = `<strong>📌 شروط وطريقة شحن (${service.title}):</strong><br>${service.notes || 'يرجى تزويدنا بالمعرف المطلوب للشحن بدقة.'}`;
+      targetGroup.style.display = 'block';
+      notesGroup.style.display = 'block';
+      document.getElementById('order-target').placeholder = `أدخل المطلوب لشحن ${service.title}...`;
     }
 
     function applyCoupon() {
@@ -1522,7 +1466,8 @@
       }
     }
 
-    async function executeOrder() {
+    // إتمام الطلب المباشر عبر WhatsApp أو Telegram
+    async function submitOrderViaMessenger(platform) {
       const service = services.find((s) => s.id === pendingOrderServiceId);
       const pkgIndex = selectedPackages[pendingOrderServiceId] || 0;
       const selectedPkg = service.packages[pkgIndex];
@@ -1532,247 +1477,75 @@
       let target = document.getElementById('order-target').value.trim();
       const notes = document.getElementById('order-notes').value.trim();
 
-      if (!selectedPkg.isAutoDelivery && !target) {
+      if (!target) {
         showToast('يرجى كتابة المعرف أو الحساب المطلوب شحنه', true);
         return;
       }
 
-      if (selectedPkg.isAutoDelivery) {
-        target = "تسليم تلقائي فوري";
-      }
-
-      const confirmBtn = document.getElementById('confirm-order-btn');
-      confirmBtn.disabled = true;
-      confirmBtn.innerText = 'جاري المعالجة...';
-
-      const userRef = db.collection("users").doc(currentUser.uid);
-      const serviceRef = db.collection("services").doc(service.id);
-
+      // حفظ نسخة من الطلب في قاعدة البيانات للإحصائيات وسجل الطلبات
       try {
-        let deliveredCodeResult = "";
-
-        await db.runTransaction(async (transaction) => {
-          const userDoc = await transaction.get(userRef);
-          if (!userDoc.exists) throw new Error("الحساب غير موجود");
-
-          const currentBal = userDoc.data().balance || 0;
-          if (currentBal < costUsd) throw new Error("رصيد محفظتك لا يكفي! يرجى شحن الرصيد أولاً.");
-
-          let finalStatus = 'pending';
-
-          if (selectedPkg.isAutoDelivery) {
-            const sDoc = await transaction.get(serviceRef);
-            if (!sDoc.exists) throw new Error("الخدمة غير موجودة");
-            
-            const currentPkgs = sDoc.data().packages || [];
-            const targetPkg = currentPkgs[pkgIndex];
-
-            if (!targetPkg || !targetPkg.stockCodes || targetPkg.stockCodes.length === 0) {
-              throw new Error("عذراً، نفدت كمية الأكواد الفورية لهذه الباقة حالياً!");
-            }
-
-            deliveredCodeResult = targetPkg.stockCodes.shift();
-            finalStatus = 'completed';
-
-            transaction.update(serviceRef, { packages: currentPkgs });
-          }
-
-          transaction.update(userRef, {
-            balance: firebase.firestore.FieldValue.increment(-costUsd),
-            totalSpent: firebase.firestore.FieldValue.increment(costUsd),
-            ordersCount: firebase.firestore.FieldValue.increment(1)
-          });
-
-          const newOrderRef = db.collection("orders").doc();
-          transaction.set(newOrderRef, {
-            orderId: newOrderRef.id,
-            uid: currentUser.uid,
-            username: currentUserProfile.username,
-            userEmail: currentUser.email || '',
-            serviceId: service.id,
-            serviceTitle: service.title,
-            packageName: selectedPkg.name,
-            costUsd: costUsd,
-            targetInfo: target,
-            clientNotes: notes,
-            status: finalStatus,
-            deliveredCode: deliveredCodeResult,
-            createdAt: Date.now()
-          });
-        });
-
-        closeModals();
-
-        if (selectedPkg.isAutoDelivery && deliveredCodeResult) {
-          showToast(`🎉 مبروك! كودك هو: ${deliveredCodeResult}`);
-          setTimeout(() => openOrdersModal(), 1200);
-        } else {
-          showToast('🎉 تم تأكيد طلبك وخصمه من المحفظة بنجاح!');
-        }
-
-        const orderType = selectedPkg.isAutoDelivery ? '⚡ تسليم كود فوري' : '✋ طلب شحن يدوي';
-        sendTelegramNotification(
-          `📦 طلب جديد في المتجر!\n` +
-          `النوع: ${orderType}\n` +
-          `الزبون: @${currentUserProfile.username}\n` +
-          `الخدمة: ${service.title} (${selectedPkg.name})\n` +
-          `المعرف: ${target}\n` +
-          `القيمة: $${costUsd.toFixed(2)}`
-        );
-      } catch (err) {
-        showToast('خطأ: ' + (err.message || err), true);
-      } finally {
-        confirmBtn.disabled = false;
-        confirmBtn.innerText = 'خصم من المحفظة وتأكيد الطلب 💳';
-      }
-    }
-
-    // --- Deposit Functions ---
-    function openDepositModal() {
-      receiptImageBase64 = "";
-      document.getElementById('deposit-receipt-file').value = "";
-      document.getElementById('receipt-preview').style.display = "none";
-      document.getElementById('deposit-source-val').value = "";
-      selectDepositMethod('bank');
-      document.getElementById('deposit-modal').style.display = 'flex';
-      toggleSidebar();
-    }
-
-    function selectDepositMethod(method) {
-      selectedDepositMethod = method;
-      document.querySelectorAll('.method-chip').forEach((c) => c.classList.remove('active'));
-      const activeEl = document.getElementById(`chip-${method}`);
-      if (activeEl) activeEl.classList.add('active');
-
-      const sourceLabel = document.getElementById('deposit-source-label');
-      const sourceInput = document.getElementById('deposit-source-val');
-
-      if (method === 'bank') {
-        sourceLabel.innerText = "رقم الحساب المصرفي الذي قمت بالتحويل منه:";
-        sourceInput.placeholder = "مثال: رقم حسابك في سداد أو لي باي أو مصرفك";
-      } else if (method === 'libyana') {
-        sourceLabel.innerText = "رقم هاتف ليبيانا الذي قمت بالتحويل منه:";
-        sourceInput.placeholder = "مثال: 091XXXXXXX";
-      } else if (method === 'madar') {
-        sourceLabel.innerText = "رقم هاتف مدار الذي قمت بالتحويل منه:";
-        sourceInput.placeholder = "مثال: 092XXXXXXX";
-      } else if (method === 'usdt') {
-        sourceLabel.innerText = "عنوان محفظتك (USDT Wallet) أو رمز المعاملة TXID:";
-        sourceInput.placeholder = "عنوان المحفظة أو رمز التحويل";
-      } else if (method === 'binance') {
-        sourceLabel.innerText = "معرف Binance Pay ID الخاص بك:";
-        sourceInput.placeholder = "مثال: 12345678";
-      }
-
-      renderDepositDetails();
-    }
-
-    function renderDepositDetails() {
-      const box = document.getElementById('deposit-accounts-box');
-      box.innerHTML = '';
-
-      let list = [];
-      let label = "";
-
-      if (selectedDepositMethod === 'libyana') { list = settings.phoneLibyana; label = "📶 أرقام استقبال رصيد ليبيانا:"; }
-      else if (selectedDepositMethod === 'madar') { list = settings.phoneMadar; label = "📡 أرقام استقبال رصيد مدار:"; }
-      else if (selectedDepositMethod === 'bank') { list = settings.bankDetails; label = "🏦 حسابات التحويل المصرفي المعتمدة:"; }
-      else if (selectedDepositMethod === 'usdt') { list = settings.usdtWallets; label = "🪙 محافظ استقبال USDT:"; }
-      else if (selectedDepositMethod === 'binance') { list = settings.binanceIds; label = "🟡 معرفات Binance Pay ID المعتمدة:"; }
-
-      let html = `<strong>${label}</strong><br>`;
-      if (list && list.length > 0) {
-        list.forEach((acc) => {
-          html += `
-            <div style="margin-top:4px; display:flex; justify-content:space-between; align-items:center; background:#0b0f19; padding:5px 8px; border-radius:6px;">
-              <span>${acc}</span>
-              <span class="copy-chip" onclick="copyText('${acc}')">نسخ</span>
-            </div>
-          `;
-        });
-      } else {
-        html += `<span style="color:var(--text-muted);">تواصل معنا لتزويدك ببيانات الحساب.</span>`;
-      }
-
-      box.innerHTML = html;
-      calculateDepositEquiv();
-    }
-
-    function calculateDepositEquiv() {
-      const usd = parseFloat(document.getElementById('deposit-amount-usd').value) || 0;
-      const box = document.getElementById('deposit-equiv-box');
-
-      if (usd <= 0) { box.innerHTML = `المطلوب تحويله: <strong>$0.00</strong>`; return; }
-
-      if (selectedDepositMethod === 'libyana') box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateLibyana).toFixed(1)} د.ل ليبيانا</strong>`;
-      else if (selectedDepositMethod === 'madar') box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateMadar).toFixed(1)} د.ل مدار</strong>`;
-      else if (selectedDepositMethod === 'bank') box.innerHTML = `المطلوب تحويله: <strong>${(usd * settings.rateBank).toFixed(1)} د.ل مصرفي</strong>`;
-      else box.innerHTML = `المطلوب تحويله: <strong>${usd.toFixed(2)} USDT</strong>`;
-    }
-
-    function handleReceiptUpload(inputElement) {
-      const file = inputElement.files ? inputElement.files[0] : null;
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(fileEvent) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const maxW = 600;
-          const scale = maxW / img.width;
-          canvas.width = (img.width > maxW) ? maxW : img.width;
-          canvas.height = (img.width > maxW) ? (img.height * scale) : img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            receiptImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
-
-            const prev = document.getElementById('receipt-preview');
-            prev.src = receiptImageBase64;
-            prev.style.display = 'block';
-          }
-        };
-        img.src = fileEvent.target ? fileEvent.target.result : '';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function submitDepositRequest() {
-      const usd = parseFloat(document.getElementById('deposit-amount-usd').value);
-      const source = document.getElementById('deposit-source-val').value.trim();
-
-      if (!usd || usd <= 0) { showToast('يرجى تحديد المبلغ المراد شحنه', true); return; }
-      if (!source) { showToast('يرجى كتابة رقم الحساب أو الهاتف الذي قمت بالتحويل منه', true); return; }
-      if (!receiptImageBase64) { showToast('يرجى إرفاق صورة إيصال التحويل أو كرت الشحن', true); return; }
-
-      const btn = document.getElementById('deposit-submit-btn');
-      btn.disabled = true;
-      btn.innerText = 'جاري إرسال الإيصال...';
-
-      try {
-        await db.collection("deposits").add({
-          uid: currentUser.uid,
-          username: currentUserProfile.username,
-          userEmail: currentUser.email || '',
-          amountUsd: usd,
-          paymentMethod: selectedDepositMethod,
-          sourceAccount: source,
-          receiptImg: receiptImageBase64,
+        const newOrderRef = db.collection("orders").doc();
+        await newOrderRef.set({
+          orderId: newOrderRef.id,
+          uid: currentUser ? currentUser.uid : 'guest',
+          username: currentUserProfile ? currentUserProfile.username : 'visitor',
+          userEmail: currentUser ? (currentUser.email || '') : '',
+          serviceId: service.id,
+          serviceTitle: service.title,
+          packageName: selectedPkg.name,
+          costUsd: costUsd,
+          targetInfo: target,
+          clientNotes: notes,
+          paymentMethodRequested: currentCurrency,
           status: 'pending',
           createdAt: Date.now()
         });
 
-        closeModals();
-        showToast('✅ تم إرسال طلب الشحن بنجاح! سيتم اعتماده قريباً.');
+        if (currentUser) {
+          db.collection("users").doc(currentUser.uid).update({
+            ordersCount: firebase.firestore.FieldValue.increment(1)
+          });
+        }
 
-        sendTelegramNotification(`💰 طلب إيداع محفظة جديد!\nالزبون: @${currentUserProfile.username}\nالقيمة: $${usd}\nالطريقة: ${selectedDepositMethod}\nالمحول منه: ${source}\nيرجى مراجعة لوحة التحكم.`);
+        // إشعار فوري للأدمن على التلجرام
+        sendTelegramNotification(
+          `📦 طلب شراء مباشر جديد!\n` +
+          `المنصة المطلوبة: ${platform.toUpperCase()}\n` +
+          `الزبون: @${currentUserProfile ? currentUserProfile.username : 'زائر'}\n` +
+          `الخدمة: ${service.title} (${selectedPkg.name})\n` +
+          `المعرف: ${target}\n` +
+          `السعر: ${p.val} ${p.symbol} ($${costUsd.toFixed(2)})`
+        );
       } catch (err) {
-        showToast('حدث خطأ: ' + err.message, true);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'إرسال طلب الشحن للمراجعة 🚀';
+        console.error('Order logging error:', err);
       }
+
+      // تجهيز نص الرسالة للزبون
+      const messageText = 
+        `السلام عليكم، أود إتمام طلب من موقع Anas Store 🚀\n\n` +
+        `📦 الخدمة: ${service.title}\n` +
+        `📋 الباقة: ${selectedPkg.name}\n` +
+        `💵 السعر: ${p.val} ${p.symbol} ($${costUsd.toFixed(2)})\n` +
+        `🎯 المعرف/الحساب: ${target}\n` +
+        (notes ? `📝 ملاحظة: ${notes}\n` : '') +
+        (appliedCouponCode ? `🎟️ كوبون خصم: ${appliedCouponCode}\n` : '') +
+        `👤 حسابي في الموقع: @${currentUserProfile ? currentUserProfile.username : 'مستخدم'}\n\n` +
+        `يرجى تزويدي ببيانات الدفع للتأكيد والشحن.`;
+
+      closeModals();
+
+      if (platform === 'whatsapp') {
+        const waUrl = `https://wa.me/${settings.waPhone}?text=${encodeURIComponent(messageText)}`;
+        window.open(waUrl, '_blank');
+      } else {
+        const tgUrl = `https://t.me/${settings.tgUser}?text=${encodeURIComponent(messageText)}`;
+        window.open(tgUrl, '_blank');
+      }
+    }
+
+    function openDepositModal() {
+      document.getElementById('deposit-modal').style.display = 'flex';
+      toggleSidebar();
     }
 
     // --- Orders History ---
@@ -1793,10 +1566,10 @@
         userOrders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
         userOrders.forEach((ord) => {
-          let stBadge = '<span style="color:#f59e0b;">⏳ قيد الانتظار</span>';
+          let stBadge = '<span style="color:#f59e0b;">⏳ قيد المراجعة</span>';
           if (ord.status === 'in_progress') stBadge = '<span style="color:#38bdf8;">⚙️ قيد التنفيذ</span>';
           if (ord.status === 'completed') stBadge = '<span style="color:#10b981;">✅ مكتمل</span>';
-          if (ord.status === 'cancelled') stBadge = '<span style="color:#ef4444;">❌ ملغي ومسترجع</span>';
+          if (ord.status === 'cancelled') stBadge = '<span style="color:#ef4444;">❌ ملغي</span>';
 
           box.innerHTML += `
             <div class="order-history-card">
