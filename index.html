@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>متجر أنس | Anas Store للخدمات الرقمية</title>
   <meta name="google-site-verification" content="FhzS2LS-A4SBuZXomMrlOnlcauK7-fhW4-2dI_U2-1w" />
-  <!-- كلمات مفتاحية ووصف لمحركات البحث (SEO) -->
-  <meta name="description" content="متجر أنس (Anas Store) - المنصة الرقمية الأولى لشحن الألعاب، الاشتراكات، والبطاقات الرقمية مع التسليم الفوري في ليبيا. شحن ببجي، تليجرام، وبطاقات الدفع.">
+  <meta name="description" content="متجر أنس (Anas Store) - المنصة الرقمية الأولى لشحن الألعاب، الاشتراكات، والبطاقات الرقمية مع التسليم الفوري في ليبيا.">
   <meta name="keywords" content="متجر أنس, Anas Store, شحن ألعاب ليبيا, شدات ببجي, اشتراكات رقمية, ليبيانا, مدار, سداد, لي باي, بطاقات ألعاب">
   <meta name="author" content="Anas Store">
   <meta name="robots" content="index, follow">
 
-  <!-- إعدادات المشاركة على السوشيال ميديا (Open Graph) -->
   <meta property="og:title" content="متجر أنس | Anas Store للخدمات الرقمية">
   <meta property="og:description" content="اشحن ألعابك واشتراكاتك الرقمية فوراً وبأفضل الأسعار عبر وسائل الدفع المحلية في ليبيا.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500">
@@ -40,7 +38,6 @@
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg); color: var(--text); padding-bottom: 60px; overflow-x: hidden; }
 
-    /* Hide Netlify Badge */
     [data-netlify-deploy-id], .netlify-badge, iframe[src*="netlify"], div[class*="netlify"], netlify-drawer {
       display: none !important;
       visibility: hidden !important;
@@ -48,7 +45,6 @@
       pointer-events: none !important;
     }
 
-    /* Modern Glassmorphic Login Gate */
     #auth-gate {
       display: flex;
       min-height: 100vh;
@@ -138,7 +134,6 @@
       margin-bottom: 14px;
     }
 
-    /* Protected App Area */
     #main-app { display: none; }
 
     #announcement-bar {
@@ -151,7 +146,6 @@
       display: none;
     }
 
-    /* Header */
     header {
       background: rgba(21, 29, 48, 0.98);
       backdrop-filter: blur(10px);
@@ -192,7 +186,6 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 0.8rem; }
 
-    /* Top User Live Stats Bar */
     .user-profile-header-card {
       background: linear-gradient(135deg, #151d30, #0f1626);
       border: 1px solid var(--border);
@@ -230,7 +223,6 @@
     .stat-box.spent strong { color: #f43f5e; }
     .stat-box.orders strong { color: #38bdf8; }
 
-    /* Currency Box */
     .currency-bar {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -268,7 +260,6 @@
       border-radius: 20px;
     }
 
-    /* Filters Bar */
     .filters-bar {
       display: flex;
       flex-direction: column;
@@ -300,7 +291,6 @@
     }
     .cat-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
 
-    /* Services Grid */
     .services-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -421,7 +411,6 @@
     }
     .order-btn:disabled { background: #475569; cursor: not-allowed; }
 
-    /* Sidebar Drawer */
     .sidebar-overlay {
       position: fixed;
       inset: 0;
@@ -469,7 +458,6 @@
       font-size: 0.88rem;
     }
 
-    /* Support Channels Box */
     .sidebar-support-box {
       margin-top: auto;
       background: var(--card-inner);
@@ -495,7 +483,6 @@
     .support-wa { background: #16a34a; }
     .support-tg { background: #0284c7; }
 
-    /* Modals & Forms */
     .modal {
       display: none;
       position: fixed;
@@ -573,7 +560,6 @@
       font-size: 0.8rem;
     }
 
-    /* Custom In-App Toast Notification */
     #app-toast {
       position: fixed;
       bottom: 25px;
@@ -601,10 +587,9 @@
 </head>
 <body>
 
-  <!-- In-App Toast Alert -->
   <div id="app-toast"></div>
 
-  <!-- 1. Authentication Gate (Glassmorphism & Anas Store Logo) -->
+  <!-- 1. Authentication Gate -->
   <div id="auth-gate">
     <div class="gate-glass-card">
       <div class="gate-logo-wrapper">
@@ -646,7 +631,7 @@
     </div>
   </div>
 
-  <!-- 2. Main App Interface (Unlocked after login) -->
+  <!-- 2. Main App Interface -->
   <div id="main-app">
     <div id="announcement-bar"></div>
 
@@ -682,7 +667,6 @@
         <button class="side-nav-btn" onclick="openTicketsModal()">🎫 التذاكر والدعم الفني</button>
       </div>
 
-      <!-- Direct Support Section -->
       <div class="sidebar-support-box">
         <span style="font-size:0.75rem; color:var(--text-muted); text-align:center;">للدعم السريع والتواصل:</span>
         <a id="side-wa-link" href="#" target="_blank" class="support-link-btn support-wa">💬 محادثة واتساب</a>
@@ -694,7 +678,7 @@
 
     <div class="container">
 
-      <!-- Top User Live Stats Bar -->
+      <!-- Top User Stats Card -->
       <div class="user-profile-header-card" id="user-stats-card">
         <div class="user-welcome-row">
           <div>
@@ -731,7 +715,7 @@
         <div class="exchange-badge" id="rate-badge">سعر العرض: بالدولار ($)</div>
       </div>
 
-      <!-- Search and Categories -->
+      <!-- Filters Bar -->
       <div class="filters-bar">
         <input type="text" class="search-input" id="search-box" placeholder="🔍 ابحث عن خدمة..." oninput="handleSearch()">
         <div class="categories-list" id="category-filters">
@@ -751,12 +735,10 @@
   </div>
 
   <!-- Modals -->
-  <!-- Order Modal (Modified for Direct WhatsApp & Telegram Ordering) -->
   <div class="modal" id="order-modal">
     <div class="modal-content">
       <h3>تأكيد طلب الخدمة 🚀</h3>
       <div id="modal-summary" style="background:#0b0f19; padding:10px; border-radius:8px; font-size:0.85rem; line-height:1.5; border:1px solid var(--border); margin-bottom:10px;"></div>
-
       <div id="modal-service-instructions" style="background:rgba(56, 189, 248, 0.08); border-right:3px solid #38bdf8; padding:8px 10px; border-radius:6px; font-size:0.8rem; color:#bae6fd; margin-bottom:10px;"></div>
 
       <div style="display:flex; gap:6px; margin-bottom: 10px;">
@@ -775,7 +757,6 @@
         <textarea id="order-notes" rows="2" placeholder="أي تفاصيل أخرى تحتاج إضافتها"></textarea>
       </div>
 
-      <!-- Action Buttons for Direct Ordering -->
       <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
         <button class="btn-submit" style="background: #16a34a; font-weight: 800;" onclick="submitOrderViaMessenger('whatsapp')">💬 إتمام الطلب عبر WhatsApp</button>
         <button class="btn-submit" style="background: #0284c7; font-weight: 800;" onclick="submitOrderViaMessenger('telegram')">✈️ إتمام الطلب عبر Telegram</button>
@@ -784,7 +765,6 @@
     </div>
   </div>
 
-  <!-- Deposit Modal Notice (Wallet Coming Soon) -->
   <div class="modal" id="deposit-modal">
     <div class="modal-content" style="text-align: center;">
       <h3 style="color:var(--gold);">⏳ نظام شحن المحفظة قريباً</h3>
@@ -800,7 +780,6 @@
     </div>
   </div>
 
-  <!-- Orders Modal -->
   <div class="modal" id="orders-modal">
     <div class="modal-content">
       <h3>📋 سجل طلباتي والأكواد</h3>
@@ -811,7 +790,6 @@
     </div>
   </div>
 
-  <!-- Affiliate Modal -->
   <div class="modal" id="affiliate-modal">
     <div class="modal-content">
       <h3>🤝 برنامج الإحالة والتسويق بالعمولة</h3>
@@ -828,7 +806,6 @@
     </div>
   </div>
 
-  <!-- Tickets Modal -->
   <div class="modal" id="tickets-modal">
     <div class="modal-content">
       <h3>🎫 التذاكر والدعم الفني</h3>
@@ -849,6 +826,17 @@
   </div>
 
   <script>
+    // حماية XSS لتعقيم النصوص
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     const firebaseConfig = {
       apiKey: "AIzaSyBmj5tLDjfZg6s1dN3TsSgxHT9gOnM0HrY",
       authDomain: "anas-store-c4fbb.firebaseapp.com",
@@ -906,13 +894,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const referralCode = urlParams.get('ref');
 
-    // Preload Logo for Gate Screen
     db.collection("settings").doc("main").get().then((docSnapshot) => {
       if (docSnapshot.exists) {
         const data = docSnapshot.data();
         if (data.logoUrl) {
           const gateLogo = document.getElementById('gate-store-logo');
-          gateLogo.src = data.logoUrl;
+          gateLogo.src = encodeURI(data.logoUrl);
           gateLogo.style.display = 'block';
           document.getElementById('gate-logo-fallback').style.display = 'none';
         }
@@ -968,7 +955,6 @@
       return { name: 'برونزي 🥉', discount: 0 };
     }
 
-    // Auth State Monitor: قفل وفتح الواجهة مع التحقق الإلزامي من تفعيل البريد
     auth.onAuthStateChanged(async (authUser) => {
       const gate = document.getElementById('auth-gate');
       const app = document.getElementById('main-app');
@@ -1138,9 +1124,6 @@
 
     async function handleForgotPassword() {
       const email = document.getElementById('auth-email').value.trim();
-      const errBox = document.getElementById('auth-error');
-      errBox.innerText = '';
-
       if (!email) {
         showToast('اكتب بريدك الإلكتروني في الخانة أولاً، ثم اضغط على "نسيت كلمة السر"', true);
         return;
@@ -1212,18 +1195,18 @@
 
           if (settings.logoUrl) {
             const logoEl = document.getElementById('store-logo');
-            logoEl.src = settings.logoUrl;
+            logoEl.src = encodeURI(settings.logoUrl);
             logoEl.style.display = 'block';
 
             const gateLogo = document.getElementById('gate-store-logo');
-            gateLogo.src = settings.logoUrl;
+            gateLogo.src = encodeURI(settings.logoUrl);
             gateLogo.style.display = 'block';
             document.getElementById('gate-logo-fallback').style.display = 'none';
           }
 
           const noticeEl = document.getElementById('announcement-bar');
           if (settings.noticeText) {
-            noticeEl.innerText = settings.noticeText;
+            noticeEl.innerText = settings.noticeText; // استخدام innerText لمنع حقن HTML
             noticeEl.style.display = 'block';
           } else {
             noticeEl.style.display = 'none';
@@ -1287,8 +1270,9 @@
       const container = document.getElementById('category-filters');
       container.innerHTML = '';
       cats.forEach((c) => {
+        const safeCat = escapeHtml(c);
         const activeClass = c === currentCategory ? 'active' : '';
-        container.innerHTML += `<button class="cat-btn ${activeClass}" onclick="filterCategory('${c}', this)">${c}</button>`;
+        container.innerHTML += `<button class="cat-btn ${activeClass}" onclick="filterCategory('${safeCat}', this)">${safeCat}</button>`;
       });
     }
 
@@ -1338,7 +1322,7 @@
 
       let filtered = services.filter((s) => {
         const matchesCat = (currentCategory === 'الكل' || s.category === currentCategory);
-        const matchesSearch = s.title.toLowerCase().includes(searchQuery);
+        const matchesSearch = (s.title || '').toLowerCase().includes(searchQuery);
         return matchesCat && matchesSearch;
       });
 
@@ -1362,7 +1346,7 @@
             const autoBadge = pkg.isAutoDelivery ? ' ⚡' : '';
             packagesHtml += `
               <div class="pkg-chip ${isSel}" onclick="${isAvailable ? `selectPkg('${item.id}',${idx})` : ''}">
-                <span class="pkg-chip-name">${pkg.name}${autoBadge}</span>
+                <span class="pkg-chip-name">${escapeHtml(pkg.name)}${autoBadge}</span>
                 <span class="pkg-chip-price">${p.val} <small style="font-size:0.75rem;">${p.symbol}</small></span>
               </div>
             `;
@@ -1378,13 +1362,13 @@
             <div class="status-badge ${isAvailable ? 'avail' : 'unavail'}">
               ${isAvailable ? 'متوفرة' : 'متوقفة'}
             </div>
-            <img src="${item.img || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500'}" class="service-img" alt="${item.title}">
+            <img src="${encodeURI(item.img || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500')}" class="service-img" alt="${escapeHtml(item.title)}">
             <div class="service-body">
               <div class="service-header">
-                <span class="service-category">${item.category || 'خدمة'}</span>
-                ${selPkg.isAutoDelivery ? `<span class="delivery-time-badge" style="color:#10b981; background:rgba(16,185,129,0.1);">⚡ تسليم فوري للأكواد</span>` : (item.deliveryTime ? `<span class="delivery-time-badge">⚡ ${item.deliveryTime}</span>` : '')}
+                <span class="service-category">${escapeHtml(item.category || 'خدمة')}</span>
+                ${selPkg.isAutoDelivery ? `<span class="delivery-time-badge" style="color:#10b981; background:rgba(16,185,129,0.1);">⚡ تسليم فوري للأكواد</span>` : (item.deliveryTime ? `<span class="delivery-time-badge">⚡ ${escapeHtml(item.deliveryTime)}</span>` : '')}
               </div>
-              <h2 class="service-title">${item.title}</h2>
+              <h2 class="service-title">${escapeHtml(item.title)}</h2>
 
               <button type="button" class="toggle-prices-btn" onclick="togglePricingMenu('${item.id}')">
                 <span>📋 اختر الباقة أو المدة (${packagesCount})</span>
@@ -1396,7 +1380,7 @@
               <div class="price-display-box">
                 <div>
                   <div style="color:#94a3b8; font-size:0.72rem;">الباقة المحددة:</div>
-                  <strong style="color:#38bdf8; font-size:0.82rem;" id="selected-pkg-name-${item.id}">${selPkg.name}</strong>
+                  <strong style="color:#38bdf8; font-size:0.82rem;" id="selected-pkg-name-${item.id}">${escapeHtml(selPkg.name)}</strong>
                 </div>
                 <span class="price-val" id="price-val-${item.id}">
                   ${priceObj.val} <small style="font-size:0.75rem;">${priceObj.symbol}</small>
@@ -1405,7 +1389,7 @@
 
               <div class="notes-box">
                 <strong>⚠️ طريقة وملاحظات الشحن:</strong>
-                <div>${item.notes || 'تسليم سريع ومباشر عبر متجر أنس.'}</div>
+                <div>${escapeHtml(item.notes || 'تسليم سريع ومباشر عبر متجر أنس.')}</div>
               </div>
 
               <button class="order-btn" onclick="triggerOrder('${item.id}')" ${!isAvailable ? 'disabled' : ''}>
@@ -1436,21 +1420,18 @@
       const vip = calculateVipInfo(currentUserProfile ? currentUserProfile.totalSpent : 0);
 
       document.getElementById('modal-summary').innerHTML = `
-        <strong>الخدمة:</strong> ${service.title}<br>
-        <strong>الباقة:</strong> ${selectedPkg.name}<br>
+        <strong>الخدمة:</strong> ${escapeHtml(service.title)}<br>
+        <strong>الباقة:</strong> ${escapeHtml(selectedPkg.name)}<br>
         <strong>السعر المقدر:</strong> <span style="color:#10b981; font-weight:bold;">${p.val} ${p.symbol}</span> ($${p.rawUsd.toFixed(2)})<br>
         <span style="font-size:0.75rem; color:#94a3b8;">طرق الدفع المتاحة: ليبيانا / مدار / تحويل مصرفي / USDT</span>
         ${vip.discount > 0 ? `<div style="color:var(--gold); font-size:0.78rem;">🎉 تم تطبيق خصم رتبة ${vip.name} (${vip.discount}%)</div>` : ''}
       `;
 
       const instBox = document.getElementById('modal-service-instructions');
-      const targetGroup = document.getElementById('order-target-group');
-      const notesGroup = document.getElementById('order-notes-group');
-
-      instBox.innerHTML = `<strong>📌 شروط وطريقة شحن (${service.title}):</strong><br>${service.notes || 'يرجى تزويدنا بالمعرف المطلوب للشحن بدقة.'}`;
-      targetGroup.style.display = 'block';
-      notesGroup.style.display = 'block';
-      document.getElementById('order-target').placeholder = `أدخل المطلوب لشحن ${service.title}...`;
+      instBox.innerHTML = `<strong>📌 شروط وطريقة شحن (${escapeHtml(service.title)}):</strong><br>${escapeHtml(service.notes || 'يرجى تزويدنا بالمعرف المطلوب للشحن بدقة.')}`;
+      document.getElementById('order-target-group').style.display = 'block';
+      document.getElementById('order-notes-group').style.display = 'block';
+      document.getElementById('order-target').placeholder = `أدخل المطلوب لشحن ${escapeHtml(service.title)}...`;
     }
 
     function applyCoupon() {
@@ -1459,14 +1440,13 @@
       if (match) {
         appliedDiscount = match.discount;
         appliedCouponCode = match.code;
-        document.getElementById('coupon-msg').innerHTML = `<span style="color:#10b981;">✅ تم تفعيل خصم ${match.discount}% (${appliedCouponCode})</span>`;
+        document.getElementById('coupon-msg').innerHTML = `<span style="color:#10b981;">✅ تم تفعيل خصم ${match.discount}% (${escapeHtml(appliedCouponCode)})</span>`;
         updateOrderModalView();
       } else {
         document.getElementById('coupon-msg').innerHTML = `<span style="color:#ef4444;">❌ الكوبون غير صحيح</span>`;
       }
     }
 
-    // إتمام الطلب المباشر عبر WhatsApp أو Telegram
     async function submitOrderViaMessenger(platform) {
       const service = services.find((s) => s.id === pendingOrderServiceId);
       const pkgIndex = selectedPackages[pendingOrderServiceId] || 0;
@@ -1482,7 +1462,6 @@
         return;
       }
 
-      // حفظ نسخة من الطلب في قاعدة البيانات للإحصائيات وسجل الطلبات
       try {
         const newOrderRef = db.collection("orders").doc();
         await newOrderRef.set({
@@ -1507,10 +1486,9 @@
           });
         }
 
-        // إشعار فوري للأدمن على التلجرام
         sendTelegramNotification(
-          `📦 طلب شراء مباشر جديد!\n` +
-          `المنصة المطلوبة: ${platform.toUpperCase()}\n` +
+          `📦 طلب شراء جديد!\n` +
+          `المنصة: ${platform.toUpperCase()}\n` +
           `الزبون: @${currentUserProfile ? currentUserProfile.username : 'زائر'}\n` +
           `الخدمة: ${service.title} (${selectedPkg.name})\n` +
           `المعرف: ${target}\n` +
@@ -1520,7 +1498,6 @@
         console.error('Order logging error:', err);
       }
 
-      // تجهيز نص الرسالة للزبون
       const messageText = 
         `السلام عليكم، أود إتمام طلب من موقع Anas Store 🚀\n\n` +
         `📦 الخدمة: ${service.title}\n` +
@@ -1548,7 +1525,6 @@
       toggleSidebar();
     }
 
-    // --- Orders History ---
     function openOrdersModal() {
       document.getElementById('orders-modal').style.display = 'flex';
       toggleSidebar();
@@ -1574,26 +1550,25 @@
           box.innerHTML += `
             <div class="order-history-card">
               <div style="display:flex; justify-content:space-between;">
-                <strong>${ord.serviceTitle} (${ord.packageName})</strong>
+                <strong>${escapeHtml(ord.serviceTitle)} (${escapeHtml(ord.packageName)})</strong>
                 <span>${stBadge}</span>
               </div>
-              <div style="color:var(--text-muted); margin:4px 0;">القيمة: $${ord.costUsd.toFixed(2)} | الحساب: ${ord.targetInfo}</div>
+              <div style="color:var(--text-muted); margin:4px 0;">القيمة: $${ord.costUsd.toFixed(2)} | الحساب: ${escapeHtml(ord.targetInfo)}</div>
               ${ord.deliveredCode ? `
                 <div style="background:#0b0f19; padding:6px 10px; border-radius:6px; margin-top:5px; border:1px dashed #10b981;">
                   <span style="color:#10b981; font-weight:bold;">📦 الكود المسلم:</span> 
-                  <strong style="color:#fff; user-select:all;">${ord.deliveredCode}</strong>
-                  <span class="copy-chip" onclick="copyText('${ord.deliveredCode}')">نسخ</span>
+                  <strong style="color:#fff; user-select:all;">${escapeHtml(ord.deliveredCode)}</strong>
+                  <span class="copy-chip" onclick="copyText('${escapeHtml(ord.deliveredCode)}')">نسخ</span>
                 </div>
               ` : ''}
             </div>
           `;
         });
       }, (err) => {
-        document.getElementById('my-orders-list').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر تحميل الطلبات: ${err.message}</p>`;
+        document.getElementById('my-orders-list').innerHTML = `<p style="color:var(--danger); text-align:center;">تعذر تحميل الطلبات: ${escapeHtml(err.message)}</p>`;
       });
     }
 
-    // --- Affiliate System ---
     function openAffiliateModal() {
       document.getElementById('affiliate-modal').style.display = 'flex';
       toggleSidebar();
@@ -1606,7 +1581,6 @@
       });
     }
 
-    // --- Tickets Support ---
     function openTicketsModal() {
       document.getElementById('tickets-modal').style.display = 'flex';
       toggleSidebar();
@@ -1627,11 +1601,11 @@
           box.innerHTML += `
             <div class="ticket-card">
               <div style="display:flex; justify-content:space-between;">
-                <strong>${t.subject}</strong>
+                <strong>${escapeHtml(t.subject)}</strong>
                 <span>${t.status === 'answered' ? '✅ تم الرد' : '⏳ قيد المراجعة'}</span>
               </div>
-              <div style="color:var(--text-muted); margin:4px 0;">${t.message}</div>
-              ${t.reply ? `<div style="background:#0b0f19; padding:5px 8px; border-radius:6px; color:#38bdf8;"><strong>رد الإدارة:</strong> ${t.reply}</div>` : ''}
+              <div style="color:var(--text-muted); margin:4px 0;">${escapeHtml(t.message)}</div>
+              ${t.reply ? `<div style="background:#0b0f19; padding:5px 8px; border-radius:6px; color:#38bdf8;"><strong>رد الإدارة:</strong> ${escapeHtml(t.reply)}</div>` : ''}
             </div>
           `;
         });
@@ -1657,7 +1631,7 @@
       document.getElementById('ticket-subject').value = '';
       document.getElementById('ticket-msg').value = '';
       showToast('✅ تم فتح التذكرة بنجاح');
-      sendTelegramNotification(`🎫 تذكرة دعم فني جديدة!\nالزبون: @${currentUserProfile.username}\nالموضوع: ${subject}`);
+      sendTelegramNotification(`🎫 تذكرة جديدة!\nالزبون: @${currentUserProfile.username}\nالموضوع: ${subject}`);
     }
 
     function copyText(val) {

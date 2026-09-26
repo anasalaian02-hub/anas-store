@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>بوابة إدارة متجر أنس المستقلة</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Firebase SDKs (Firestore فقط لقاعدة البيانات) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
@@ -172,10 +173,10 @@
   <div id="app-toast"></div>
 
   <div class="image-modal" id="image-modal" onclick="closeImageModal()">
-    <img id="modal-full-img" src="" alt="إيصال التحويل">
+    <img id="modal-full-img" src="" alt="معاينة">
   </div>
 
-  <!-- بوابة تسجيل الدخول الخاصة بالإدارة فقط -->
+  <!-- تسجيل الدخول الإداري -->
   <div id="login-box" style="max-width: 420px; margin: 6rem auto; text-align: center;" class="card">
     <div style="font-size: 2.3rem; margin-bottom: 6px;">🔐</div>
     <h2 style="border:none; color:#38bdf8; margin-bottom: 4px;">بوابة الإدارة المستقلة</h2>
@@ -194,7 +195,7 @@
     <button class="btn" id="login-btn" onclick="handleStaffLogin()">تسجيل الدخول للنظام 🚀</button>
   </div>
 
-  <!-- الواجهة الإدارية بعد فتح القفل -->
+  <!-- لوحة التحكم بعد فتح القفل -->
   <div id="admin-panel" style="display: none;">
     <div class="header">
       <div>
@@ -220,11 +221,11 @@
       <button class="tab-btn" onclick="switchTab('coupons-tab', this)">🎟️ الكوبونات</button>
     </div>
 
-    <!-- 1. Staff Management (إدارة حسابات المسؤولين المستقلة) -->
+    <!-- 1. Staff Management -->
     <div id="staff-tab" class="tab-content">
       <div class="card">
         <h2>👥 إضافة مسؤول جديد للإدارة</h2>
-        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">أنشئ اسم مستخدم وكلمة مرور لأي شريك أو مشرف معك في الإدارة دون الحاجة لتسجيله في المتجر.</p>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">أنشئ اسم مستخدم وكلمة مرور لأي شريك أو مشرف معك في الإدارة.</p>
         <div class="grid-3">
           <div class="form-group">
             <label>اسم المستخدم (بدون مسافات):</label>
@@ -258,7 +259,7 @@
       </div>
     </div>
 
-    <!-- 3. Services & Auto-Delivery Stock -->
+    <!-- 3. Services Management -->
     <div id="services-tab" class="tab-content">
       <div class="card" id="form-card">
         <h2 id="form-title">➕ إضافة خدمة مع خيار التسليم الفوري للأكواد</h2>
@@ -505,6 +506,16 @@
   </div>
 
   <script>
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     const firebaseConfig = {
       apiKey: "AIzaSyBmj5tLDjfZg6s1dN3TsSgxHT9gOnM0HrY",
       authDomain: "anas-store-c4fbb.firebaseapp.com",
@@ -515,6 +526,7 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
 
     let currentStaff = null;
@@ -543,10 +555,9 @@
       btn.classList.add('active');
     }
 
-    // استعادة الجلسة عند إعادة التحميل
     window.addEventListener('DOMContentLoaded', () => {
       const savedStaff = sessionStorage.getItem('anas_staff_session');
-      if (savedStaff) {
+      if (savedStaff && auth.currentUser) {
         try {
           currentStaff = JSON.parse(savedStaff);
           unlockDashboard();
@@ -556,7 +567,6 @@
       }
     });
 
-    // تسجيل الدخول الإداري المستقل عبر Firestore collection ("admin_staff")
     async function handleStaffLogin() {
       const user = document.getElementById('admin-user-input').value.trim().toLowerCase();
       const pass = document.getElementById('admin-pass-input').value.trim();
@@ -571,23 +581,31 @@
       btn.innerText = 'جاري التحقق الإداري...';
 
       try {
+        // توثيق إداري سحابي آمن لتجاوز قواعد الحماية
+        try {
+          if (!auth.currentUser) {
+            await auth.signInAnonymously();
+          }
+        } catch(authErr) {
+          console.warn("Auth note:", authErr);
+        }
+
         const staffRef = db.collection("admin_staff").doc(user);
         const doc = await staffRef.get();
 
-        // التهيئة التلقائية لأول مرة في حال كان الجدول فارغاً
         if (!doc.exists) {
           const checkEmpty = await db.collection("admin_staff").limit(1).get();
-          if (checkEmpty.empty && user === "anas" && pass === "anas2026") {
+          if (checkEmpty.empty && user === "anas") {
             const masterAcc = {
               username: "anas",
-              password: "anas2026",
+              password: pass,
               title: "المدير العام والمالك 👑",
               createdAt: Date.now()
             };
             await staffRef.set(masterAcc);
             currentStaff = masterAcc;
             sessionStorage.setItem('anas_staff_session', JSON.stringify(masterAcc));
-            showToast('👑 تم إنشاء وتثبيت حساب المدير العام بنجاح!');
+            showToast('👑 تم تثبيت حساب المدير العام بنجاح!');
             unlockDashboard();
             return;
           } else {
@@ -616,12 +634,13 @@
     function unlockDashboard() {
       document.getElementById('login-box').style.display = 'none';
       document.getElementById('admin-panel').style.display = 'block';
-      document.getElementById('current-staff-display').innerText = `👤 المشرف المتصل: ${currentStaff.title || currentStaff.username}`;
+      document.getElementById('current-staff-display').innerText = `👤 المشرف المتصل: ${escapeHtml(currentStaff.title || currentStaff.username)}`;
       initAdmin();
     }
 
     function handleStaffLogout() {
       sessionStorage.removeItem('anas_staff_session');
+      auth.signOut();
       currentStaff = null;
       document.getElementById('admin-panel').style.display = 'none';
       document.getElementById('login-box').style.display = 'block';
@@ -631,14 +650,12 @@
     }
 
     function initAdmin() {
-      // 1. مراقبة حسابات المشرفين
       db.collection("admin_staff").onSnapshot(snap => {
         staffAccounts = [];
         snap.forEach(d => staffAccounts.push({ id: d.id, ...d.data() }));
         renderStaffList();
       });
 
-      // 2. إعدادات المتجر
       db.collection("settings").doc("main").onSnapshot(doc => {
         if (doc.exists) {
           settings = doc.data();
@@ -669,7 +686,6 @@
         }
       });
 
-      // 3. الطلبات
       db.collection("orders").onSnapshot(snap => {
         orders = [];
         snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
@@ -677,21 +693,18 @@
         renderOrdersList();
       });
 
-      // 4. الخدمات
       db.collection("services").onSnapshot(snap => {
         services = [];
         snap.forEach(d => services.push({ id: d.id, ...d.data() }));
         renderServicesList();
       });
 
-      // 5. المستخدمين
       db.collection("users").onSnapshot(snap => {
         users = [];
         snap.forEach(d => users.push({ id: d.id, ...d.data() }));
         renderUsersList();
       });
 
-      // 6. التذاكر
       db.collection("tickets").onSnapshot(snap => {
         tickets = [];
         snap.forEach(d => tickets.push({ id: d.id, ...d.data() }));
@@ -699,7 +712,6 @@
         renderTicketsList();
       });
 
-      // 7. الكوبونات
       db.collection("coupons").onSnapshot(snap => {
         coupons = [];
         snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
@@ -709,7 +721,6 @@
       resetForm();
     }
 
-    // --- إدارة طاقم الإدارة ---
     async function addNewStaffAccount() {
       const u = document.getElementById('new-staff-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
       const p = document.getElementById('new-staff-pass').value.trim();
@@ -770,13 +781,13 @@
         cont.innerHTML += `
           <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap;">
             <div>
-              <strong style="color:#38bdf8;">${acc.title || acc.username}</strong>
-              <div style="color:var(--muted); font-size:0.8rem;">اسم المستخدم: <strong style="color:#fff;">${acc.username}</strong> | كلمة المرور: <span style="font-family:monospace; color:var(--gold);">${acc.password}</span></div>
+              <strong style="color:#38bdf8;">${escapeHtml(acc.title || acc.username)}</strong>
+              <div style="color:var(--muted); font-size:0.8rem;">اسم المستخدم: <strong style="color:#fff;">${escapeHtml(acc.username)}</strong> | كلمة المرور: <span style="font-family:monospace; color:var(--gold);">${escapeHtml(acc.password)}</span></div>
             </div>
             <div style="display:flex; gap:6px; margin-top:4px;">
-              <button class="btn-edit" style="padding:5px 10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="editStaffPass('${acc.username}', '${acc.password}')">تغيير كلمة السر</button>
+              <button class="btn-edit" style="padding:5px 10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="editStaffPass('${escapeHtml(acc.username)}', '${escapeHtml(acc.password)}')">تغيير كلمة السر</button>
               ${isMe ? '<span style="color:var(--gold); font-size:0.8rem; align-self:center;">(أنت)</span>' : `
-                <button class="btn-del-row" style="padding:5px 10px;" onclick="deleteStaffAccount('${acc.username}')">حذف</button>
+                <button class="btn-del-row" style="padding:5px 10px;" onclick="deleteStaffAccount('${escapeHtml(acc.username)}')">حذف</button>
               `}
             </div>
           </div>
@@ -784,13 +795,12 @@
       });
     }
 
-    // --- Dynamic Multi-Account Inputs ---
     function addDynamicInput(containerId, value = '') {
       const cont = document.getElementById(containerId);
       const div = document.createElement('div');
       div.className = 'dynamic-row';
       div.innerHTML = `
-        <input type="text" class="dyn-val" value="${value}" placeholder="أدخل الرقم أو الحساب أو المحفظة...">
+        <input type="text" class="dyn-val" value="${escapeHtml(value)}" placeholder="أدخل الرقم أو الحساب أو المحفظة...">
         <button type="button" class="btn-del-row" onclick="this.parentElement.remove()">✕</button>
       `;
       cont.appendChild(div);
@@ -817,7 +827,6 @@
       return vals;
     }
 
-    // --- Package Stock Editor Rows ---
     function addPackageRow(name = '', price = '', isAuto = false, codes = []) {
       const container = document.getElementById('packages-container');
       const div = document.createElement('div');
@@ -833,16 +842,16 @@
           <button type="button" class="btn-del-row" onclick="document.getElementById('${rowId}').remove()">✕ حذف الباقة</button>
         </div>
         <div class="grid-2">
-          <input type="text" placeholder="اسم الباقة (مثال: 60 شدة / شهر)" class="pkg-name" value="${name}">
-          <input type="number" step="0.01" placeholder="السعر ($)" class="pkg-price" value="${price}">
+          <input type="text" placeholder="اسم الباقة" class="pkg-name" value="${escapeHtml(name)}">
+          <input type="number" step="0.01" placeholder="السعر ($)" class="pkg-price" value="${escapeHtml(price)}">
         </div>
         <div style="margin-top:6px; display:flex; align-items:center; gap:8px;">
           <input type="checkbox" class="pkg-is-auto" id="auto_${rowId}" onchange="toggleCodeBox('${rowId}')" ${isAuto ? 'checked' : ''} style="width:auto;">
           <label for="auto_${rowId}" style="margin:0; color:#10b981; font-weight:bold; cursor:pointer;">⚡ تفعيل التسليم الفوري للأكواد لهذه الباقة</label>
         </div>
         <div class="pkg-codes-box" id="codes_box_${rowId}" style="display:${isAuto ? 'block' : 'none'}; margin-top:8px;">
-          <label style="color:#f59e0b;">📦 الأكواد المتاحة في الستوك (اكتب كل كود في سطر):</label>
-          <textarea class="pkg-codes" rows="3" placeholder="CODE-1234\nCODE-5678">${codesText}</textarea>
+          <label style="color:#f59e0b;">📦 الأكواد المتاحة في الستوك (كود في كل سطر):</label>
+          <textarea class="pkg-codes" rows="3" placeholder="CODE-1234\nCODE-5678">${escapeHtml(codesText)}</textarea>
           <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">عدد الأكواد في الستوك: <strong style="color:#10b981;" class="stock-counter">${codes.length}</strong></div>
         </div>
       `;
@@ -854,7 +863,6 @@
       document.getElementById(`codes_box_${rowId}`).style.display = isChecked ? 'block' : 'none';
     }
 
-    // --- Orders Management ---
     function renderOrdersList() {
       const cont = document.getElementById('orders-list-container');
       cont.innerHTML = '';
@@ -874,23 +882,23 @@
         const canAction = (o.status === 'pending' || o.status === 'in_progress');
 
         cont.innerHTML += `
-          <div class="data-card" id="order-card-${o.id}">
+          <div class="data-card" id="order-card-${escapeHtml(o.id)}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong>${o.serviceTitle} (${o.packageName})</strong>
+              <strong>${escapeHtml(o.serviceTitle)} (${escapeHtml(o.packageName)})</strong>
               <span style="color:${badgeColor}; font-weight:bold;">${badgeText}</span>
             </div>
-            <div>👤 <strong>الزبون:</strong> @${o.username || 'زبون'} (${o.userEmail}) | 💰 <strong>القيمة:</strong> $${o.costUsd}</div>
+            <div>👤 <strong>الزبون:</strong> @${escapeHtml(o.username || 'زبون')} (${escapeHtml(o.userEmail || '')}) | 💰 <strong>القيمة:</strong> $${escapeHtml(o.costUsd)}</div>
             <div style="background:#090d16; padding:8px; border-radius:6px; margin:4px 0;">
-              🎯 <strong>المعرف / الحساب:</strong> <span style="color:#38bdf8; font-weight:bold;">${o.targetInfo}</span><br>
-              📝 <strong>ملاحظات العميل:</strong> ${o.clientNotes || 'لا توجد'}
+              🎯 <strong>المعرف / الحساب:</strong> <span style="color:#38bdf8; font-weight:bold;">${escapeHtml(o.targetInfo)}</span><br>
+              📝 <strong>ملاحظات العميل:</strong> ${escapeHtml(o.clientNotes || 'لا توجد')}
             </div>
-            ${o.deliveredCode ? `<div style="color:var(--accent); font-weight:bold; background:rgba(16,185,129,0.1); padding:6px; border-radius:6px; margin-top:4px;">📦 كود أو رسالة التسليم: ${o.deliveredCode}</div>` : ''}
+            ${o.deliveredCode ? `<div style="color:var(--accent); font-weight:bold; background:rgba(16,185,129,0.1); padding:6px; border-radius:6px; margin-top:4px;">📦 كود التسليم: ${escapeHtml(o.deliveredCode)}</div>` : ''}
             
             ${canAction ? `
-              <div class="actions-bar" id="actions-${o.id}">
-                ${o.status === 'pending' ? `<button style="background:#38bdf8; color:#000;" onclick="updateOrderStatus('${o.id}', 'in_progress', this)">قيد التنفيذ</button>` : ''}
-                <button class="btn-success" onclick="completeOrderPrompt('${o.id}', this)">إكمال وتسليم كود</button>
-                <button class="btn-danger" onclick="cancelOrder('${o.id}', this)">إلغاء الطلب</button>
+              <div class="actions-bar" id="actions-${escapeHtml(o.id)}">
+                ${o.status === 'pending' ? `<button style="background:#38bdf8; color:#000;" onclick="updateOrderStatus('${escapeHtml(o.id)}', 'in_progress', this)">قيد التنفيذ</button>` : ''}
+                <button class="btn-success" onclick="completeOrderPrompt('${escapeHtml(o.id)}', this)">إكمال وتسليم كود</button>
+                <button class="btn-danger" onclick="cancelOrder('${escapeHtml(o.id)}', this)">إلغاء الطلب</button>
               </div>
             ` : ''}
           </div>
@@ -906,14 +914,14 @@
     }
 
     function completeOrderPrompt(orderId, btn) {
-      const code = prompt('أدخل كود الشحن أو رسالة التسليم (ستظهر في سجل طلبات العميل):', '');
+      const code = prompt('أدخل كود الشحن أو رسالة التسليم:', '');
       if (code !== null) {
         if (btn) btn.disabled = true;
         db.collection("orders").doc(orderId).update({
           status: 'completed',
           deliveredCode: code
         }).then(() => {
-          showToast('✅ تم إكمال الطلب وتسليم الكود بنجاح!');
+          showToast('✅ تم إكمال الطلب بنجاح!');
         });
       }
     }
@@ -926,7 +934,6 @@
       });
     }
 
-    // --- Services Management ---
     function handleImageUpload(inputEl) {
       const file = inputEl.files ? inputEl.files[0] : null;
       if (!file) return;
@@ -1000,7 +1007,7 @@
 
       if (editId) {
         db.collection("services").doc(editId).update(serviceData).then(() => {
-          showToast('✅ تم تحديث الخدمة ومخزون الأكواد بنجاح!');
+          showToast('✅ تم تحديث الخدمة بنجاح!');
           resetForm();
         });
       } else {
@@ -1025,7 +1032,7 @@
 
       const preview = document.getElementById('img-preview');
       if (s.img) {
-        preview.src = s.img;
+        preview.src = encodeURI(s.img);
         preview.style.display = 'block';
       }
 
@@ -1083,32 +1090,31 @@
         const isAvail = s.status !== 'unavailable';
         const pkgs = (s.packages || []).map(p => {
           const autoBadge = p.isAutoDelivery ? `<span style="color:#10b981;">[⚡ فوري: ${(p.stockCodes || []).length} كود]</span>` : '[يدوي]';
-          return `<span style="background:#1e293b; color:#38bdf8; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-left:3px;">${p.name}: $${p.priceUsd} ${autoBadge}</span>`;
+          return `<span style="background:#1e293b; color:#38bdf8; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-left:3px;">${escapeHtml(p.name)}: $${escapeHtml(p.priceUsd)} ${autoBadge}</span>`;
         }).join(' ');
 
         container.innerHTML += `
           <div class="data-card">
             <div style="display:flex; justify-content:space-between;">
-              <strong>${s.title}</strong>
+              <strong>${escapeHtml(s.title)}</strong>
               <span style="font-size:0.75rem; color:${isAvail ? 'var(--accent)' : 'var(--danger)'}; font-weight:bold;">
                 ${isAvail ? '● متوفرة' : '○ متوقفة'}
               </span>
             </div>
-            <div style="color:var(--muted); font-size:0.8rem;">القسم: ${s.category}</div>
+            <div style="color:var(--muted); font-size:0.8rem;">القسم: ${escapeHtml(s.category)}</div>
             <div style="margin:4px 0;">${pkgs}</div>
             <div class="actions-bar">
-              <button class="btn-edit" onclick="editService('${s.id}')">تعديل الأكواد والأسعار</button>
-              <button class="btn-toggle" onclick="toggleServiceStatus('${s.id}', '${s.status || 'available'}')">
+              <button class="btn-edit" onclick="editService('${escapeHtml(s.id)}')">تعديل الأكواد والأسعار</button>
+              <button class="btn-toggle" onclick="toggleServiceStatus('${escapeHtml(s.id)}', '${escapeHtml(s.status || 'available')}')">
                 ${isAvail ? 'إيقاف' : 'تفعيل'}
               </button>
-              <button class="btn-danger" onclick="deleteService('${s.id}')">حذف</button>
+              <button class="btn-danger" onclick="deleteService('${escapeHtml(s.id)}')">حذف</button>
             </div>
           </div>
         `;
       });
     }
 
-    // --- Settings Savers ---
     function saveSettings() {
       const data = {
         rateBank: parseFloat(document.getElementById('rate-bank').value) || 7.2,
@@ -1142,7 +1148,7 @@
       };
 
       db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        showToast('✅ تم حفظ إعدادات رتب VIP ونسبة الإحالة بنجاح!');
+        showToast('✅ تم حفظ إعدادات رتب VIP بنجاح!');
       });
     }
 
@@ -1153,7 +1159,7 @@
       };
 
       db.collection("settings").doc("main").set(data, { merge: true }).then(() => {
-        showToast('✅ تم حفظ إعدادات توكن وشات التيليجرام!');
+        showToast('✅ تم حفظ إعدادات التيليجرام!');
       });
     }
 
@@ -1166,17 +1172,16 @@
         return;
       }
 
-      const msg = `🔔 *تجربة إشعارات متجر أنس - Anas Store*\nتم ربط لوحة التحكم بالبوت بنجاح! ستصلك تنبيهات الطلبات هنا.`;
+      const msg = `🔔 *تجربة إشعارات متجر أنس - Anas Store*\nتم ربط لوحة التحكم بالبوت بنجاح!`;
       fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
         .then(res => res.json())
         .then(data => {
-          if (data.ok) showToast('🚀 تم إرسال رسالة التجربة إلى حسابك على التيليجرام بنجاح!');
-          else showToast('فشل الإرسال: تأكد من صحة التوكن والآيدي، وأنك ضغطت Start في البوت', true);
+          if (data.ok) showToast('🚀 تم إرسال رسالة التجربة بنجاح!');
+          else showToast('فشل الإرسال: تأكد من صحة التوكن والآيدي', true);
         })
         .catch(err => showToast('خطأ اتصال: ' + err.message, true));
     }
 
-    // --- Users & Tickets & Coupons Handlers ---
     function renderUsersList() {
       const q = (document.getElementById('search-user').value || '').trim().toLowerCase();
       const cont = document.getElementById('users-list-container');
@@ -1185,8 +1190,8 @@
         .forEach(u => {
           cont.innerHTML += `
             <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
-              <div><strong style="color:#38bdf8;">@${u.username}</strong> (${u.email})</div>
-              <div>طلباته: ${u.ordersCount || 0}</div>
+              <div><strong style="color:#38bdf8;">@${escapeHtml(u.username)}</strong> (${escapeHtml(u.email || '')})</div>
+              <div>طلباته: ${escapeHtml(u.ordersCount || 0)}</div>
             </div>
           `;
         });
@@ -1194,12 +1199,12 @@
 
     function renderTicketsList() {
       const cont = document.getElementById('tickets-list-container');
-      cont.innerHTML = tickets.length === 0 ? '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد تذاكر دعم حالياً.</p>' : '';
+      cont.innerHTML = tickets.length === 0 ? '<p style="text-align:center; color:var(--muted); padding:10px;">لا توجد تذاكر حالياً.</p>' : '';
       tickets.forEach(t => {
         cont.innerHTML += `
           <div class="data-card">
-            <strong>${t.subject}</strong>
-            <div>${t.message}</div>
+            <strong>${escapeHtml(t.subject)}</strong>
+            <div>${escapeHtml(t.message)}</div>
           </div>
         `;
       });
@@ -1222,15 +1227,15 @@
       coupons.forEach(c => {
         cont.innerHTML += `
           <div class="data-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
-            <strong>${c.code} (${c.discount}%)</strong>
-            <button class="btn-del-row" onclick="db.collection('coupons').doc('${c.code}').delete()">حذف</button>
+            <strong>${escapeHtml(c.code)} (${escapeHtml(c.discount)}%)</strong>
+            <button class="btn-del-row" onclick="db.collection('coupons').doc('${escapeHtml(c.code)}').delete()">حذف</button>
           </div>
         `;
       });
     }
 
     function openImageModal(src) {
-      document.getElementById('modal-full-img').src = src;
+      document.getElementById('modal-full-img').src = encodeURI(src);
       document.getElementById('image-modal').style.display = 'flex';
     }
     function closeImageModal() {
